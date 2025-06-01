@@ -1,12 +1,13 @@
 import {
 	Sidebar, SidebarContent, SidebarGroup, SidebarProvider,
 	SidebarTrigger, SidebarGroupLabel, SidebarGroupContent, SidebarMenu,
-	SidebarMenuItem, SidebarMenuButton
+	SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar.tsx";
 import {Separator} from "@/components/ui/separator.tsx";
 import {Calendar, Home, Inbox, Search, Settings} from "lucide-react"
 import * as React from "react";
 import {Link} from "@tanstack/react-router";
+import {Button} from "@/components/ui/button.tsx";
 
 const items = [
 	{
@@ -39,6 +40,9 @@ const items = [
 export function AppSidebar() {
 	return (
 		<Sidebar variant="sidebar">
+			<SidebarHeader>
+				Habit Tracker
+			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
 					<SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -58,6 +62,10 @@ export function AppSidebar() {
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
+			<SidebarFooter>
+				<Button variant="outline">Add Habit</Button>
+				<Button variant="outline">Profile</Button>
+			</SidebarFooter>
 		</Sidebar>
 	)
 }

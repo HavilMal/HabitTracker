@@ -1,5 +1,4 @@
-import {CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis} from "recharts"
-
+import {CartesianGrid, Line, LineChart, XAxis} from "recharts"
 import {
 	Card,
 	CardContent,
@@ -16,6 +15,7 @@ import {
 
 export const description = "A line chart"
 
+// todo temporary
 const chartData = [
 	{month: "January", desktop: 186},
 	{month: "February", desktop: 305},
@@ -32,7 +32,7 @@ const chartConfig = {
 	},
 } satisfies ChartConfig
 
-export function ChartLineDefault() {
+export function LineplotCard() {
 	return (
 		<Card className="flex flex-1">
 			<CardHeader>
@@ -40,8 +40,7 @@ export function ChartLineDefault() {
 				<CardDescription>January - June 2024</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-1">
-				<ChartContainer config={chartConfig}>
-					<ResponsiveContainer width="100%" height="100%">
+				<ChartContainer className="w-full h-full" config={chartConfig}>
 						<LineChart
 							accessibilityLayer
 							data={chartData}
@@ -70,17 +69,8 @@ export function ChartLineDefault() {
 								dot={false}
 							/>
 						</LineChart>
-					</ResponsiveContainer>
 				</ChartContainer>
 			</CardContent>
-			{/*<CardFooter className="flex-col items-start gap-2 text-sm">*/}
-			{/*	<div className="flex gap-2 leading-none font-medium">*/}
-			{/*		Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />*/}
-			{/*	</div>*/}
-			{/*	<div className="text-muted-foreground leading-none">*/}
-			{/*		Showing total visitors for the last 6 months*/}
-			{/*	</div>*/}
-			{/*</CardFooter>*/}
 		</Card>
 	)
 }
