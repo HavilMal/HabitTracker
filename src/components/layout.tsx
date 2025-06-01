@@ -63,8 +63,8 @@ export function AppSidebar() {
 }
 
 export default function Layout({
-	                children
-                }: {
+	                               children
+                               }: {
 	children: React.ReactNode
 }) {
 	return (
