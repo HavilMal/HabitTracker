@@ -4,10 +4,11 @@ import {
 	SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar.tsx";
 import {Separator} from "@/components/ui/separator.tsx";
-import {Calendar, Home, Inbox, Search, Settings} from "lucide-react"
+import {Home, CookingPot, Dumbbell, RefreshCcw, GlassWater} from "lucide-react"
 import * as React from "react";
 import {Link} from "@tanstack/react-router";
 import {Button} from "@/components/ui/button.tsx";
+import {ModeToggle} from "@/components/mode-toggle.tsx";
 
 const items = [
 	{
@@ -18,22 +19,22 @@ const items = [
 	{
 		title: "Habit",
 		url: "/habit",
-		icon: Inbox,
+		icon: RefreshCcw,
 	},
 	{
 		title: "Activity",
 		url: "/activity",
-		icon: Calendar,
+		icon: Dumbbell,
 	},
 	{
 		title: "Meals",
 		url: "/meals",
-		icon: Search,
+		icon: CookingPot,
 	},
 	{
 		title: "Water",
 		url: "/water",
-		icon: Settings,
+		icon: GlassWater,
 	},
 ]
 
@@ -85,6 +86,7 @@ export default function Layout({
 						orientation="vertical"
 						className="mr-2 data-[orientation=vertical]:h-4"
 					/>
+					<ModeToggle className="ml-auto"/>
 				</header>
 				{children}
 			</main>
