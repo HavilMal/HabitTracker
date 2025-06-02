@@ -11,9 +11,37 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as WaterImport } from './routes/water'
+import { Route as MealsImport } from './routes/meals'
+import { Route as HabitImport } from './routes/habit'
+import { Route as ActivityImport } from './routes/activity'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const WaterRoute = WaterImport.update({
+  id: '/water',
+  path: '/water',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const MealsRoute = MealsImport.update({
+  id: '/meals',
+  path: '/meals',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const HabitRoute = HabitImport.update({
+  id: '/habit',
+  path: '/habit',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ActivityRoute = ActivityImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -32,6 +60,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/activity': {
+      id: '/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof ActivityImport
+      parentRoute: typeof rootRoute
+    }
+    '/habit': {
+      id: '/habit'
+      path: '/habit'
+      fullPath: '/habit'
+      preLoaderRoute: typeof HabitImport
+      parentRoute: typeof rootRoute
+    }
+    '/meals': {
+      id: '/meals'
+      path: '/meals'
+      fullPath: '/meals'
+      preLoaderRoute: typeof MealsImport
+      parentRoute: typeof rootRoute
+    }
+    '/water': {
+      id: '/water'
+      path: '/water'
+      fullPath: '/water'
+      preLoaderRoute: typeof WaterImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -39,32 +95,52 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/habit': typeof HabitRoute
+  '/meals': typeof MealsRoute
+  '/water': typeof WaterRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/habit': typeof HabitRoute
+  '/meals': typeof MealsRoute
+  '/water': typeof WaterRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/habit': typeof HabitRoute
+  '/meals': typeof MealsRoute
+  '/water': typeof WaterRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/activity' | '/habit' | '/meals' | '/water'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/activity' | '/habit' | '/meals' | '/water'
+  id: '__root__' | '/' | '/activity' | '/habit' | '/meals' | '/water'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActivityRoute: typeof ActivityRoute
+  HabitRoute: typeof HabitRoute
+  MealsRoute: typeof MealsRoute
+  WaterRoute: typeof WaterRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActivityRoute: ActivityRoute,
+  HabitRoute: HabitRoute,
+  MealsRoute: MealsRoute,
+  WaterRoute: WaterRoute,
 }
 
 export const routeTree = rootRoute
@@ -77,11 +153,27 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/activity",
+        "/habit",
+        "/meals",
+        "/water"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/activity": {
+      "filePath": "activity.tsx"
+    },
+    "/habit": {
+      "filePath": "habit.tsx"
+    },
+    "/meals": {
+      "filePath": "meals.tsx"
+    },
+    "/water": {
+      "filePath": "water.tsx"
     }
   }
 }
