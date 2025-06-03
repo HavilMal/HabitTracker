@@ -3,7 +3,7 @@ import {LineplotCard} from "@/components/lineplot.tsx";
 import CalendarCard from "@/components/calendar.tsx";
 import ItemListCard from "@/components/completed-list.tsx";
 
-export const Route = createFileRoute('/habit')({
+export const Route = createFileRoute('/_authenticated/habit')({
 	component: RouteComponent,
 })
 

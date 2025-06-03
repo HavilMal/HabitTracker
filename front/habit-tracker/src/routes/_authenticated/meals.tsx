@@ -1,6 +1,6 @@
 import {createFileRoute} from '@tanstack/react-router'
 
-export const Route = createFileRoute('/water')({
+export const Route = createFileRoute('/_authenticated/meals')({
 	component: RouteComponent,
 })
 

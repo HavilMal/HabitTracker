@@ -7,11 +7,14 @@ import {routeTree} from './routeTree.gen'
 
 import './styles.css'
 import reportWebVitals from './reportWebVitals.ts'
+import {AuthProvider, useAuth} from "@/hooks/auth.tsx";
 
 // Create a new router instance
 const router = createRouter({
 	routeTree,
-	context: {},
+	context: {
+		auth: undefined!,
+	},
 	defaultPreload: 'intent',
 	scrollRestoration: true,
 	defaultStructuralSharing: true,
@@ -25,13 +28,28 @@ declare module '@tanstack/react-router' {
 	}
 }
 
+function App() {
+	const auth = useAuth()
+	return (
+		<RouterProvider router={router} context={{auth}}></RouterProvider>
+	)
+}
+
+function AppWrapper() {
+	return (
+		<AuthProvider>
+			<App/>
+		</AuthProvider>
+	)
+}
+
 // Render the app
 const rootElement = document.getElementById('app')
 if (rootElement && !rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement)
 	root.render(
 		<StrictMode>
-			<RouterProvider router={router}/>
+			<AppWrapper />
 		</StrictMode>,
 	)
 }

@@ -6,10 +6,11 @@ import {
 import {Separator} from "@/components/ui/separator.tsx";
 import {Home, CookingPot, Dumbbell, RefreshCcw, GlassWater} from "lucide-react"
 import * as React from "react";
-import {Link} from "@tanstack/react-router";
+import {Link, useNavigate, useRouter} from "@tanstack/react-router";
 import {Button} from "@/components/ui/button.tsx";
 import {ModeToggle} from "@/components/mode-toggle.tsx";
 import {HabitListTest} from "@/components/habit-list.tsx";
+import {useAuth} from "@/hooks/auth.tsx";
 
 const items = [
 	{
@@ -78,6 +79,20 @@ export default function Layout({
                                }: {
 	children: React.ReactNode
 }) {
+	const auth = useAuth()
+	const router = useRouter()
+	const navigate = useNavigate()
+
+
+	async function handleLogout() {
+		try {
+			await auth.logout()
+			await router.invalidate();
+		} finally {
+			await navigate({to: "/login"});
+		}
+	}
+
 	return (
 		<SidebarProvider>
 			<AppSidebar/>
@@ -88,6 +103,7 @@ export default function Layout({
 						orientation="vertical"
 						className="mr-2 data-[orientation=vertical]:h-4"
 					/>
+					<Button variant="outline" onClick={handleLogout}>Logout</Button>
 					<ModeToggle className="ml-auto"/>
 				</header>
 				{children}
