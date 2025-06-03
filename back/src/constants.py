@@ -1,0 +1,6 @@
+N_TIMES_PER_WEEK = 'n_times_per_week'
+EVERY_N_DAYS = 'every_n_days'
+AT_LEAST = 'at_least'
+AT_MOST = 'at_most'
+DAILY = 'daily'
+WEEKLY = 'weekly'
