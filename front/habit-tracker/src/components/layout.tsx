@@ -9,6 +9,7 @@ import * as React from "react";
 import {Link} from "@tanstack/react-router";
 import {Button} from "@/components/ui/button.tsx";
 import {ModeToggle} from "@/components/mode-toggle.tsx";
+import {HabitListTest} from "@/components/habit-list.tsx";
 
 const items = [
 	{
@@ -63,6 +64,7 @@ export function AppSidebar() {
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
+			<HabitListTest/>
 			<SidebarFooter>
 				<Button variant="outline">Add Habit</Button>
 				<Button variant="outline">Profile</Button>
