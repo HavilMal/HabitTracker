@@ -14,8 +14,8 @@ import {useAuth} from "@/hooks/auth.tsx";
 
 const items = [
 	{
-		title: "Home",
-		url: "/",
+		title: "Dashboard",
+		url: "/dashboard",
 		icon: Home,
 	},
 	{

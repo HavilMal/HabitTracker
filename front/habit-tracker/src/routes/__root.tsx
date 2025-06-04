@@ -7,9 +7,9 @@ export const Route = createRootRoute({
 	component: () => (
 		<>
 				<ThemeProvider>
-					<Layout>
+					{/*<Layout>*/}
 						<Outlet/>
-					</Layout>
+					{/*</Layout>*/}
 					{/*<TanStackRouterDevtools />*/}
 				</ThemeProvider>
 		</>

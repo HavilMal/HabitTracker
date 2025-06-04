@@ -17,6 +17,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedWaterImport } from './routes/_authenticated/water'
 import { Route as AuthenticatedMealsImport } from './routes/_authenticated/meals'
 import { Route as AuthenticatedHabitImport } from './routes/_authenticated/habit'
+import { Route as AuthenticatedDashboardImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedActivityImport } from './routes/_authenticated/activity'
 
 // Create/Update Routes
@@ -53,6 +54,12 @@ const AuthenticatedMealsRoute = AuthenticatedMealsImport.update({
 const AuthenticatedHabitRoute = AuthenticatedHabitImport.update({
   id: '/habit',
   path: '/habit',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedDashboardRoute = AuthenticatedDashboardImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 
@@ -94,6 +101,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActivityImport
       parentRoute: typeof AuthenticatedImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardImport
+      parentRoute: typeof AuthenticatedImport
+    }
     '/_authenticated/habit': {
       id: '/_authenticated/habit'
       path: '/habit'
@@ -122,6 +136,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedActivityRoute: typeof AuthenticatedActivityRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHabitRoute: typeof AuthenticatedHabitRoute
   AuthenticatedMealsRoute: typeof AuthenticatedMealsRoute
   AuthenticatedWaterRoute: typeof AuthenticatedWaterRoute
@@ -129,6 +144,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedActivityRoute: AuthenticatedActivityRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHabitRoute: AuthenticatedHabitRoute,
   AuthenticatedMealsRoute: AuthenticatedMealsRoute,
   AuthenticatedWaterRoute: AuthenticatedWaterRoute,
@@ -143,6 +159,7 @@ export interface FileRoutesByFullPath {
   '': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/activity': typeof AuthenticatedActivityRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/habit': typeof AuthenticatedHabitRoute
   '/meals': typeof AuthenticatedMealsRoute
   '/water': typeof AuthenticatedWaterRoute
@@ -153,6 +170,7 @@ export interface FileRoutesByTo {
   '': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/activity': typeof AuthenticatedActivityRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/habit': typeof AuthenticatedHabitRoute
   '/meals': typeof AuthenticatedMealsRoute
   '/water': typeof AuthenticatedWaterRoute
@@ -164,6 +182,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/activity': typeof AuthenticatedActivityRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/habit': typeof AuthenticatedHabitRoute
   '/_authenticated/meals': typeof AuthenticatedMealsRoute
   '/_authenticated/water': typeof AuthenticatedWaterRoute
@@ -171,15 +190,32 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/login' | '/activity' | '/habit' | '/meals' | '/water'
+  fullPaths:
+    | '/'
+    | ''
+    | '/login'
+    | '/activity'
+    | '/dashboard'
+    | '/habit'
+    | '/meals'
+    | '/water'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/login' | '/activity' | '/habit' | '/meals' | '/water'
+  to:
+    | '/'
+    | ''
+    | '/login'
+    | '/activity'
+    | '/dashboard'
+    | '/habit'
+    | '/meals'
+    | '/water'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/login'
     | '/_authenticated/activity'
+    | '/_authenticated/dashboard'
     | '/_authenticated/habit'
     | '/_authenticated/meals'
     | '/_authenticated/water'
@@ -220,6 +256,7 @@ export const routeTree = rootRoute
       "filePath": "_authenticated.tsx",
       "children": [
         "/_authenticated/activity",
+        "/_authenticated/dashboard",
         "/_authenticated/habit",
         "/_authenticated/meals",
         "/_authenticated/water"
@@ -230,6 +267,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/activity": {
       "filePath": "_authenticated/activity.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/dashboard": {
+      "filePath": "_authenticated/dashboard.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/habit": {
