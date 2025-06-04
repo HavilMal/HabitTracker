@@ -12,6 +12,7 @@ class Food():
     fats:      float   # g per 100g
     
     def get_nutrients_for(self, grams: float) -> dict[str, float]:
+        '''Returns info about total nutrients of the food'''
         factor: float = grams / 100.0
         return {
             c.CALORIES: self.calories * factor,
