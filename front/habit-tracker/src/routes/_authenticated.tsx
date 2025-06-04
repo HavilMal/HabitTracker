@@ -10,7 +10,16 @@ export const Route = createFileRoute("/_authenticated")({
 		}
 	},
 	component: AuthenticatedLayout,
+	notFoundComponent: NotFoundAuthenticatedLayout,
 })
+
+function NotFoundAuthenticatedLayout() {
+	return (
+		<Layout>
+			<p>Not found</p>
+		</Layout>
+	)
+}
 
 function AuthenticatedLayout() {
 	return (
