@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import constants as c
 
 
 @dataclass
@@ -13,8 +14,8 @@ class Food():
     def get_nutrients_for(self, grams: float) -> dict[str, float]:
         factor: float = grams / 100.0
         return {
-            'calories': self.calories * factor,
-            'carb':     self.carb * factor,
-            'prot':     self.prot * factor,
-            'fat':      self.fats * factor
+            c.CALORIES: self.calories * factor,
+            c.CARB:     self.carb * factor,
+            c.PROT:     self.prot * factor,
+            c.FAT:      self.fats * factor
         }

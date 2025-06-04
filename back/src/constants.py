@@ -4,3 +4,8 @@ AT_LEAST = 'at_least'
 AT_MOST = 'at_most'
 DAILY = 'daily'
 WEEKLY = 'weekly'
+
+CALORIES = 'calories'
+CARB     = 'carbs'
+PROT     = 'prot'
+FAT      = 'fat'
