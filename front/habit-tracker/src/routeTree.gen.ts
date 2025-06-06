@@ -11,14 +11,62 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as LoginImport } from './routes/login'
+import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
+import { Route as AuthenticatedDashboardImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedWaterIdImport } from './routes/_authenticated/water.$id'
+import { Route as AuthenticatedMealsIdImport } from './routes/_authenticated/meals.$id'
+import { Route as AuthenticatedHabitIdImport } from './routes/_authenticated/habit.$id'
+import { Route as AuthenticatedActivityIdImport } from './routes/_authenticated/activity.$id'
 
 // Create/Update Routes
+
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthenticatedRoute = AuthenticatedImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AuthenticatedDashboardRoute = AuthenticatedDashboardImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedWaterIdRoute = AuthenticatedWaterIdImport.update({
+  id: '/water/$id',
+  path: '/water/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedMealsIdRoute = AuthenticatedMealsIdImport.update({
+  id: '/meals/$id',
+  path: '/meals/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedHabitIdRoute = AuthenticatedHabitIdImport.update({
+  id: '/habit/$id',
+  path: '/habit/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
+const AuthenticatedActivityIdRoute = AuthenticatedActivityIdImport.update({
+  id: '/activity/$id',
+  path: '/activity/$id',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -32,39 +80,158 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedImport
+      parentRoute: typeof rootRoute
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/activity/$id': {
+      id: '/_authenticated/activity/$id'
+      path: '/activity/$id'
+      fullPath: '/activity/$id'
+      preLoaderRoute: typeof AuthenticatedActivityIdImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/habit/$id': {
+      id: '/_authenticated/habit/$id'
+      path: '/habit/$id'
+      fullPath: '/habit/$id'
+      preLoaderRoute: typeof AuthenticatedHabitIdImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/meals/$id': {
+      id: '/_authenticated/meals/$id'
+      path: '/meals/$id'
+      fullPath: '/meals/$id'
+      preLoaderRoute: typeof AuthenticatedMealsIdImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/water/$id': {
+      id: '/_authenticated/water/$id'
+      path: '/water/$id'
+      fullPath: '/water/$id'
+      preLoaderRoute: typeof AuthenticatedWaterIdImport
+      parentRoute: typeof AuthenticatedImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedActivityIdRoute: typeof AuthenticatedActivityIdRoute
+  AuthenticatedHabitIdRoute: typeof AuthenticatedHabitIdRoute
+  AuthenticatedMealsIdRoute: typeof AuthenticatedMealsIdRoute
+  AuthenticatedWaterIdRoute: typeof AuthenticatedWaterIdRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedActivityIdRoute: AuthenticatedActivityIdRoute,
+  AuthenticatedHabitIdRoute: AuthenticatedHabitIdRoute,
+  AuthenticatedMealsIdRoute: AuthenticatedMealsIdRoute,
+  AuthenticatedWaterIdRoute: AuthenticatedWaterIdRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/activity/$id': typeof AuthenticatedActivityIdRoute
+  '/habit/$id': typeof AuthenticatedHabitIdRoute
+  '/meals/$id': typeof AuthenticatedMealsIdRoute
+  '/water/$id': typeof AuthenticatedWaterIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/activity/$id': typeof AuthenticatedActivityIdRoute
+  '/habit/$id': typeof AuthenticatedHabitIdRoute
+  '/meals/$id': typeof AuthenticatedMealsIdRoute
+  '/water/$id': typeof AuthenticatedWaterIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/activity/$id': typeof AuthenticatedActivityIdRoute
+  '/_authenticated/habit/$id': typeof AuthenticatedHabitIdRoute
+  '/_authenticated/meals/$id': typeof AuthenticatedMealsIdRoute
+  '/_authenticated/water/$id': typeof AuthenticatedWaterIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | ''
+    | '/login'
+    | '/dashboard'
+    | '/activity/$id'
+    | '/habit/$id'
+    | '/meals/$id'
+    | '/water/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | ''
+    | '/login'
+    | '/dashboard'
+    | '/activity/$id'
+    | '/habit/$id'
+    | '/meals/$id'
+    | '/water/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/activity/$id'
+    | '/_authenticated/habit/$id'
+    | '/_authenticated/meals/$id'
+    | '/_authenticated/water/$id'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 
 export const routeTree = rootRoute
@@ -77,11 +244,46 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/_authenticated",
+        "/login"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/_authenticated": {
+      "filePath": "_authenticated.tsx",
+      "children": [
+        "/_authenticated/dashboard",
+        "/_authenticated/activity/$id",
+        "/_authenticated/habit/$id",
+        "/_authenticated/meals/$id",
+        "/_authenticated/water/$id"
+      ]
+    },
+    "/login": {
+      "filePath": "login.tsx"
+    },
+    "/_authenticated/dashboard": {
+      "filePath": "_authenticated/dashboard.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/activity/$id": {
+      "filePath": "_authenticated/activity.$id.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/habit/$id": {
+      "filePath": "_authenticated/habit.$id.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/meals/$id": {
+      "filePath": "_authenticated/meals.$id.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/water/$id": {
+      "filePath": "_authenticated/water.$id.tsx",
+      "parent": "/_authenticated"
     }
   }
 }

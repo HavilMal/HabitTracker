@@ -1,36 +1,22 @@
-import { createFileRoute } from '@tanstack/react-router'
-import logo from '../logo.svg'
-import '../App.css'
+import {createFileRoute, Link} from '@tanstack/react-router'
+import {Button} from "@/components/ui/button.tsx";
 
 export const Route = createFileRoute('/')({
-  component: App,
+	component: App,
 })
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/routes/index.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <a
-          className="App-link"
-          href="https://tanstack.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn TanStack
-        </a>
-      </header>
-    </div>
-  )
+	return (
+		<div className="flex flex-1 flex-col gap-4 p-4">
+			<div className="grid auto-rows-min gap-4 md:grid-cols-3">
+				<div className="bg-muted/50 aspect-video rounded-xl"/>
+				<div className="bg-muted/50 aspect-video rounded-xl"/>
+				<div className="bg-muted/50 aspect-video rounded-xl"/>
+			</div>
+			<Button asChild>
+				<Link to="/login">Login</Link>
+			</Button>
+			<div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min"/>
+		</div>
+	)
 }
