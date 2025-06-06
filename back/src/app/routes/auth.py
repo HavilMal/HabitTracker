@@ -28,7 +28,7 @@ def login():
     user = User.query.filter_by(username=data['username']).first()
 
     if not user or not user.check_password(data['password']):
-        return jsonify({"msg": "Bad username or password"}), 401
+        return jsonify({"msg": "Wrong username or password"}), 401
 
     login_user(user)
     return jsonify({"msg": "Logged in successfully"}), 200
