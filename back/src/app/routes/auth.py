@@ -1,5 +1,5 @@
 from flask              import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_login        import login_user, logout_user, login_required, current_user
 from ..models           import User
 from ..                 import db
 
@@ -8,6 +8,7 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
+    '''Registering the user'''
     data = request.get_json()
     if User.query.filter_by(username=data['username']).first():
         return jsonify({"msg": "Username already exists"}), 409
@@ -22,11 +23,20 @@ def register():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    '''Logging the user in'''
     data = request.get_json()
     user = User.query.filter_by(username=data['username']).first()
 
     if not user or not user.check_password(data['password']):
         return jsonify({"msg": "Bad username or password"}), 401
 
-    token = create_access_token(identity=user.id)
-    return jsonify(access_token=token), 200
+    login_user(user)
+    return jsonify({"msg": "Logged in successfully"}), 200
+
+
+@auth_bp.route('/logout', methods=['POST'])
+@login_required
+def logout():
+    '''Logging the user out'''
+    logout_user()
+    return jsonify({"msg": "Logged out"}), 200
