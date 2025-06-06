@@ -17,14 +17,14 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
-  // Added reroute section, not sure if it should be left like this
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:5000',
-        changeOrigin: true,
-        secure: false,
-      }
-    }
-  }
+  // TODO: should we add it there like this or not?
+  // server: {
+  //   proxy: {
+  //     '/api': {
+  //       target: 'http://127.0.0.1:5000',
+  //       changeOrigin: true,
+  //       secure: false,
+  //     }
+  //   }
+  // }
 });
