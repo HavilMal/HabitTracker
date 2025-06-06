@@ -17,6 +17,7 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  // Added reroute section, not sure if it should be left like this
   server: {
     proxy: {
       '/api': {
