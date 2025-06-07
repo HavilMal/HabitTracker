@@ -1,39 +1,82 @@
-from datetime import datetime
-from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from datetime import datetime, date, time
+import abc
 
 
-class Habit(ABC):
-    def __init__(self) -> None:
-        self.date: datetime = datetime.now()
-
-    @property
-    @abstractmethod
-    def summary(self) -> str:
-        pass
+class Habit(metaclass=abc.ABCMeta):
+    def __init__(self, name: str, notes: str = ''):
+        self.start_date: date = datetime.now().date()
+        self.name: str = name
+        self.notes: str = notes
 
 
-class DrinkingWater(Habit):
-    def __init__(self) -> None:
-        super().__init__()
-        # szklanki według mnie powinny mieć 250 mililitrów
-        self.glasses_of_water: int = 0
-        self.daily_goal: int = 8
+class HabitBool(Habit):
+    def __init__(self, name: str, freq_type: str, freq_value: int, notes: str = ''):
+        super().__init__(name, notes)
+        self.freq_type: str = freq_type  # 'n_times_per_week' or 'every_n_days'
+        self.freq_value: int = freq_value
+        self.completed_days: list[date] = []
 
-    def __str__(self) -> str:
-        return f"User drank {self.glasses_of_water} glasses out of {self.daily_goal}."
+    def mark_completed(self, completion_date: date):
+        self.completed_days.append(completion_date)
 
-    def __repr__(self):
-        return f"Drinking water( glasses_of_water= {self.glasses_of_water}, daily_goal= {self.daily_goal})"
+    def get_history(self) -> list[str]:
+        return [d.isoformat() for d in sorted(self.completed_days)]
 
-    def drink(self, drink_number: int = 1) -> None:
-        self.glasses_of_water += drink_number
 
-    def
+@dataclass
+class MeasurementFloat:
+    date: date
+    amount: float
 
-    @property
-    def summary(self) -> str:
-        return "Number of glasses of water drank"
 
-    @property
-    def is_completed(self) -> bool:
-        return self.glasses_of_water >= self.daily_goal
+class HabitMeasure(Habit):
+    def __init__(self, name: str, freq_type: str, unit: str, target_value: float, target_type: str, notes: str = ''):
+        super().__init__(name, notes)
+        self.freq_type: str = freq_type  # 'daily' or 'weekly'
+        self.unit: str = unit
+        self.target_value: float = target_value
+        self.target_type: str = target_type  # 'at_leat' or 'at_most'
+        self.measurements: list[MeasurementFloat] = []
+
+    def add_measurement(self, measure_date: date, amount: float):
+        self.measurements.append(MeasurementFloat(measure_date, amount))
+
+    def get_history(self) -> list[dict[str, str | float]]:
+        return [{'date': m.date.isoformat(), 'amount': m.amount} for m in self.measurements]
+
+
+@dataclass
+class MeasurementInt:
+    date: date
+    amount: int
+
+
+class HabitDrinkingWater(Habit):
+    def __init__(self, name: str, target_value: int, notes: str = ''):
+        super().__init__(name, notes)
+        self.target_value: int = target_value
+        self.measurements: list[MeasurementInt] = []
+
+    def add_measurement(self, measure_date: date, amount: int):
+        self.measurements.append(MeasurementInt(measure_date, amount))
+
+    def get_history(self) -> list[dict[str, str | float]]:
+        return [{'date': m.date.isoformat(), 'amount': m.amount} for m in self.measurements]
+
+
+@dataclass
+class MeasurementActivity:
+    activity_datetime: datetime
+    amount: float
+    time: time
+    calories: float
+
+
+class HabitActivity(Habit):
+    def __init__(self, name: str, freq_type: str, unit: str, target_value: float, notes: str = ''):
+        super().__init__(name, notes)
+        self.freq_type: str = freq_type  # 'daily' or 'weekly'
+        self.unit: str = unit
+        self.target_value: float = target_value
+        self.measurements: list[MeasurementActivity] = []
