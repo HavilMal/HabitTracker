@@ -1,6 +1,6 @@
 import {Outlet, createRootRoute} from '@tanstack/react-router'
 import {TanStackRouterDevtools} from '@tanstack/react-router-devtools'
-import {ThemeProvider} from "@/components/theme-provider.tsx";
+import {ThemeProvider} from "@/hooks/theme-provider.tsx";
 import {useAuth} from "@/hooks/auth.tsx";
 import {ErrorPage} from "@/components/error-page.tsx";
 import Layout from "@/components/layout.tsx";

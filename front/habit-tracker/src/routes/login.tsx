@@ -2,6 +2,7 @@ import {createFileRoute} from '@tanstack/react-router'
 import {LoginForm} from "@/components/login-form.tsx";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {RegisterForm} from "@/components/register-form.tsx";
+import {Navbar} from "@/components/navbar.tsx";
 
 export const Route = createFileRoute('/login')({
 	component: RouteComponent,
@@ -9,22 +10,24 @@ export const Route = createFileRoute('/login')({
 
 function RouteComponent() {
 	return (
-		<div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-			<div className="w-full max-w-sm">
-				<Tabs defaultValue="login" className="w-[400px]">
-					<TabsList>
-						<TabsTrigger value="login">Login</TabsTrigger>
-						<TabsTrigger value="register">Register</TabsTrigger>
-					</TabsList>
-					<TabsContent value="login">
-						<LoginForm/>
-					</TabsContent>
-					<TabsContent value="register">
-						<RegisterForm/>
-					</TabsContent>
-				</Tabs>
+		<main className="flex flex-col min-h-svh">
+			<Navbar/>
+			<div className="flex flex-col flex-1 items-center justify-center ">
+				<div className="w-full max-w-sm">
+					<Tabs defaultValue="login">
+						<TabsList>
+							<TabsTrigger value="login">Login</TabsTrigger>
+							<TabsTrigger value="register">Register</TabsTrigger>
+						</TabsList>
+						<TabsContent value="login">
+							<LoginForm/>
+						</TabsContent>
+						<TabsContent value="register">
+							<RegisterForm/>
+						</TabsContent>
+					</Tabs>
+				</div>
 			</div>
-		</div>
-
+		</main>
 	)
 }
