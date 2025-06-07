@@ -14,6 +14,7 @@ type Habit = {
 }
 
 type HabitCategory = {
+	id: number;
 	name: string;
 	url: string;
 	icon: JSX.Element;
@@ -66,7 +67,7 @@ export function SidebarList({list}: { list: HabitCategory[] }) {
 			</SidebarGroup>
 			<SidebarGroupLabel>Habits</SidebarGroupLabel>
 			{list.map((category: HabitCategory) => (
-				<HabitCategoryList category={category}/>
+				<HabitCategoryList category={category} key={category.id}/>
 			))}
 		</SidebarGroup>
 	)
@@ -74,6 +75,7 @@ export function SidebarList({list}: { list: HabitCategory[] }) {
 
 const data: HabitCategory[] = [
 	{
+		id: 1,
 		name: "Habit",
 		url: "/habit",
 		icon: <RefreshCcw/>,
@@ -89,6 +91,7 @@ const data: HabitCategory[] = [
 		],
 	},
 	{
+		id: 2,
 		name: "Activity",
 		icon: <Dumbbell/>,
 		url: "/activity",
@@ -104,6 +107,7 @@ const data: HabitCategory[] = [
 		],
 	},
 	{
+		id: 3,
 		name: "Meals",
 		url: "/meals",
 		icon: <CookingPot/>,
@@ -119,6 +123,7 @@ const data: HabitCategory[] = [
 		],
 	},
 	{
+		id: 4,
 		name: "Water",
 		url: "/water",
 		icon: <GlassWater/>,
