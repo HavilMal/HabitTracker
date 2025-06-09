@@ -1,6 +1,6 @@
 from flask              import Blueprint, request, jsonify
 from flask_login        import login_user, logout_user, login_required, current_user
-from ..models           import User
+from ..models           import UserDB
 from ..                 import db
 
 auth_bp = Blueprint('auth', __name__)
@@ -10,10 +10,10 @@ auth_bp = Blueprint('auth', __name__)
 def register():
     '''Registering the user'''
     data = request.get_json()
-    if User.query.filter_by(username=data['username']).first():
+    if UserDB.query.filter_by(username=data['username']).first():
         return jsonify({"msg": "Username already exists"}), 409
 
-    user = User(username=data['username']) # type: ignore
+    user = UserDB(username=data['username']) # type: ignore
     user.set_password(data['password'])
 
     db.session.add(user)
@@ -25,7 +25,7 @@ def register():
 def login():
     '''Logging the user in'''
     data = request.get_json()
-    user = User.query.filter_by(username=data['username']).first()
+    user = UserDB.query.filter_by(username=data['username']).first()
 
     if not user or not user.check_password(data['password']):
         return jsonify({"msg": "Wrong username or password"}), 401

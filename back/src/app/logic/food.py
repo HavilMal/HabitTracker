@@ -9,7 +9,7 @@ class Food():
     calories:  float   # kcal per 100g
     carb:      float   # g per 100g
     prot:      float   # g per 100g
-    fats:      float   # g per 100g
+    fat:       float   # g per 100g
     
     def get_nutrients_for(self, grams: float) -> dict[str, float]:
         '''Returns info about total nutrients of the food'''
@@ -18,5 +18,5 @@ class Food():
             c.CALORIES: self.calories * factor,
             c.CARB:     self.carb * factor,
             c.PROT:     self.prot * factor,
-            c.FAT:      self.fats * factor
+            c.FAT:      self.fat * factor
         }

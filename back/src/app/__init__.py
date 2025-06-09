@@ -16,10 +16,10 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
 
-    from app.models import User
+    from app.models import UserDB
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        return UserDB.query.get(int(user_id))
 
     from .routes.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/api')
