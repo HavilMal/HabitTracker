@@ -1,5 +1,6 @@
-from dataclasses import dataclass
-import constants as c
+from dataclasses            import dataclass
+
+from back.src.app.constants import *
 
 
 @dataclass
@@ -15,8 +16,8 @@ class Food():
         '''Returns info about total nutrients of the food'''
         factor: float = grams / 100.0
         return {
-            c.CALORIES: self.calories * factor,
-            c.CARB:     self.carb * factor,
-            c.PROT:     self.prot * factor,
-            c.FAT:      self.fat * factor
+            CALORIES: self.calories * factor,
+            CARB:     self.carb * factor,
+            PROT:     self.prot * factor,
+            FAT:      self.fat * factor
         }

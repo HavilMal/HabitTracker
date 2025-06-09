@@ -1,9 +1,11 @@
 from flask_login       import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from .                 import db
-from logic.meal        import Meal
-from logic.food        import Food
 from typing            import cast
+from datetime          import datetime
+
+from .                 import db
+from app.logic.meal    import Meal
+from app.logic.food    import Food
 
 
 class UserDB(UserMixin, db.Model):
@@ -39,9 +41,11 @@ class FoodDB(db.Model):
 
 class MealDB(db.Model):
     '''Class representing a meal in the database'''
-    id    = db.Column(db.Integer, primary_key=True)
-    name  = db.Column(db.String(255), nullable=False)
-    foods = db.relationship('FoodDB', backref='meal', lazy=True)
+    id         = db.Column(db.Integer, primary_key=True)
+    name       = db.Column(db.String(255), nullable=False)
+    foods      = db.relationship('FoodDB', backref='meal', lazy=True)
+    user_id    = db.Column(db.Integer, db.ForeignKey('user_db.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dataclass(self) -> Meal:
         '''Converting info from database to a Meal class object'''
