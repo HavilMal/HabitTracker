@@ -4,6 +4,7 @@ from back.src.app.constants import *
 
 
 def fetch_product(query: str) -> dict | None:
+    '''Fetches food data from a database'''
     url    = DB_URL
     params = {
         'search_terms':  query,
