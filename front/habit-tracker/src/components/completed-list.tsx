@@ -5,11 +5,13 @@ import {
 import {Button} from "@/components/ui/button.tsx";
 import {useState} from "react";
 import {Input} from "@/components/ui/input.tsx";
-import {Form, FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form.tsx";
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
 import z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {ChevronLeft, ChevronRight} from "lucide-react";
+import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group.tsx";
+import {RadioGroupIndicator} from "@radix-ui/react-radio-group";
 
 
 type Item = {
@@ -43,6 +45,7 @@ const data: Item[] = [
 
 const formSchema = z.object({
 	value: z.number(),
+	date: z.date(),
 })
 
 function getLastDays(numberOfDays: number): Date[] {
@@ -65,6 +68,7 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			value: 0,
+			date: lastWeekDays[0],
 		},
 		mode: "onChange",
 	})
@@ -83,13 +87,39 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 					</CardHeader>
 
 					<CardContent>
-						<div className="w-full flex gap-6">
-							{
-								lastWeekDays.map((day, i) => (
-									<Button key={day.getDate()} onClick={() => setDayIndex(i)}>{day.getDate().toString()}</Button>
-								))
-							}
-						</div>
+						<FormField
+							control={form.control}
+							name="date"
+							render={({field}) => (
+								<RadioGroup
+									onValueChange={(stringValue) => {
+                    const selectedDate = lastWeekDays.find(
+                      (day) => day.toDateString() === stringValue
+                    )
+                    if (selectedDate) {
+                      field.onChange(selectedDate)
+                    }
+                  }}
+									defaultValue={lastWeekDays[0].toDateString()}
+									className="w-full flex gap-6"
+								>
+									{
+										lastWeekDays.map((day) => (
+											<FormItem className="flex flex-row w-full h-full">
+												<FormControl>
+													<RadioGroupItem value={day.toDateString()}
+													                key={day.getDate()}
+													/>
+												</FormControl>
+												<FormLabel>
+													{day.getDate().toString()}
+												</FormLabel>
+											</FormItem>
+										))
+									}
+								</RadioGroup>
+							)}
+						/>
 					</CardContent>
 					<CardContent className="w-full h-full">
 						<FormField
@@ -98,7 +128,8 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 							render={({field}) => (
 								<FormItem className="flex flex-row w-full h-full">
 									<div className="flex h-full w-1/4 justify-center items-center">
-										<Button variant="outline" className="aspect-square rounded-full" onClick={() => form.setValue("value", Math.max(form.getValues().value - 1, 0))}>
+										<Button variant="outline" className="aspect-square rounded-full"
+										        onClick={() => form.setValue("value", Math.max(form.getValues().value - 1, 0))}>
 											<ChevronLeft/>
 										</Button>
 									</div>
@@ -115,7 +146,8 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 										<FormMessage/>
 									</FormItem>
 									<div className="flex h-full w-1/4 justify-center items-center">
-										<Button variant="outline" className="aspect-square rounded-full" onClick={() => form.setValue("value", form.getValues().value + 1)}>
+										<Button variant="outline" className="aspect-square rounded-full"
+										        onClick={() => form.setValue("value", form.getValues().value + 1)}>
 											<ChevronRight/>
 										</Button>
 									</div>
