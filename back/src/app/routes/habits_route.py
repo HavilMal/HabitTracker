@@ -1,5 +1,5 @@
 from flask       import Blueprint, request, jsonify
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from app         import db
 from app.models  import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB
@@ -22,7 +22,8 @@ def add_habit():
                 name=name,
                 freq_type=data['freq_type'],
                 freq_value=int(data['freq_value']),
-                notes=notes
+                notes=notes,
+                user_id=current_user.uid
             )
         
         elif habit_type == 'measure':
@@ -32,14 +33,16 @@ def add_habit():
                 unit=data['unit'],
                 target_value=float(data['target_value']),
                 target_type=data['target_type'],
-                notes=notes
+                notes=notes,
+                user_id=current_user.uid
             )
 
         elif habit_type == 'water':
             habit = HabitDrinkingWaterDB(
                 name=name,
                 target_value=int(data['target_value']),
-                notes=notes
+                notes=notes,
+                user_id=current_user.uid
             )
 
         else:
@@ -47,7 +50,7 @@ def add_habit():
 
         db.session.add(habit)
         db.session.commit()
-        return jsonify({"msg": "Habit added"}), 201
+        return jsonify({"msg": "Habit added successfully"}), 201
 
     except KeyError as e:
         return jsonify({"error": f"Missing field: {str(e)}"}), 400
@@ -55,3 +58,27 @@ def add_habit():
         return jsonify({"error": f"Invalid value: {str(e)}"}), 400
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+
+@habit_bp.route('/get-habits', methods=['GET'])
+@login_required
+def get_habits():
+    try:
+        habits_bool    = HabitBoolDB.query.filter_by(user_id=current_user.uid).all()
+        habits_measure = HabitMeasureDB.query.filter_by(user_id=current_user.uid).all()
+        habits_water   = HabitDrinkingWaterDB.query.filter_by(user_id=current_user.uid).all()
+
+        all_habits = habits_bool + habits_measure + habits_water
+        serialized = []
+
+        for h in all_habits:
+            dc                 = h.to_dataclass()
+            data               = dc.__dict__.copy()
+            data['type']       = h.__mapper_args__['polymorphic_identity']
+            data['start_date'] = dc.start_date.isoformat()
+            serialized.append(data)
+
+        return jsonify(serialized), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

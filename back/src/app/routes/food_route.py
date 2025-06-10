@@ -27,7 +27,8 @@ def add_meal():
             prot=nutr.get('proteins', 0),
             fat=nutr.get('fat', 0),
             grams=item.get('grams', 100),
-            meal=meal
+            meal=meal,
+            user_id=current_user.uid
         )
         db.session.add(food)
     

@@ -17,6 +17,8 @@ class UserDB(UserMixin, db.Model):
     username      = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     meals         = db.relationship('MealDB', backref='user', lazy=True)
+    activities    = db.relationship('ActivityDB', backref='user', lazy=True) 
+    habits        = db.relationship('HabitDB', backref='user', lazy=True)
 
     def set_password(self, password: str) -> None:
         '''Setting the password'''
@@ -35,6 +37,7 @@ class HabitDB(db.Model):
     habit_type      = db.Column(db.String(64))
     notes           = db.Column(db.Text, default='')
     start_date      = db.Column(db.Date, default=datetime.now)
+    user_id         = db.Column(db.Integer, db.ForeignKey('user_db.uid'), nullable=False)
     __mapper_args__ = {
         'polymorphic_identity': 'habit',
         'polymorphic_on':       habit_type
@@ -47,7 +50,7 @@ class HabitBoolDB(HabitDB):
     habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
     freq_type       = db.Column(db.String(64))
     freq_value      = db.Column(db.Integer)
-    completions     = db.relationship('HabitBoolCompletion', backref='habit', lazy=True)
+    completions     = db.relationship('HabitBoolCompletionDB', backref='habit', lazy=True)
     __mapper_args__ = {'polymorphic_identity': 'habit_bool'}
 
     def to_dataclass(self) -> HabitBool:
