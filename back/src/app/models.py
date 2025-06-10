@@ -196,12 +196,3 @@ class MealDB(db.Model):
             self.name, 
             [(food.to_dataclass(), food.grams) for food in list_foods]
         )
-
-class MealActivityDB(ActivityDB):
-    '''Class representing a meal activity in the database'''
-    __tablename__   = 'meal_activity'
-    meal_act_id     = db.Column(db.Integer, db.ForeignKey('activity.activity_id'), primary_key=True)
-    meal_id         = db.Column(db.Integer, db.ForeignKey('meal_db.meal_id'))
-    meal            = db.relationship('MealDB')
-    __mapper_args__ = {'polymorphic_identity': 'meal_activity'}
-    
