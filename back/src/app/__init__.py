@@ -37,3 +37,9 @@ def register_blueprints(app: Flask) -> None:
 
     from .routes.food_route import food_bp
     app.register_blueprint(food_bp, url_prefix='/api')
+
+    from .routes.activity_route import activity_bp
+    app.register_blueprint(activity_bp, url_prefix='/api')
+
+    from .routes.habit_route import habit_bp
+    app.register_blueprint(habit_bp, url_prefix='/api')
