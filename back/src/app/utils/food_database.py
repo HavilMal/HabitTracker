@@ -1,6 +1,6 @@
 import requests
 
-from back.src.app.constants import *
+from app.constants import *
 
 
 def fetch_product(query: str) -> dict | None:
