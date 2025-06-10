@@ -12,7 +12,7 @@ def create_app() -> Flask:
     '''Creates and initializes the app'''
     app = Flask(__name__)
     app.config.from_object('app.config.Config')
-    CORS(app, origins="http://localhost:3000", supports_credentials=True) 
+    CORS(app, origins="http://localhost:3000", supports_credentials=True)
 
     db.init_app(app)
     login_manager.init_app(app)

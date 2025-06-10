@@ -2,7 +2,8 @@ import {createContext, useState, useCallback, useEffect, type ReactNode, useCont
 
 export interface AuthContext {
 	isAuthenticated: boolean;
-	login: (username: string) => Promise<void>;
+	login: (username: string, password: string) => Promise<boolean>;
+	register: (username: string, password: string) => Promise<boolean>;
 	logout: () => Promise<void>;
 	user: string | null;
 }
@@ -15,6 +16,7 @@ function getStoredUser() {
 	return localStorage.getItem(key);
 }
 
+// todo change from local storage to cookie
 function setStoredUser(user: string | null) {
 	if (user) {
 		localStorage.setItem(key, user)
@@ -29,9 +31,50 @@ export function AuthProvider({children}: { children: ReactNode }) {
 	const isAuthenticated = !!user;
 
 	const login = useCallback(
-		async (username: string) => {
+		async (username: string, password: string) => {
+			const response = await fetch(import.meta.env.VITE_API_URL + "login",
+				{
+					credentials: "include",
+					mode: "cors",
+					method: "POST",
+					headers: {
+						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
+						"Content-Type": "application/json; charset=utf-8",
+					},
+					body: JSON.stringify({"username": username, "password": password}),
+				})
+
+			if (!response.ok) {
+				return false;
+			}
+
 			setStoredUser(username);
 			setUser(username);
+
+			return true;
+		},
+		[]
+	)
+
+	const register = useCallback(
+		async (username: string, password: string) => {
+				const response = await fetch(import.meta.env.VITE_API_URL + "register",
+				{
+					credentials: "include",
+					mode: "cors",
+					method: "POST",
+					headers: {
+						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
+						"Content-Type": "application/json; charset=utf-8",
+					},
+					body: JSON.stringify({"username": username, "password": password}),
+				})
+
+			if (!response.ok) {
+				return false
+			}
+
+			return await login(username, password);
 		},
 		[]
 	)
@@ -44,6 +87,8 @@ export function AuthProvider({children}: { children: ReactNode }) {
 		[]
 	)
 
+
+
 	useEffect(() => {
 			setUser(getStoredUser());
 		},
@@ -51,7 +96,7 @@ export function AuthProvider({children}: { children: ReactNode }) {
 	)
 
 	return (
-		<AuthContext.Provider value={{isAuthenticated, user, login, logout}}>
+		<AuthContext.Provider value={{isAuthenticated, user, login, register, logout}}>
 			{children}
 		</AuthContext.Provider>
 	)
