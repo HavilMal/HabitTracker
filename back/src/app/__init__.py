@@ -11,7 +11,7 @@ login_manager.login_view = 'auth.login' # type: ignore
 def create_app():
     app = Flask(__name__)
     app.config.from_object('app.config.Config')
-    CORS(app, origins="http://localhost:3000", supports_credentials=True) 
+    CORS(app, origins="http://localhost:3000", supports_credentials=True)
 
     db.init_app(app)
     login_manager.init_app(app)
