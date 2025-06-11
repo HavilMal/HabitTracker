@@ -1,9 +1,8 @@
 import {
 	Card,
-	CardContent, CardFooter, CardHeader, CardTitle,
+	CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
 import {Button} from "@/components/ui/button.tsx";
-import {useState} from "react";
 import {Input} from "@/components/ui/input.tsx";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
 import z from "zod";
@@ -11,37 +10,6 @@ import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group.tsx";
-import {RadioGroupIndicator} from "@radix-ui/react-radio-group";
-
-
-type Item = {
-	id: string
-	name: string
-	amount: number
-	unit: string
-}
-
-// todo temporary
-const data: Item[] = [
-	{
-		id: "akj",
-		name: "medytacja",
-		amount: 5,
-		unit: "min"
-	},
-	{
-		id: "askj",
-		name: "medytacja",
-		amount: 5,
-		unit: "min"
-	},
-	{
-		id: "lksaj",
-		name: "medytacja",
-		amount: 5,
-		unit: "min"
-	},
-]
 
 const formSchema = z.object({
 	value: z.number(),
@@ -59,15 +27,24 @@ function getLastDays(numberOfDays: number): Date[] {
 	return list;
 }
 
+function getLastValues(days: Date[]): Map<string, number> {
+	const map = new Map<string, number>();
+	for (let day of days) {
+		map.set(day.toDateString(), 10);
+	}
+
+	return map;
+}
+
 
 export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: number }) {
 	const lastWeekDays = getLastDays(numberOfDays);
-	const [dayIndex, setDayIndex] = useState(0);
+	const lastWeekValues = getLastValues(lastWeekDays);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			value: 0,
+			value: 10,
 			date: lastWeekDays[0],
 		},
 		mode: "onChange",
@@ -86,7 +63,7 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 						<CardTitle>Track your daily progress</CardTitle>
 					</CardHeader>
 
-					<CardContent>
+					<CardContent className="flex flex-1 justify-center items-center">
 						<FormField
 							control={form.control}
 							name="date"
@@ -98,10 +75,16 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 										)
 										if (selectedDate) {
 											field.onChange(selectedDate)
+
+											const newValue = lastWeekValues.get(selectedDate.toDateString())
+
+											if (newValue) {
+												form.setValue("value", newValue)
+											}
 										}
 									}}
-									defaultValue={lastWeekDays[0].toDateString()}
-									className="w-full flex gap-6"
+									defaultValue={lastWeekDays[lastWeekDays.length - 1].toDateString()}
+									className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]"
 								>
 									{
 										lastWeekDays.map((day) => (
@@ -115,7 +98,7 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 												</FormControl>
 												<FormLabel
 													htmlFor={day.toDateString()}
-													className="cursor-pointer rounded-md border border-input bg-background px-4 py-2 text-sm shadow-sm hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground peer-focus-visible:outline-none peer-focus-visible:ring-1 peer-focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-70"
+													className="peer-data-[state=checked]:bg-background dark:peer-data-[state=checked]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:peer-data-[state=checked]:border-input dark:peer-data-[state=checked]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 peer-data-[state=checked]:shadow-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
 												>
 													{day.getDate().toString()}
 												</FormLabel>
@@ -126,12 +109,12 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 							)}
 						/>
 					</CardContent>
-					<CardContent className="w-full h-full">
+					<CardContent className="flex flex-col w-full h-full gap-4">
 						<FormField
 							control={form.control}
 							name="value"
 							render={({field}) => (
-								<FormItem className="flex flex-row w-full h-full">
+								<FormItem className="flex flex-row flex-1 h-full">
 									<div className="flex h-full w-1/4 justify-center items-center">
 										<Button variant="outline" className="aspect-square rounded-full"
 										        onClick={() => form.setValue("value", Math.max(form.getValues().value - 1, 0))}>
@@ -145,7 +128,7 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 												const sanitized = e.target.value.replace(/[^0-9]/g, "");
 												field.onChange(Number(sanitized));
 											}}
-												className="text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+												className="text-xl lg:text-8xl text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
 											/>
 										</FormControl>
 										<FormMessage/>
@@ -159,6 +142,7 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 								</FormItem>
 							)}
 						/>
+						<h1 className="text-center text-xl lg:text-3xl">Hours</h1>
 					</CardContent>
 					<CardFooter className="gap-6">
 						<FormControl>
