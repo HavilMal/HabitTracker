@@ -9,6 +9,8 @@ import {Link} from "@tanstack/react-router";
 import {type JSX} from "react";
 import {useHabits} from "@/hooks/habit-provider.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {useAuth} from "@/hooks/auth.tsx";
+import {useNavigate, useRouter} from "@tanstack/react-router";
 
 type Habit = {
 	id: number;
@@ -59,7 +61,7 @@ function HabitCategoryList({category}: { category: HabitCategory }) {
 									<p>No habits</p>
 								</SidebarGroupLabel>
 							</SidebarMenuItem>
-						}
+						))}
 					</SidebarMenuSub>
 				</CollapsibleContent>
 			</SidebarGroup>
@@ -134,6 +136,20 @@ function ListSkeleton() {
 export function AppSidebar() {
 	const {isLoading, habits} = useHabits();
 
+	const auth = useAuth()
+	const router = useRouter()
+	const navigate = useNavigate()
+
+
+	async function handleLogout() {
+		try {
+			await auth.logout()
+			await router.invalidate();
+		} finally {
+			await navigate({to: "/login"});
+		}
+	}
+
 	return (
 		<Sidebar variant="sidebar">
 			<SidebarHeader>
@@ -148,7 +164,18 @@ export function AppSidebar() {
 						Add Habit
 					</Link>
 				</Button>
-				<Button variant="outline">Profile</Button>
+				<Button variant="outline">Add Habit</Button>
+				<div className="flex flex-row gap-6">
+					<Button className="flex flex-1" variant="outline" asChild>
+						<Link to="/profile">
+							Profile
+						</Link>
+					</Button>
+					<Button className="flex flex-1" variant="outline" asChild>
+						Profile
+					</Button>
+					<Button className="flex flex-1" variant="outline" onClick={handleLogout}>Logout</Button>
+				</div>
 			</SidebarFooter>
 		</Sidebar>
 	)
