@@ -1,13 +1,24 @@
-from flask_login       import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-from .                 import db
+from flask_login        import UserMixin
+from werkzeug.security  import generate_password_hash, check_password_hash
+from typing             import cast
+from datetime           import datetime
+
+from .                  import db
+from app.logic.meal     import Meal
+from app.logic.food     import Food
+from app.logic.activity import Activity
+from app.logic.habit    import *
 
 
-class User(UserMixin, db.Model):
+class UserDB(UserMixin, db.Model):
     '''Class representing an user in the database'''
-    id            = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'user_db'
+    uid           = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
+    meals         = db.relationship('MealDB', backref='user', lazy=True)
+    activities    = db.relationship('ActivityDB', backref='user', lazy=True) 
+    habits        = db.relationship('HabitDB', backref='user', lazy=True)
 
     def set_password(self, password: str) -> None:
         '''Setting the password'''
@@ -16,3 +27,175 @@ class User(UserMixin, db.Model):
     def check_password(self, password: str) -> bool:
         '''Checking for the password match'''
         return check_password_hash(self.password_hash, password)
+    
+
+class HabitDB(db.Model):
+    '''Class representing a habit in the database'''
+    __tablename__   = 'habit'
+    habit_id        = db.Column(db.Integer, primary_key=True)
+    name            = db.Column(db.String(255), nullable=False)
+    habit_type      = db.Column(db.String(64))
+    notes           = db.Column(db.Text, default='')
+    start_date      = db.Column(db.Date, default=datetime.now)
+    user_id         = db.Column(db.Integer, db.ForeignKey('user_db.uid'), nullable=False)
+    __mapper_args__ = {
+        'polymorphic_identity': 'habit',
+        'polymorphic_on':       habit_type
+    }
+
+
+class HabitBoolDB(HabitDB):
+    '''Class representing a marked habit in the database'''
+    __tablename__   = 'habit_bool'
+    habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
+    freq_type       = db.Column(db.String(64))
+    freq_value      = db.Column(db.Integer)
+    completions     = db.relationship('HabitBoolCompletionDB', backref='habit', lazy=True)
+    __mapper_args__ = {'polymorphic_identity': 'habit_bool'}
+
+    def to_dataclass(self) -> HabitBool:
+        '''Converts this database object to a HabitBool dataclass'''
+        habit = HabitBool(
+            self.name, 
+            self.freq_type,
+            self.freq_value, 
+            self.notes
+        )
+        habit.start_date     = self.start_date
+        list_completions     = cast(list[HabitBoolCompletionDB], self.completions)
+        habit.completed_days = [c.date for c in list_completions]
+        return habit
+
+
+class HabitBoolCompletionDB(db.Model):
+    '''Class representing a single completion entry for a HabitBoolDB'''
+    __tablename__ = 'habit_bool_completion'
+    habit_bool_id = db.Column(db.Integer, primary_key=True)
+    habit_id      = db.Column(db.Integer, db.ForeignKey('habit_bool.habit_id'))
+    date          = db.Column(db.Date, nullable=False)
+
+
+class HabitMeasureDB(HabitDB):
+    '''Class representing a measurable habit in the database'''
+    __tablename__   = 'habit_measure'
+    habit_meas_id   = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
+    freq_type       = db.Column(db.String(64))
+    unit            = db.Column(db.String(64))
+    target_value    = db.Column(db.Float)
+    target_type     = db.Column(db.String(32)) 
+    measurements    = db.relationship('MeasurementFloatDB', backref='habit', lazy=True)
+    __mapper_args__ = {'polymorphic_identity': 'habit_measure'}
+
+    def to_dataclass(self) -> HabitMeasure:
+        '''Converts HabitMeasureDB database object to a HabitMeasure dataclass'''
+        habit = HabitMeasure(
+            self.name,
+            self.freq_type,
+            self.unit,
+            self.target_value,
+            self.target_type,
+            self.notes
+        )
+        habit.start_date   = self.start_date
+        list_measurements  = cast(list[MeasurementFloatDB], self.measurements)
+        habit.measurements = [
+            MeasurementFloat(date=m.date, amount=m.amount)
+            for m in list_measurements
+        ]
+        return habit
+
+
+class MeasurementFloatDB(db.Model):
+    '''Class representing a float-type measurement for a HabitMeasureDB'''
+    __tablename__ = 'measurement_float'
+    measure_id    = db.Column(db.Integer, primary_key=True)
+    habit_id      = db.Column(db.Integer, db.ForeignKey('habit_measure.habit_meas_id'))
+    date          = db.Column(db.Date, nullable=False)
+    amount        = db.Column(db.Float, nullable=False)
+
+
+class HabitDrinkingWaterDB(HabitDB):
+    '''Class representing a water intake habit in the database'''
+    __tablename__   = 'habit_water'
+    habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
+    target_value    = db.Column(db.Integer)
+    measurements    = db.relationship('MeasurementIntDB', backref='habit', lazy=True)
+    __mapper_args__ = {'polymorphic_identity': 'habit_water'}
+
+    def to_dataclass(self) -> HabitDrinkingWater:
+        '''Converts this database object to a HabitDrinkingWater dataclass'''
+        habit = HabitDrinkingWater(
+            self.name,
+            self.target_value,
+            self.notes
+        )
+        habit.start_date   = self.start_date
+        list_measurements  = cast(list[MeasurementIntDB], self.measurements)
+        habit.measurements = [
+            MeasurementInt(date=m.date, amount=m.amount)
+            for m in list_measurements
+        ]
+        return habit
+
+
+class MeasurementIntDB(db.Model):
+    '''Class representing an integer-type measurement for a HabitDrinkingWaterDB'''
+    __tablename__ = 'measurement_int'
+    measure_id    = db.Column(db.Integer, primary_key=True)
+    habit_id      = db.Column(db.Integer, db.ForeignKey('habit_water.habit_id'))
+    date          = db.Column(db.Date, nullable=False)
+    amount        = db.Column(db.Integer, nullable=False)
+
+
+class ActivityDB(HabitDB):
+    '''Class representing an activity in the database'''
+    __tablename__   = 'activity'
+    activity_id     = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
+    exercise_type   = db.Column(db.String(255), nullable=False)
+    duration_mins   = db.Column(db.Float, nullable=False)
+    calories_burnt  = db.Column(db.Float, nullable=False)
+    date            = db.Column(db.Date, default=datetime.now)
+    __mapper_args__ = {'polymorphic_identity': 'activity'}
+
+    def to_dataclass(self) -> Activity:
+        '''Converting ActivityDB database object to an Activity dataclass'''
+        from datetime import timedelta
+        return Activity(
+            self.exercise_type,
+            timedelta(minutes=self.duration_mins),
+            self.calories_burnt,
+            self.date
+        )
+    
+
+class FoodDB(db.Model):
+    '''Class representing food in the database'''
+    food_id  = db.Column(db.Integer, primary_key=True)
+    name     = db.Column(db.String(255), nullable=False)
+    calories = db.Column(db.Float, nullable=False)
+    carb     = db.Column(db.Float, nullable=False)
+    prot     = db.Column(db.Float, nullable=False)
+    fat      = db.Column(db.Float, nullable=False)
+    grams    = db.Column(db.Float, nullable=False)
+    meal_id  = db.Column(db.Integer, db.ForeignKey('meal_db.meal_id'))
+
+    def to_dataclass(self) -> Food:
+        '''Converting FoodDB database object to a Food dataclass'''
+        return Food(self.name, self.calories, self.carb, self.prot, self.fat)
+    
+
+class MealDB(db.Model):
+    '''Class representing a meal in the database'''
+    meal_id    = db.Column(db.Integer, primary_key=True)
+    name       = db.Column(db.String(255), nullable=False)
+    foods      = db.relationship('FoodDB', backref='meal', lazy=True)
+    user_id    = db.Column(db.Integer, db.ForeignKey('user_db.uid'))
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+    def to_dataclass(self) -> Meal:
+        '''Converting MealDB database object from to a Meal dataclass'''
+        list_foods = cast(list[FoodDB], self.foods)
+        return Meal(
+            self.name, 
+            [(food.to_dataclass(), food.grams) for food in list_foods]
+        )
