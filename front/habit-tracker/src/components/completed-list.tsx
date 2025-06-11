@@ -93,13 +93,13 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 							render={({field}) => (
 								<RadioGroup
 									onValueChange={(stringValue) => {
-                    const selectedDate = lastWeekDays.find(
-                      (day) => day.toDateString() === stringValue
-                    )
-                    if (selectedDate) {
-                      field.onChange(selectedDate)
-                    }
-                  }}
+										const selectedDate = lastWeekDays.find(
+											(day) => day.toDateString() === stringValue
+										)
+										if (selectedDate) {
+											field.onChange(selectedDate)
+										}
+									}}
 									defaultValue={lastWeekDays[0].toDateString()}
 									className="w-full flex gap-6"
 								>
@@ -108,10 +108,15 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 											<FormItem className="flex flex-row w-full h-full">
 												<FormControl>
 													<RadioGroupItem value={day.toDateString()}
+													                id={day.toDateString()}
 													                key={day.getDate()}
+													                className="peer sr-only"
 													/>
 												</FormControl>
-												<FormLabel>
+												<FormLabel
+													htmlFor={day.toDateString()}
+													className="cursor-pointer rounded-md border border-input bg-background px-4 py-2 text-sm shadow-sm hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground peer-focus-visible:outline-none peer-focus-visible:ring-1 peer-focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-70"
+												>
 													{day.getDate().toString()}
 												</FormLabel>
 											</FormItem>
