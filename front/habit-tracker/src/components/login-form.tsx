@@ -18,7 +18,7 @@ import {useNavigate} from "@tanstack/react-router";
 import {useState} from "react";
 
 const formSchema = z.object({
-	username: z.string()
+	username: z.string().regex(/^\S*$/g, "Username cannot include whitespace")
 	// .min(2, {message: "Username must be at least 2 characters.", })
 	,
 	password: z.string()
