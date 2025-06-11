@@ -18,7 +18,7 @@ import {useState} from "react";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
 
 const formSchema = z.object({
-	username: z.string()
+	username: z.string().regex(/^\S*$/g, "Username cannot include whitespace")
 	// .min(2, {message: "Username must be at least 2 characters.", })
 	,
 	password: z.string()
