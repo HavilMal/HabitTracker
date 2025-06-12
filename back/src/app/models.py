@@ -13,12 +13,12 @@ from app.logic.habit    import *
 class UserDB(UserMixin, db.Model):
     '''Class representing an user in the database'''
     __tablename__ = 'user_db'
-    uid           = db.Column(db.Integer, primary_key=True)
+    id           = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    meals         = db.relationship('MealDB', backref='user', lazy=True)
-    activities    = db.relationship('ActivityDB', backref='user', lazy=True) 
-    habits        = db.relationship('HabitDB', backref='user', lazy=True)
+    meals         = db.relationship('MealDB', back_populates='user', lazy=True)
+    activities    = db.relationship('ActivityDB', back_populates='user', lazy=True)
+    habits        = db.relationship('HabitDB', back_populates='user', lazy=True)
 
     def set_password(self, password: str) -> None:
         '''Setting the password'''
@@ -37,7 +37,9 @@ class HabitDB(db.Model):
     habit_type      = db.Column(db.String(64))
     notes           = db.Column(db.Text, default='')
     start_date      = db.Column(db.Date, default=datetime.now)
-    user_id         = db.Column(db.Integer, db.ForeignKey('user_db.uid'), nullable=False)
+    user_id         = db.Column(db.Integer, db.ForeignKey('user_db.id'), nullable=False)
+    user            = db.relationship('UserDB', back_populates='habits')
+
     __mapper_args__ = {
         'polymorphic_identity': 'habit',
         'polymorphic_on':       habit_type
@@ -189,8 +191,9 @@ class MealDB(db.Model):
     meal_id    = db.Column(db.Integer, primary_key=True)
     name       = db.Column(db.String(255), nullable=False)
     foods      = db.relationship('FoodDB', backref='meal', lazy=True)
-    user_id    = db.Column(db.Integer, db.ForeignKey('user_db.uid'))
+    user_id    = db.Column(db.Integer, db.ForeignKey('user_db.id'))
     created_at = db.Column(db.DateTime, default=datetime.now)
+    user       = db.relationship('UserDB', back_populates='meals')
 
     def to_dataclass(self) -> Meal:
         '''Converting MealDB database object from to a Meal dataclass'''
