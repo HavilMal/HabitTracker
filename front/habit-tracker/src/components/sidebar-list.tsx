@@ -146,7 +146,11 @@ export function AppSidebar() {
 				<SidebarList list={data}/>
 			</SidebarContent>
 			<SidebarFooter>
-				<Button variant="outline">Add Habit</Button>
+				<Button variant="outline" asChild>
+					<Link to="/create">
+						Add Habit
+					</Link>
+				</Button>
 				<Button variant="outline">Profile</Button>
 			</SidebarFooter>
 		</Sidebar>
