@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from datetime import datetime, date, time
+from datetime import datetime, date, timedelta
 import abc
+from meal import Meal
 
 
 class Habit(metaclass=abc.ABCMeta):
@@ -62,15 +63,22 @@ class HabitDrinkingWater(Habit):
         self.measurements.append(MeasurementInt(measure_date, amount))
 
     def get_history(self) -> list[dict[str, str | float]]:
-        return [{'date': m.date.isoformat(), 'amount': m.amount} for m in self.measurements]
+        return [{'date': m.date.isoformat(), 'amount': m.amount} for m in sorted(self.measurements, key=lambda x: x.date)]
 
 
 @dataclass
 class MeasurementActivity:
     activity_datetime: datetime
     amount: float
-    time: time
+    duration: timedelta
     calories: float
+
+    @property
+    def calories_burnt_per_minute(self) -> float:
+        duration_minutes = self.duration.total_seconds() / 60
+        if duration_minutes == 0 or self.calories == 0:
+            return 0.0
+        return self.calories / duration_minutes
 
 
 class HabitActivity(Habit):
@@ -80,3 +88,12 @@ class HabitActivity(Habit):
         self.unit: str = unit
         self.target_value: float = target_value
         self.measurements: list[MeasurementActivity] = []
+
+
+class HabitMeal(Habit):
+    def __init__(self, name, target_value: float, target_data_unit: str, target_type: str, notes: str = ''):
+        super().__init__(name, notes)
+        self.target_value: float = target_value
+        self.target_data_unit: str = target_data_unit # 'prot', 'fat', 'carb', 'calories'
+        self.target_type: str = target_type  # 'at_leat' or 'at_most'
+        self.measurements: list[Meal] = []
