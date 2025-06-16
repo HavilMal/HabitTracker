@@ -23,7 +23,7 @@ def add_habit():
                 freq_type=data['freq_type'],
                 freq_value=int(data['freq_value']),
                 notes=notes,
-                user_id=current_user.uid
+                user_id=current_user.id
             )
         
         elif habit_type == 'measure':
@@ -34,7 +34,7 @@ def add_habit():
                 target_value=float(data['target_value']),
                 target_type=data['target_type'],
                 notes=notes,
-                user_id=current_user.uid
+                user_id=current_user.id
             )
 
         elif habit_type == 'water':
@@ -42,7 +42,7 @@ def add_habit():
                 name=name,
                 target_value=int(data['target_value']),
                 notes=notes,
-                user_id=current_user.uid
+                user_id=current_user.id
             )
 
         else:
