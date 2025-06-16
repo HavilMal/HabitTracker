@@ -1,7 +1,7 @@
 from flask_login        import UserMixin
 from werkzeug.security  import generate_password_hash, check_password_hash
 from typing             import cast
-from datetime           import datetime
+from datetime           import datetime, timezone
 
 from .                  import db
 from app.logic.meal     import Meal
@@ -13,7 +13,7 @@ from app.logic.habit    import *
 class UserDB(UserMixin, db.Model):
     '''Class representing an user in the database'''
     __tablename__ = 'user_db'
-    id           = db.Column(db.Integer, primary_key=True)
+    uid           = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     meals         = db.relationship('MealDB', back_populates='user', lazy=True)
@@ -36,8 +36,8 @@ class HabitDB(db.Model):
     name            = db.Column(db.String(255), nullable=False)
     habit_type      = db.Column(db.String(64))
     notes           = db.Column(db.Text, default='')
-    start_date      = db.Column(db.Date, default=datetime.now)
-    user_id         = db.Column(db.Integer, db.ForeignKey('user_db.id'), nullable=False)
+    start_date      = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc))
+    user_id         = db.Column(db.Integer, db.ForeignKey('user_db.uid'), nullable=False)
     user            = db.relationship('UserDB', back_populates='habits')
 
     __mapper_args__ = {
@@ -112,7 +112,7 @@ class MeasurementFloatDB(db.Model):
     __tablename__ = 'measurement_float'
     measure_id    = db.Column(db.Integer, primary_key=True)
     habit_id      = db.Column(db.Integer, db.ForeignKey('habit_measure.habit_meas_id'))
-    date          = db.Column(db.Date, nullable=False)
+    date          = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     amount        = db.Column(db.Float, nullable=False)
 
 
@@ -145,8 +145,32 @@ class MeasurementIntDB(db.Model):
     __tablename__ = 'measurement_int'
     measure_id    = db.Column(db.Integer, primary_key=True)
     habit_id      = db.Column(db.Integer, db.ForeignKey('habit_water.habit_id'))
-    date          = db.Column(db.Date, nullable=False)
+    date          = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     amount        = db.Column(db.Integer, nullable=False)
+
+
+class HabitMealDB(HabitDB):
+    '''Class representing a meal-eating habit int the database'''
+    __tablename__    = 'habit_meal'
+    habit_id         = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
+    target_value     = db.Column(db.Float)
+    target_data_unit = db.Column(db.String(8))
+    target_type      = db.Column(db.String(8))
+    measurements     = db.relationship('MealDB', backref='habit', lazy=True)
+    __mapper_args__  = {'polymorphic_identity': 'habit_meal'}
+
+    def to_dataclass(self) -> HabitMeal:
+        habit = HabitMeal(
+            self.name,
+            self.target_value,
+            self.target_data_unit,
+            self.target_type,
+            self.notes
+        )
+        habit.start_date   = self.start_date
+        list_measurements  = cast(list[MealDB], self.measurements)
+        habit.measurements = [m.to_dataclass() for m in list_measurements]
+        return habit
 
 
 class ActivityDB(HabitDB):
@@ -156,7 +180,7 @@ class ActivityDB(HabitDB):
     exercise_type   = db.Column(db.String(255), nullable=False)
     duration_mins   = db.Column(db.Float, nullable=False)
     calories_burnt  = db.Column(db.Float, nullable=False)
-    date            = db.Column(db.Date, default=datetime.now)
+    date            = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     __mapper_args__ = {'polymorphic_identity': 'activity'}
 
     def to_dataclass(self) -> Activity:
@@ -191,8 +215,8 @@ class MealDB(db.Model):
     meal_id    = db.Column(db.Integer, primary_key=True)
     name       = db.Column(db.String(255), nullable=False)
     foods      = db.relationship('FoodDB', backref='meal', lazy=True)
-    user_id    = db.Column(db.Integer, db.ForeignKey('user_db.id'))
-    created_at = db.Column(db.DateTime, default=datetime.now)
+    user_id    = db.Column(db.Integer, db.ForeignKey('user_db.uid'))
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     user       = db.relationship('UserDB', back_populates='meals')
 
     def to_dataclass(self) -> Meal:

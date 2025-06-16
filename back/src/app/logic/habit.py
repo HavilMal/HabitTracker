@@ -37,7 +37,7 @@ class HabitMeasure(Habit):
         self.freq_type: str = freq_type  # 'daily' or 'weekly'
         self.unit: str = unit
         self.target_value: float = target_value
-        self.target_type: str = target_type  # 'at_leat' or 'at_most'
+        self.target_type: str = target_type  # 'at_least' or 'at_most'
         self.measurements: list[MeasurementFloat] = []
 
     def add_measurement(self, measure_date: date, amount: float):
@@ -95,5 +95,5 @@ class HabitMeal(Habit):
         super().__init__(name, notes)
         self.target_value: float = target_value
         self.target_data_unit: str = target_data_unit # 'prot', 'fat', 'carb', 'calories'
-        self.target_type: str = target_type  # 'at_leat' or 'at_most'
+        self.target_type: str = target_type  # 'at_least' or 'at_most'
         self.measurements: list[Meal] = []
