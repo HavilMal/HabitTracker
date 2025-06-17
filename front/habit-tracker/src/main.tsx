@@ -40,11 +40,11 @@ function App() {
 
 function AppWrapper() {
 	return (
-		<AuthProvider>
-			<QueryClientProvider client={queryClient}>
+		<QueryClientProvider client={queryClient}>
+			<AuthProvider>
 				<App/>
-			</QueryClientProvider>
-		</AuthProvider>
+			</AuthProvider>
+		</QueryClientProvider>
 	)
 }
 

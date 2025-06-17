@@ -101,13 +101,13 @@ function parseHabits(habits: any): HabitCategory[] {
 			name: "Exercises",
 			url: "/exercises",
 			icon: <Dumbbell/>,
-			habits: habits["water"],
+			habits: [],
 		},
 		{
 			name: "Food",
 			url: "/food",
 			icon: <CookingPot/>,
-			habits: habits["water"],
+			habits: [],
 		},
 		{
 			name: "Water",
