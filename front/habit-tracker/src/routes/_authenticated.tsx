@@ -1,5 +1,6 @@
 import {createFileRoute, Outlet, redirect} from "@tanstack/react-router";
 import Layout from "@/components/layout.tsx";
+import {HabitsProvider} from "@/hooks/habit-provider.tsx";
 
 export const Route = createFileRoute("/_authenticated")({
 	beforeLoad: ({context}) => {
@@ -15,16 +16,20 @@ export const Route = createFileRoute("/_authenticated")({
 
 function NotFoundAuthenticatedLayout() {
 	return (
-		<Layout>
-			<p>Not found</p>
-		</Layout>
+		<HabitsProvider>
+			<Layout>
+				<p>Not found</p>
+			</Layout>
+		</HabitsProvider>
 	)
 }
 
 function AuthenticatedLayout() {
 	return (
-		<Layout>
-			<Outlet/>
-		</Layout>
+		<HabitsProvider>
+			<Layout>
+				<Outlet/>
+			</Layout>
+		</HabitsProvider>
 	)
 }

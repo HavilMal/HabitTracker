@@ -7,14 +7,22 @@ import {Button} from "@/components/ui/button.tsx";
 import {CookingPot, Dumbbell, RefreshCcw, GlassWater, ChevronDown, Home} from "lucide-react"
 import {Link} from "@tanstack/react-router";
 import {type JSX} from "react";
+import {useHabits} from "@/hooks/habit-provider.tsx";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
 
 type Habit = {
 	id: number;
 	name: string;
-}
+	type: "bool" | "measure" | "water";
+	freq_type: "daily" | "weekly" | "monthly";
+	freq_value: number;
+	notes?: string;
+	unit?: string;
+	target_value?: number;
+	target_type?: string;
+};
 
 type HabitCategory = {
-	id: number;
 	name: string;
 	url: string;
 	icon: JSX.Element;
@@ -36,14 +44,22 @@ function HabitCategoryList({category}: { category: HabitCategory }) {
 				</SidebarGroupLabel>
 				<CollapsibleContent>
 					<SidebarMenuSub>
-						{category.habits.map((habit: Habit) => (
-							<SidebarMenuItem key={habit.id}>
-								<SidebarMenuButton asChild>
-									{/*todo refactor*/}
-									<Link to={category.url + "/" + habit.id.toString()}>{habit.name}</Link>
-								</SidebarMenuButton>
+						{category.habits.length > 0 ?
+							category.habits.map((habit: Habit) => (
+								<SidebarMenuItem key={habit.id}>
+									<SidebarMenuButton asChild>
+										{/*todo refactor*/}
+										<Link to={category.url + "/" + habit.id.toString()}>{habit.name}</Link>
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							))
+							:
+							<SidebarMenuItem>
+								<SidebarGroupLabel asChild>
+									<p>No habits</p>
+								</SidebarGroupLabel>
 							</SidebarMenuItem>
-						))}
+						}
 					</SidebarMenuSub>
 				</CollapsibleContent>
 			</SidebarGroup>
@@ -67,83 +83,64 @@ export function SidebarList({list}: { list: HabitCategory[] }) {
 			</SidebarGroup>
 			<SidebarGroupLabel>Habits</SidebarGroupLabel>
 			{list.map((category: HabitCategory) => (
-				<HabitCategoryList category={category} key={category.id}/>
+				<HabitCategoryList category={category} key={category.name}/>
 			))}
 		</SidebarGroup>
 	)
 }
 
-const data: HabitCategory[] = [
-	{
-		id: 1,
-		name: "Habit",
-		url: "/habit",
-		icon: <RefreshCcw/>,
-		habits: [
-			{
-				id: 1,
-				name: "Meditation",
-			},
-			{
-				id: 2,
-				name: "Watering plants",
-			}
-		],
-	},
-	{
-		id: 2,
-		name: "Activity",
-		icon: <Dumbbell/>,
-		url: "/activity",
-		habits: [
-			{
-				id: 3,
-				name: "Push-ups",
-			},
-			{
-				id: 4,
-				name: "Plank",
-			}
-		],
-	},
-	{
-		id: 3,
-		name: "Meals",
-		url: "/meals",
-		icon: <CookingPot/>,
-		habits: [
-			{
-				id: 5,
-				name: "Breakfast",
-			},
-			{
-				id: 6,
-				name: "Dinner",
-			}
-		],
-	},
-	{
-		id: 4,
-		name: "Water",
-		url: "/water",
-		icon: <GlassWater/>,
-		habits: [
-			{
-				id: 7,
-				name: "Glass",
-			}
-		],
-	},
-]
+function parseHabits(habits: any): HabitCategory[] {
+	return [
+		{
+			name: "Habits",
+			url: "/habit",
+			icon: <RefreshCcw/>,
+			habits: habits["bool"].concat(habits["measure"]),
+		},
+		{
+			name: "Exercises",
+			url: "/exercises",
+			icon: <Dumbbell/>,
+			habits: habits["water"],
+		},
+		{
+			name: "Food",
+			url: "/food",
+			icon: <CookingPot/>,
+			habits: habits["water"],
+		},
+		{
+			name: "Water",
+			url: "/water",
+			icon: <GlassWater/>,
+			habits: habits["water"],
+		},
+	]
+}
+
+function ListSkeleton() {
+	return (
+		<div className="flex flex-col p-2 gap-2">
+			<Skeleton className="h-8 w-full"/>
+			<Skeleton className="ml-2 p-2 h-8"/>
+			<Skeleton className="ml-2 p-2 h-8"/>
+			<Skeleton className="h-8 w-full"/>
+			<Skeleton className="ml-2 p-2 h-8"/>
+			<Skeleton className="ml-2 p-2 h-8"/>
+		</div>
+	)
+}
 
 export function AppSidebar() {
+	const {isLoading, habits} = useHabits();
+
 	return (
 		<Sidebar variant="sidebar">
 			<SidebarHeader>
 				Habit Tracker
 			</SidebarHeader>
 			<SidebarContent>
-				<SidebarList list={data}/>
+				{isLoading ? <ListSkeleton/> : <SidebarList list={parseHabits(habits)}/>}
 			</SidebarContent>
 			<SidebarFooter>
 				<Button variant="outline" asChild>

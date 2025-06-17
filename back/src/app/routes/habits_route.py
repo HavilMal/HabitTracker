@@ -1,8 +1,8 @@
-from flask       import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
-from app         import db
-from app.models  import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB
+from app import db
+from app.models import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB
 
 habit_bp = Blueprint('habit', __name__)
 
@@ -25,7 +25,7 @@ def add_habit():
                 notes=notes,
                 user_id=current_user.id
             )
-        
+
         elif habit_type == 'measure':
             habit = HabitMeasureDB(
                 name=name,
@@ -60,25 +60,32 @@ def add_habit():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 
+def habits_to_list(habits):
+    serialized = []
+    for h in habits:
+        dc = h.to_dataclass()
+        data = dc.__dict__.copy()
+        data['type'] = h.__mapper_args__['polymorphic_identity']
+        data['start_date'] = dc.start_date.isoformat()
+        data['id'] = h.habit_id
+        serialized.append(data)
+
+    return serialized
+
+
 @habit_bp.route('/get-habits', methods=['GET'])
 @login_required
 def get_habits():
     try:
-        habits_bool    = HabitBoolDB.query.filter_by(user_id=current_user.uid).all()
-        habits_measure = HabitMeasureDB.query.filter_by(user_id=current_user.uid).all()
-        habits_water   = HabitDrinkingWaterDB.query.filter_by(user_id=current_user.uid).all()
+        habits_bool = HabitBoolDB.query.filter_by(user_id=current_user.id).all()
+        habits_measure = HabitMeasureDB.query.filter_by(user_id=current_user.id).all()
+        habits_water = HabitDrinkingWaterDB.query.filter_by(user_id=current_user.id).all()
 
-        all_habits = habits_bool + habits_measure + habits_water
-        serialized = []
-
-        for h in all_habits:
-            dc                 = h.to_dataclass()
-            data               = dc.__dict__.copy()
-            data['type']       = h.__mapper_args__['polymorphic_identity']
-            data['start_date'] = dc.start_date.isoformat()
-            serialized.append(data)
-
-        return jsonify(serialized), 200
+        return jsonify({
+            "bool": habits_to_list(habits_bool),
+            "measure": habits_to_list(habits_measure),
+            "water": habits_to_list(habits_water),
+        }), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
