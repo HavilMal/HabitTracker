@@ -61,7 +61,7 @@ function HabitCategoryList({category}: { category: HabitCategory }) {
 									<p>No habits</p>
 								</SidebarGroupLabel>
 							</SidebarMenuItem>
-						))}
+						}
 					</SidebarMenuSub>
 				</CollapsibleContent>
 			</SidebarGroup>
@@ -84,8 +84,8 @@ export function SidebarList({list}: { list: HabitCategory[] }) {
 				</SidebarMenu>
 			</SidebarGroup>
 			<SidebarGroupLabel>Habits</SidebarGroupLabel>
-			{list.map((category: HabitCategory) => (
-				<HabitCategoryList category={category} key={category.name}/>
+			{list.map((category: HabitCategory, i: number) => (
+				<HabitCategoryList category={category} key={i}/>
 			))}
 		</SidebarGroup>
 	)
@@ -150,13 +150,33 @@ export function AppSidebar() {
 		}
 	}
 
+	function renderList() {
+		if (isLoading) {
+			return (
+				<ListSkeleton/>
+			)
+		} else if (habits === undefined) {
+			return (
+				<SidebarGroup>
+					<SidebarGroupLabel asChild>
+						<p>Could not load Habits</p>
+					</SidebarGroupLabel>
+				</SidebarGroup>
+			)
+		} else {
+			return (
+				<SidebarList list={parseHabits(habits)}/>
+			)
+		}
+	}
+
 	return (
 		<Sidebar variant="sidebar">
 			<SidebarHeader>
 				Habit Tracker
 			</SidebarHeader>
 			<SidebarContent>
-				{isLoading ? <ListSkeleton/> : <SidebarList list={parseHabits(habits)}/>}
+				{renderList()}
 			</SidebarContent>
 			<SidebarFooter>
 				<Button variant="outline" asChild>
