@@ -4,6 +4,7 @@ import {ThemeProvider} from "@/hooks/theme-provider.tsx";
 import {useAuth} from "@/hooks/auth.tsx";
 import {ErrorPage} from "@/components/error-page.tsx";
 import Layout from "@/components/layout.tsx";
+import {HabitsProvider} from "@/hooks/habit-provider.tsx";
 
 export const Route = createRootRoute({
 	component: () => (
@@ -23,9 +24,11 @@ function ErrorPageWrapper() {
 		<ThemeProvider>
 			{
 				auth.isAuthenticated ?
-					<Layout>
-						<ErrorPage redirect="/dashboard"/>
-					</Layout>
+					<HabitsProvider>
+						<Layout>
+							<ErrorPage redirect="/dashboard"/>
+						</Layout>
+					</HabitsProvider>
 					:
 					<div className="w-screen h-screen flex items-center justify-center">
 						<ErrorPage redirect="/"/>

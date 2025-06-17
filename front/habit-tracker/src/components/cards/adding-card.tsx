@@ -11,6 +11,7 @@ import {type Dispatch, type JSX, type SetStateAction, useEffect, useState} from 
 import {Textarea} from "@/components/ui/textarea.tsx";
 import {cn} from "@/lib/utils.ts";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
+import {useHabits} from "@/hooks/habit-provider.tsx";
 
 const formSchema = z.object({
 	name: z.string().min(1),
@@ -216,6 +217,7 @@ function MeasurementHabitFields({form}: { form: UseFormReturn<z.infer<typeof for
 function BoolHabitForm({setError}: { setError: Dispatch<SetStateAction<boolean>> }) {
 	const navigate = useNavigate();
 	const [habitType, setHabitType] = useState<FormSchema["type"]>("bool");
+	const {refreshHabits} = useHabits();
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -256,6 +258,7 @@ function BoolHabitForm({setError}: { setError: Dispatch<SetStateAction<boolean>>
 			})
 
 		if (response.ok) {
+			refreshHabits();
 			await navigate({to: "/dashboard"})
 		} else {
 			form.reset();

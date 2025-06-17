@@ -1,4 +1,6 @@
 import {createContext, useState, useCallback, useEffect, type ReactNode, useContext} from "react";
+import {useHabits} from "@/hooks/habit-provider.tsx";
+import {useQueryClient} from "@tanstack/react-query";
 
 export interface AuthContext {
 	isAuthenticated: boolean;
@@ -10,6 +12,7 @@ export interface AuthContext {
 
 const AuthContext = createContext<AuthContext | null>(null);
 
+// todo change
 const key = "tanstack.auth.user"
 
 function getStoredUser() {
@@ -27,6 +30,7 @@ function setStoredUser(user: string | null) {
 
 export function AuthProvider({children}: { children: ReactNode }) {
 	const [user, setUser] = useState<string | null>(getStoredUser());
+	const queryClient = useQueryClient();
 	// cast non bool to bool
 	const isAuthenticated = !!user;
 
@@ -81,6 +85,7 @@ export function AuthProvider({children}: { children: ReactNode }) {
 
 	const logout = useCallback(
 		async () => {
+			queryClient.removeQueries({queryKey: ['habits']});
 			setStoredUser(null);
 			setUser(null);
 		},
