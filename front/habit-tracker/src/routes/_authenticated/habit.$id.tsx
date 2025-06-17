@@ -1,7 +1,7 @@
 import {createFileRoute} from '@tanstack/react-router'
-import {LineplotCard} from "@/components/lineplot.tsx";
-import CalendarCard from "@/components/calendar.tsx";
-import CompletionCard from "@/components/completed-list.tsx";
+import {LineplotCard} from "@/components/cards/lineplot-card.tsx";
+import CalendarCard from "@/components/cards/calendar-card.tsx";
+import CompletionCard from "@/components/cards/completed-card.tsx";
 
 export const Route = createFileRoute('/_authenticated/habit/$id')({
 	component: RouteComponent,

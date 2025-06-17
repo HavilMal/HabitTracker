@@ -1,7 +1,7 @@
 import {
 	Card,
 	CardContent, CardFooter, CardHeader, CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card.tsx"
 import {Button} from "@/components/ui/button.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
