@@ -8,7 +8,9 @@ export const Route = createFileRoute('/_authenticated/profile')({
 function RouteComponent() {
 	return (
 		<div className="flex h-full w-full justify-center items-center">
-			<ProfileCard/>
+			<div className="w-full max-w-xl">
+				<ProfileCard/>
+			</div>
 		</div>
 	)
 }

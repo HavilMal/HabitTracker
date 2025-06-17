@@ -1,6 +1,6 @@
 import {
 	Card,
-	CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
+	CardContent, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
 import {Button} from "@/components/ui/button.tsx";
 import {Input} from "@/components/ui/input.tsx";

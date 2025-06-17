@@ -164,15 +164,11 @@ export function AppSidebar() {
 						Add Habit
 					</Link>
 				</Button>
-				<Button variant="outline">Add Habit</Button>
 				<div className="flex flex-row gap-6">
 					<Button className="flex flex-1" variant="outline" asChild>
 						<Link to="/profile">
 							Profile
 						</Link>
-					</Button>
-					<Button className="flex flex-1" variant="outline" asChild>
-						Profile
 					</Button>
 					<Button className="flex flex-1" variant="outline" onClick={handleLogout}>Logout</Button>
 				</div>

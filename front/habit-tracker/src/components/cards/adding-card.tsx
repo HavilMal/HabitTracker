@@ -1,6 +1,6 @@
 import {Card, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {z} from "zod";
-import {type ControllerRenderProps, useForm, type UseFormReturn} from "react-hook-form";
+import {useForm, type UseFormReturn} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormField, FormItem, FormLabel, FormControl} from "@/components/ui/form.tsx";
 import {Input} from "@/components/ui/input.tsx";
@@ -11,6 +11,7 @@ import {type Dispatch, type JSX, type SetStateAction, useEffect, useState} from 
 import {Textarea} from "@/components/ui/textarea.tsx";
 import {cn} from "@/lib/utils.ts";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
+import {NumberInput} from "@/components/number-form-input.tsx";
 import {useHabits} from "@/hooks/habit-provider.tsx";
 
 const formSchema = z.object({
@@ -27,22 +28,6 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>
 
-function NumberInput({field, className, placeholder}: {
-	field: ControllerRenderProps<FormSchema, keyof FormSchema>,
-	className?: string,
-	placeholder?: string
-}) {
-
-	return (
-		<Input
-			{...field} placeholder={placeholder} type="text" onChange={(e) => {
-			const sanitized = e.target.value.replace(/[^0-9]/g, "");
-			field.onChange(sanitized === "" ? "" : Number(sanitized));
-		}}
-			className={cn("[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none", className)}
-		/>
-	)
-}
 
 
 function WaterHabitFields({form, children}: {
