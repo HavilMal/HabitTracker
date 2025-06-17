@@ -1,8 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask       import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
-from app import db
-from app.models import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB
+from app         import db
+from app.models  import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB
 
 habit_bp = Blueprint('habit', __name__)
 
@@ -11,7 +11,10 @@ habit_bp = Blueprint('habit', __name__)
 @login_required
 def add_habit():
     data = request.get_json()
-    habit_type = data.get('type')  # 'bool', 'measure', 'water'
+    habit_type = data.get('type')  # 'bool', 'measure', 'water', 'meal'
+
+    if habit_type not in {'bool', 'measure', 'water', 'meal'}:
+        return jsonify({"error": "Invalid habit type"}), 400
 
     try:
         name = data['name']
@@ -23,9 +26,10 @@ def add_habit():
                 freq_type=data['freq_type'],
                 freq_value=int(data['freq_value']),
                 notes=notes,
-                user_id=current_user.id
+                habit_type=habit_type,
+                user_id=current_user.uid
             )
-
+        
         elif habit_type == 'measure':
             habit = HabitMeasureDB(
                 name=name,
@@ -34,7 +38,8 @@ def add_habit():
                 target_value=float(data['target_value']),
                 target_type=data['target_type'],
                 notes=notes,
-                user_id=current_user.id
+                habit_type=habit_type,
+                user_id=current_user.uid
             )
 
         elif habit_type == 'water':
@@ -42,11 +47,20 @@ def add_habit():
                 name=name,
                 target_value=int(data['target_value']),
                 notes=notes,
-                user_id=current_user.id
+                habit_type=habit_type,
+                user_id=current_user.uid
             )
 
-        else:
-            return jsonify({"error": "Invalid habit type"}), 400
+        elif habit_type == 'meal':
+            habit = HabitMealDB(
+                name=name,
+                target_value=float(data['target_value']),
+                target_data_unit=data['target_data_unit'],
+                target_type=data['target_type'],
+                notes=notes,
+                habit_type=habit_type,
+                user_id=current_user.uid
+            )
 
         db.session.add(habit)
         db.session.commit()
@@ -65,9 +79,9 @@ def habits_to_list(habits):
     for h in habits:
         dc = h.to_dataclass()
         data = dc.__dict__.copy()
-        data['type'] = h.__mapper_args__['polymorphic_identity']
-        data['start_date'] = dc.start_date.isoformat()
-        data['id'] = h.habit_id
+        data['type']         = h.__mapper_args__['polymorphic_identity']
+        data['start_date']   = dc.start_date.isoformat()
+        data['id']           = h.habit_id
         serialized.append(data)
 
     return serialized
@@ -77,14 +91,16 @@ def habits_to_list(habits):
 @login_required
 def get_habits():
     try:
-        habits_bool = HabitBoolDB.query.filter_by(user_id=current_user.id).all()
-        habits_measure = HabitMeasureDB.query.filter_by(user_id=current_user.id).all()
-        habits_water = HabitDrinkingWaterDB.query.filter_by(user_id=current_user.id).all()
+        habits_bool     = HabitBoolDB.query.filter_by(user_id=current_user.uid).all()
+        habits_measure  = HabitMeasureDB.query.filter_by(user_id=current_user.uid).all()
+        habits_water    = HabitDrinkingWaterDB.query.filter_by(user_id=current_user.uid).all()
+        habits_meal     = HabitMealDB.query.filter_by(user_id=current_user.uid).all()
 
         return jsonify({
-            "bool": habits_to_list(habits_bool),
-            "measure": habits_to_list(habits_measure),
-            "water": habits_to_list(habits_water),
+            "bool":     habits_to_list(habits_bool),
+            "measure":  habits_to_list(habits_measure),
+            "water":    habits_to_list(habits_water),
+            "meal":     habits_to_list(habits_meal),
         }), 200
 
     except Exception as e:
