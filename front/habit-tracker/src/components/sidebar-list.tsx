@@ -9,6 +9,8 @@ import {Link} from "@tanstack/react-router";
 import {type JSX} from "react";
 import {useHabits} from "@/hooks/habit-provider.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {useAuth} from "@/hooks/auth.tsx";
+import {useNavigate, useRouter} from "@tanstack/react-router";
 
 type Habit = {
 	id: number;
@@ -82,8 +84,8 @@ export function SidebarList({list}: { list: HabitCategory[] }) {
 				</SidebarMenu>
 			</SidebarGroup>
 			<SidebarGroupLabel>Habits</SidebarGroupLabel>
-			{list.map((category: HabitCategory) => (
-				<HabitCategoryList category={category} key={category.name}/>
+			{list.map((category: HabitCategory, i: number) => (
+				<HabitCategoryList category={category} key={i}/>
 			))}
 		</SidebarGroup>
 	)
@@ -134,13 +136,47 @@ function ListSkeleton() {
 export function AppSidebar() {
 	const {isLoading, habits} = useHabits();
 
+	const auth = useAuth()
+	const router = useRouter()
+	const navigate = useNavigate()
+
+
+	async function handleLogout() {
+		try {
+			await auth.logout()
+			await router.invalidate();
+		} finally {
+			await navigate({to: "/login"});
+		}
+	}
+
+	function renderList() {
+		if (isLoading) {
+			return (
+				<ListSkeleton/>
+			)
+		} else if (habits === undefined) {
+			return (
+				<SidebarGroup>
+					<SidebarGroupLabel asChild>
+						<p>Could not load Habits</p>
+					</SidebarGroupLabel>
+				</SidebarGroup>
+			)
+		} else {
+			return (
+				<SidebarList list={parseHabits(habits)}/>
+			)
+		}
+	}
+
 	return (
 		<Sidebar variant="sidebar">
 			<SidebarHeader>
 				Habit Tracker
 			</SidebarHeader>
 			<SidebarContent>
-				{isLoading ? <ListSkeleton/> : <SidebarList list={parseHabits(habits)}/>}
+				{renderList()}
 			</SidebarContent>
 			<SidebarFooter>
 				<Button variant="outline" asChild>
@@ -148,7 +184,14 @@ export function AppSidebar() {
 						Add Habit
 					</Link>
 				</Button>
-				<Button variant="outline">Profile</Button>
+				<div className="flex flex-row gap-6">
+					<Button className="flex flex-1" variant="outline" asChild>
+						<Link to="/profile">
+							Profile
+						</Link>
+					</Button>
+					<Button className="flex flex-1" variant="outline" onClick={handleLogout}>Logout</Button>
+				</div>
 			</SidebarFooter>
 		</Sidebar>
 	)
