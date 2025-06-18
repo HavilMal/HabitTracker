@@ -1,7 +1,7 @@
 from dataclasses         import dataclass, field
 
-from app.logic.food      import Food
-from app.constants import *
+from back.src.app.logic.food      import Food
+from back.src.app.constants import *
 
 
 @dataclass

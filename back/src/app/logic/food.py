@@ -1,6 +1,6 @@
 from dataclasses            import dataclass
 
-from app.constants import *
+from back.src.app.constants import *
 
 
 @dataclass

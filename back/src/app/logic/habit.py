@@ -1,46 +1,70 @@
 from dataclasses import dataclass
-from datetime import datetime, date, timedelta
+import datetime
 import abc
-from meal import Meal
+from back.src.app.logic.meal import Meal
 
 
 class Habit(metaclass=abc.ABCMeta):
-    def __init__(self, name: str, notes: str = ''):
-        self.start_date: date = datetime.now().date()
+    def __init__(self, name: str, start_date: datetime.date, notes: str = ''):
         self.name: str = name
+        self.start_date: datetime.date = start_date
         self.notes: str = notes
+
+    @abc.abstractmethod
+    def get_history(self):
+        ...
+
+    @staticmethod
+    def get_dates(start_date, end_date):
+        return [start_date + datetime.timedelta(days=x) for x in range((end_date - start_date).days + 1)]
 
 
 class HabitBool(Habit):
-    def __init__(self, name: str, freq_type: str, freq_value: int, notes: str = ''):
-        super().__init__(name, notes)
+    def __init__(self, name: str, start_date: datetime.date, freq_type: str, freq_value: int, notes: str = ''):
+        super().__init__(name, start_date, notes)
         self.freq_type: str = freq_type  # 'n_times_per_week' or 'every_n_days'
         self.freq_value: int = freq_value
-        self.completed_days: list[date] = []
+        self.completed_days: list[datetime.date] = []
 
-    def mark_completed(self, completion_date: date):
-        self.completed_days.append(completion_date)
+    def mark_completed(self, completion_date: datetime.date):
+        if completion_date not in self.completed_days:
+            self.completed_days.append(completion_date)
 
-    def get_history(self) -> list[str]:
-        return [d.isoformat() for d in sorted(self.completed_days)]
+    def get_history(self) -> list[tuple[str | int]]:
+        all_dates: list[datetime.date] = self.get_dates(self.start_date, datetime.date.today())
+        history = []
+        completed_days_set = set(self.completed_days)
+        auto_completed_days_after = 0
+
+        for date in all_dates:
+            if date in completed_days_set:
+                history.append((date.isoformat(), 1))
+                auto_completed_days_after = self.freq_value - 1
+            elif auto_completed_days_after > 0:
+                history.append((date.isoformat(), 1))
+                auto_completed_days_after -= 1
+            else:
+                history.append((date.isoformat(), 0))
+
+        return history
 
 
 @dataclass
 class MeasurementFloat:
-    date: date
+    date: datetime.date
     amount: float
 
 
 class HabitMeasure(Habit):
-    def __init__(self, name: str, freq_type: str, unit: str, target_value: float, target_type: str, notes: str = ''):
-        super().__init__(name, notes)
+    def __init__(self, name: str, start_date: datetime.date, freq_type: str, unit: str, target_value: float, target_type: str, notes: str = ''):
+        super().__init__(name, start_date, notes)
         self.freq_type: str = freq_type  # 'daily' or 'weekly'
         self.unit: str = unit
         self.target_value: float = target_value
         self.target_type: str = target_type  # 'at_least' or 'at_most'
         self.measurements: list[MeasurementFloat] = []
 
-    def add_measurement(self, measure_date: date, amount: float):
+    def add_measurement(self, measure_date: datetime.date, amount: float):
         self.measurements.append(MeasurementFloat(measure_date, amount))
 
     def get_history(self) -> list[dict[str, str | float]]:
@@ -49,17 +73,17 @@ class HabitMeasure(Habit):
 
 @dataclass
 class MeasurementInt:
-    date: date
+    date: datetime.date
     amount: int
 
 
 class HabitDrinkingWater(Habit):
-    def __init__(self, name: str, target_value: int, notes: str = ''):
-        super().__init__(name, notes)
+    def __init__(self, name: str, start_date: datetime.date, target_value: int, notes: str = ''):
+        super().__init__(name, start_date, notes)
         self.target_value: int = target_value
         self.measurements: list[MeasurementInt] = []
 
-    def add_measurement(self, measure_date: date, amount: int):
+    def add_measurement(self, measure_date: datetime.date, amount: int):
         self.measurements.append(MeasurementInt(measure_date, amount))
 
     def get_history(self) -> list[dict[str, str | float]]:
@@ -70,7 +94,7 @@ class HabitDrinkingWater(Habit):
 class MeasurementActivity:
     activity_datetime: datetime
     amount: float
-    duration: timedelta
+    duration: datetime.timedelta
     calories: float
 
     @property
@@ -82,8 +106,8 @@ class MeasurementActivity:
 
 
 class HabitActivity(Habit):
-    def __init__(self, name: str, freq_type: str, unit: str, target_value: float, notes: str = ''):
-        super().__init__(name, notes)
+    def __init__(self, name: str, start_date: datetime.date, freq_type: str, unit: str, target_value: float, notes: str = ''):
+        super().__init__(name, start_date, notes)
         self.freq_type: str = freq_type  # 'daily' or 'weekly'
         self.unit: str = unit
         self.target_value: float = target_value
@@ -91,8 +115,8 @@ class HabitActivity(Habit):
 
 
 class HabitMeal(Habit):
-    def __init__(self, name, target_value: float, target_data_unit: str, target_type: str, notes: str = ''):
-        super().__init__(name, notes)
+    def __init__(self, name: str, start_date: datetime.date, target_value: float, target_data_unit: str, target_type: str, notes: str = ''):
+        super().__init__(name, start_date, notes)
         self.target_value: float = target_value
         self.target_data_unit: str = target_data_unit # 'prot', 'fat', 'carb', 'calories'
         self.target_type: str = target_type  # 'at_least' or 'at_most'
