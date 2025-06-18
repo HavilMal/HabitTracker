@@ -30,7 +30,7 @@ function ProfileAttribute({description, fieldName, form}: {
 			control={form.control}
 			name={fieldName}
 			render={({field}) => (
-				<FormItem className="flex flex-row gap-6 px-">
+				<FormItem className="flex flex-row gap-6">
 					<FormLabel className="w-1/10">{description}</FormLabel>
 					<FormControl className="w-9/10">
 						<NumberInput field={field} placeholder={description}/>
@@ -74,7 +74,7 @@ export function ProfileCard() {
 								control={form.control}
 								name={"sex"}
 								render={({field}) => (
-									<FormItem className="flex flex-row gap-6 px-">
+									<FormItem className="flex flex-row gap-6">
 										<FormLabel className="w-1/10">Sex</FormLabel>
 										<Select
 											onValueChange={(value: FormSchema["sex"]) => {
@@ -99,8 +99,7 @@ export function ProfileCard() {
 							<ProfileAttribute description={"Weight"} fieldName={"weight"} form={form}/>
 							<ProfileAttribute description={"Height"} fieldName={"height"} form={form}/>
 							<FormControl>
-								<Button variant="outline" className="ml-auto" onClick={() => {
-								}}>
+								<Button variant="outline" className="ml-auto" onClick={form.handleSubmit(onSubmit)}>
 									Save changes
 								</Button>
 							</FormControl>
