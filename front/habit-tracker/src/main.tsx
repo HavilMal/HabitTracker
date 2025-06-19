@@ -9,6 +9,8 @@ import {routeTree} from './routeTree.gen'
 import './styles.css'
 import reportWebVitals from './reportWebVitals.ts'
 import {AuthProvider, useAuth} from "@/hooks/auth.tsx";
+import {ThemeProvider} from "@/hooks/theme-provider.tsx";
+import {BreadcrumbsProvider} from "@/hooks/breadcrumbs-provider.tsx";
 
 // Create a new router instance
 const router = createRouter({
@@ -42,7 +44,11 @@ function AppWrapper() {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<AuthProvider>
-				<App/>
+				<ThemeProvider>
+					<BreadcrumbsProvider>
+						<App/>
+					</BreadcrumbsProvider>
+				</ThemeProvider>
 			</AuthProvider>
 		</QueryClientProvider>
 	)
