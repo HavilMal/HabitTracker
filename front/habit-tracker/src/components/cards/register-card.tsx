@@ -8,7 +8,6 @@ import {
 	FormControl,
 	FormMessage
 } from "@/components/ui/form.tsx";
-import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
 import {useForm} from "react-hook-form"
 import {z} from "zod"
 import {zodResolver} from "@hookform/resolvers/zod"
@@ -16,6 +15,7 @@ import {Input} from "@/components/ui/input.tsx";
 import {useAuth} from "@/hooks/auth.tsx";
 import {useNavigate} from "@tanstack/react-router";
 import {useState} from "react";
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
 
 const formSchema = z.object({
 	username: z.string().regex(/^\S*$/g, "Username cannot include whitespace")
@@ -24,24 +24,33 @@ const formSchema = z.object({
 	password: z.string()
 	// .min(8, {message: "Password must be at least 8 characters.", })
 	,
+	confirmPassword: z.string()
+}).superRefine((data, ctx) => {
+	if (data.password !== data.confirmPassword) {
+		ctx.addIssue({
+			code: "custom",
+			message: "Passwords don't match",
+			path: ["confirmPassword"],
+		})
+	}
 })
 
-export function LoginForm() {
-	const auth = useAuth()
-	const navigate = useNavigate()
+export function RegisterCard() {
+	const auth = useAuth();
+	const navigate = useNavigate();
 	const [error, setError] = useState(false);
-
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			username: "",
 			password: "",
+			confirmPassword: "",
 		},
 	})
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		const response = await auth.login(values.username, values.password)
+		const response = await auth.register(values.username, values.password)
 		if (response) {
 			await navigate({to: "/dashboard"})
 		} else {
@@ -54,7 +63,7 @@ export function LoginForm() {
 		<div className="flex flex-col gap-6">
 			<Card>
 				<CardHeader>
-					<CardTitle>Login to your account</CardTitle>
+					<CardTitle>Create your account</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<Form {...form}>
@@ -85,21 +94,33 @@ export function LoginForm() {
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={form.control}
+								name="confirmPassword"
+								render={({field}) => (
+									<FormItem>
+										<FormLabel>Confirm password</FormLabel>
+										<FormControl>
+											<Input type="password" placeholder="confirm password" {...field} />
+										</FormControl>
+										<FormMessage/>
+									</FormItem>
+								)}
+							/>
 							<FormItem>
 								<FormControl>
-									<Button type="submit">Login</Button>
+									<Button type="submit">Register</Button>
 								</FormControl>
 							</FormItem>
 						</form>
 					</Form>
-
 				</CardContent>
 			</Card>
 			<div className="relative">
 				{error && (
 					<Alert variant="destructive" className="absolute">
-						<AlertTitle>Login Failed</AlertTitle>
-						<AlertDescription>Incorrect login or password</AlertDescription>
+						<AlertTitle>Registration Failed</AlertTitle>
+						<AlertDescription>User with given username may already exist</AlertDescription>
 					</Alert>
 				)}
 			</div>

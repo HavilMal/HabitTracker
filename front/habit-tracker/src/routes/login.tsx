@@ -1,7 +1,7 @@
 import {createFileRoute} from '@tanstack/react-router'
-import {LoginForm} from "@/components/login-form.tsx";
+import {LoginCard} from "@/components/cards/login-card.tsx";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
-import {RegisterForm} from "@/components/register-form.tsx";
+import {RegisterCard} from "@/components/cards/register-card.tsx";
 import {Navbar} from "@/components/navbar.tsx";
 
 export const Route = createFileRoute('/login')({
@@ -20,10 +20,10 @@ function RouteComponent() {
 							<TabsTrigger value="register">Register</TabsTrigger>
 						</TabsList>
 						<TabsContent value="login">
-							<LoginForm/>
+							<LoginCard/>
 						</TabsContent>
 						<TabsContent value="register">
-							<RegisterForm/>
+							<RegisterCard/>
 						</TabsContent>
 					</Tabs>
 				</div>
