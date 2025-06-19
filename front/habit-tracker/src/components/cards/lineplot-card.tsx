@@ -32,18 +32,18 @@ const chartConfig = {
 	},
 } satisfies ChartConfig
 
-export function LineplotCard() {
+export function LineplotCard({title="Line Chart", description = "description", data=chartData} : {title?: string, description?: string, data?: any}) {
 	return (
 		<Card className="flex flex-1">
 			<CardHeader>
-				<CardTitle>Line Chart</CardTitle>
-				<CardDescription>January - June 2024</CardDescription>
+				<CardTitle>{title}</CardTitle>
+				<CardDescription>{description}</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-1">
 				<ChartContainer className="w-full h-full !aspect-auto" config={chartConfig}>
 					<LineChart
 						accessibilityLayer
-						data={chartData}
+						data={data}
 						margin={{
 							left: 12,
 							right: 12,
