@@ -1,6 +1,6 @@
 import {
 	Card,
-	CardContent, CardFooter, CardHeader, CardTitle,
+	CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card.tsx"
 import {Button} from "@/components/ui/button.tsx";
 import {Input} from "@/components/ui/input.tsx";
@@ -34,7 +34,10 @@ function getLastValues(days: Date[]): Map<string, number> {
 	return map;
 }
 
-export default function CompletionCard({numberOfDays = 7, data}: { numberOfDays?: number, data: BoolHabit | MeasureHabit }) {
+export default function CompletionCard({numberOfDays = 7, data}: {
+	numberOfDays?: number,
+	data: BoolHabit | MeasureHabit
+}) {
 	const lastWeekDays = getLastDays(numberOfDays);
 	const lastWeekValues = getLastValues(lastWeekDays);
 
@@ -46,7 +49,7 @@ export default function CompletionCard({numberOfDays = 7, data}: { numberOfDays?
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			value: data.type === "habit_bool" ? false : 0,
+			value: data.type === "habit_bool" ? false : lastWeekValues.get(lastWeekDays[0].toDateString()),
 			date: lastWeekDays[0],
 		},
 		mode: "onChange",
@@ -63,7 +66,11 @@ export default function CompletionCard({numberOfDays = 7, data}: { numberOfDays?
 
 					<CardHeader>
 						<CardTitle>Track your daily progress</CardTitle>
+						<CardDescription>
+							Select a day and mark your goal's status.
+						</CardDescription>
 					</CardHeader>
+
 
 					<CardContent className="flex flex-1 justify-center items-center">
 						<FormField
@@ -117,9 +124,13 @@ export default function CompletionCard({numberOfDays = 7, data}: { numberOfDays?
 								control={form.control}
 								name="value"
 								render={() => (
-									<FormItem className="flex flex-row flex-1 h-full">
+									<FormItem className="flex flex-row flex-1 h-full justify-center items-center gap-6">
+										<h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+											{form.getValues("value") ? "Completed!" : "Not completed"}
+										</h3>
 										<FormControl>
-											<Toggle onPressedChange={(value) => form.setValue("value", value)}>
+											<Toggle type="submit" variant="outline" className="aspect-square flex h-1/4"
+											        onPressedChange={(value) => form.setValue("value", value)}>
 												<Check/>
 											</Toggle>
 										</FormControl>
@@ -165,14 +176,17 @@ export default function CompletionCard({numberOfDays = 7, data}: { numberOfDays?
 						}
 
 					</CardContent>
-					<CardFooter className="gap-6">
-						<FormControl>
-							<Button className="flex-1 w-full" type="submit">Submit</Button>
-						</FormControl>
-						<FormControl>
-							<Button className="flex-1 w-full" type="submit" variant="destructive">Delete</Button>
-						</FormControl>
-					</CardFooter>
+					{data.type === "habit_bool" ?
+						<></> :
+						<CardFooter className="gap-6">
+							<FormControl>
+								<Button className="flex-1 w-full" type="submit">Submit</Button>
+							</FormControl>
+							<FormControl>
+								<Button className="flex-1 w-full" type="submit" variant="destructive">Delete</Button>
+							</FormControl>
+						</CardFooter>
+					}
 				</Card>
 			</form>
 		</Form>

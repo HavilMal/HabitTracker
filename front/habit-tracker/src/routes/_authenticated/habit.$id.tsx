@@ -37,7 +37,7 @@ function RouteComponent() {
 				<LineplotCard/>
 			</div>
 			<div className="bg-muted/50 flex flex-1 rounded-xl">
-				<CompletionCard data={data}/>
+				<CompletionCard data={data} key={id}/>
 			</div>
 			<div className="bg-muted/50 flex rounded-xl">
 				<CalendarCard/>
