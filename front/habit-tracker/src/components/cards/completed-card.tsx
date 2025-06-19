@@ -8,13 +8,11 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 import z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {ChevronLeft, ChevronRight} from "lucide-react";
+import {Check, ChevronLeft, ChevronRight} from "lucide-react";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group.tsx";
+import {Toggle} from "@/components/ui/toggle.tsx";
+import type {BoolHabit, MeasureHabit} from "@/hooks/habit-provider.tsx";
 
-const formSchema = z.object({
-	value: z.number(),
-	date: z.date(),
-})
 
 function getLastDays(numberOfDays: number): Date[] {
 	const list = [];
@@ -30,21 +28,25 @@ function getLastDays(numberOfDays: number): Date[] {
 function getLastValues(days: Date[]): Map<string, number> {
 	const map = new Map<string, number>();
 	for (let day of days) {
-		map.set(day.toDateString(), 10);
+		map.set(day.toDateString(), 11);
 	}
 
 	return map;
 }
 
-
-export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: number }) {
+export default function CompletionCard({numberOfDays = 7, data}: { numberOfDays?: number, data: BoolHabit | MeasureHabit }) {
 	const lastWeekDays = getLastDays(numberOfDays);
 	const lastWeekValues = getLastValues(lastWeekDays);
+
+	const formSchema = z.object({
+		date: z.date(),
+		value: data.type === "habit_bool" ? z.boolean() : z.number(),
+	})
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			value: 10,
+			value: data.type === "habit_bool" ? false : 0,
 			date: lastWeekDays[0],
 		},
 		mode: "onChange",
@@ -87,12 +89,12 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 									className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]"
 								>
 									{
-										lastWeekDays.map((day) => (
+										lastWeekDays.map((day, i) => (
 											<FormItem className="flex flex-row w-full h-full">
 												<FormControl>
 													<RadioGroupItem value={day.toDateString()}
 													                id={day.toDateString()}
-													                key={day.getDate()}
+													                key={i}
 													                className="peer sr-only"
 													/>
 												</FormControl>
@@ -110,39 +112,58 @@ export default function CompletionCard({numberOfDays = 7}: { numberOfDays?: numb
 						/>
 					</CardContent>
 					<CardContent className="flex flex-col w-full h-full gap-4">
-						<FormField
-							control={form.control}
-							name="value"
-							render={({field}) => (
-								<FormItem className="flex flex-row flex-1 h-full">
-									<div className="flex h-full w-1/4 justify-center items-center">
-										<Button variant="outline" className="aspect-square rounded-full"
-										        onClick={() => form.setValue("value", Math.max(form.getValues().value - 1, 0))}>
-											<ChevronLeft/>
-										</Button>
-									</div>
-									<FormItem className="flex flex-row h-full w-1/2">
-										<FormControl className="flex flex-row w-full h-full justify-center items-center">
-											<Input
-												{...field} placeholder="Value" type="text" onChange={(e) => {
-												const sanitized = e.target.value.replace(/[^0-9]/g, "");
-												field.onChange(Number(sanitized));
-											}}
-												className="text-xl lg:text-8xl text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-											/>
+						{data.type === "habit_bool" ?
+							<FormField
+								control={form.control}
+								name="value"
+								render={() => (
+									<FormItem className="flex flex-row flex-1 h-full">
+										<FormControl>
+											<Toggle onPressedChange={(value) => form.setValue("value", value)}>
+												<Check/>
+											</Toggle>
 										</FormControl>
-										<FormMessage/>
 									</FormItem>
-									<div className="flex h-full w-1/4 justify-center items-center">
-										<Button variant="outline" className="aspect-square rounded-full"
-										        onClick={() => form.setValue("value", form.getValues().value + 1)}>
-											<ChevronRight/>
-										</Button>
-									</div>
-								</FormItem>
-							)}
-						/>
-						<h1 className="text-center text-xl lg:text-3xl">Hours</h1>
+								)}
+							/>
+							:
+							<div className="flex flex-col flex-1 h-full">
+								<FormField
+									control={form.control}
+									name="value"
+									render={({field}) => (
+										<FormItem className="flex flex-row flex-1 h-full">
+											<div className="flex h-full w-1/4 justify-center items-center">
+												<Button variant="outline" className="aspect-square rounded-full"
+												        onClick={() => form.setValue("value", Math.max(form.getValues().value as number - 1, 0))}>
+													<ChevronLeft/>
+												</Button>
+											</div>
+											<FormItem className="flex flex-row h-full w-1/2">
+												<FormControl className="flex flex-row w-full h-full justify-center items-center">
+													<Input
+														{...field} placeholder="Value" type="text" onChange={(e) => {
+														const sanitized = e.target.value.replace(/[^0-9]/g, "");
+														field.onChange(Number(sanitized));
+													}}
+														className="text-xl lg:text-8xl text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+													/>
+												</FormControl>
+												<FormMessage/>
+											</FormItem>
+											<div className="flex h-full w-1/4 justify-center items-center">
+												<Button variant="outline" className="aspect-square rounded-full"
+												        onClick={() => form.setValue("value", form.getValues().value as number + 1)}>
+													<ChevronRight/>
+												</Button>
+											</div>
+										</FormItem>
+									)}
+								/>
+								<h1 className="text-center text-xl lg:text-3xl">Hours</h1>
+							</div>
+						}
+
 					</CardContent>
 					<CardFooter className="gap-6">
 						<FormControl>

@@ -4,3 +4,14 @@ import { twMerge } from 'tailwind-merge'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+export function getLastDays(numberOfDays: number): Date[] {
+	const list = [];
+	for (let i = numberOfDays - 1; i >= 0; i--) {
+		const date = new Date();
+		date.setDate(date.getDate() - i);
+		list.push(date);
+	}
+
+	return list;
+}

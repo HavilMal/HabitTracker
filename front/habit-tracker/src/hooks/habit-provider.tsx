@@ -3,13 +3,44 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 
 
 export type Habit = {
-	id: number;
-	name: string;
-
+	id: number,
+	type: "habit_bool" | "habit_measure" | "habit_water",
+	name: string,
+	notes: string,
 }
 
+export type BoolHabit = Habit & {
+	freq_type: "daily" | "weekly" | "monthly",
+	freq_value: number,
+	start_date: string,
+	completed_days: string[],
+}
+
+export type MeasureHabit = Habit & {
+	// freq_type: "daily" | "weekly" | "monthly",
+	// freq_value: number,
+	start_date: string,
+	target_type: "positive" | "negative",
+	target_value: number,
+	unit: string,
+	measurements: any,
+}
+
+export type WaterHabit = Habit & {
+	start_date: string,
+	target_value: number,
+}
+
+export type Habits = {
+	bool: BoolHabit[],
+	measure: MeasureHabit[],
+	water: WaterHabit[],
+}
+
+
+
 interface HabitsContext {
-	habits: any;
+	habits: Habits;
 	isLoading: boolean;
 	refreshHabits: () => void;
 }
