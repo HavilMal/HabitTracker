@@ -12,6 +12,8 @@ import {Check, ChevronLeft, ChevronRight} from "lucide-react";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group.tsx";
 import {Toggle} from "@/components/ui/toggle.tsx";
 import type {BoolHabit, MeasureHabit} from "@/hooks/habit-provider.tsx";
+import {useEffect} from "react";
+import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 
 
 function getLastDays(numberOfDays: number): Date[] {
@@ -38,6 +40,12 @@ export default function CompletionCard({numberOfDays = 7, data}: {
 	numberOfDays?: number,
 	data: BoolHabit | MeasureHabit
 }) {
+	const {setBreadcrumbs} = useBreadcrumbs()
+
+	useEffect(() => {
+		setBreadcrumbs(["Habit", data.name])
+	}, []);
+
 	const lastWeekDays = getLastDays(numberOfDays);
 	const lastWeekValues = getLastValues(lastWeekDays);
 

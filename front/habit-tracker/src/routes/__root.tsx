@@ -1,6 +1,5 @@
 import {Outlet, createRootRoute} from '@tanstack/react-router'
 import {TanStackRouterDevtools} from '@tanstack/react-router-devtools'
-import {ThemeProvider} from "@/hooks/theme-provider.tsx";
 import {useAuth} from "@/hooks/auth.tsx";
 import {ErrorPage} from "@/components/error-page.tsx";
 import Layout from "@/components/layout.tsx";
@@ -9,10 +8,8 @@ import {HabitsProvider} from "@/hooks/habit-provider.tsx";
 export const Route = createRootRoute({
 	component: () => (
 		<>
-			<ThemeProvider>
-				<Outlet/>
-				{/*<TanStackRouterDevtools/>*/}
-			</ThemeProvider>
+			<Outlet/>
+			{/*<TanStackRouterDevtools/>*/}
 		</>
 	),
 	notFoundComponent: ErrorPageWrapper
@@ -20,20 +17,19 @@ export const Route = createRootRoute({
 
 function ErrorPageWrapper() {
 	const auth = useAuth();
-	return (
-		<ThemeProvider>
-			{
-				auth.isAuthenticated ?
-					<HabitsProvider>
-						<Layout>
-							<ErrorPage redirect="/dashboard"/>
-						</Layout>
-					</HabitsProvider>
-					:
-					<div className="w-screen h-screen flex items-center justify-center">
-						<ErrorPage redirect="/"/>
-					</div>
-			}
-		</ThemeProvider>
-	)
+	if (auth.isAuthenticated) {
+		return (
+			<HabitsProvider>
+				<Layout>
+					<ErrorPage redirect="/dashboard"/>
+				</Layout>
+			</HabitsProvider>
+		)
+	} else {
+		return (
+			<div className="w-screen h-screen flex items-center justify-center">
+				<ErrorPage redirect="/"/>
+			</div>
+		)
+	}
 }

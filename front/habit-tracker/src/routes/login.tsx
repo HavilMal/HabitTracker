@@ -3,12 +3,20 @@ import {LoginCard} from "@/components/cards/login-card.tsx";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {RegisterCard} from "@/components/cards/register-card.tsx";
 import {Navbar} from "@/components/navbar.tsx";
+import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
+import {useEffect} from "react";
 
 export const Route = createFileRoute('/login')({
 	component: RouteComponent,
 })
 
 function RouteComponent() {
+	const {setBreadcrumbs} = useBreadcrumbs()
+
+	useEffect(() => {
+		setBreadcrumbs(["Login"])
+	}, []);
+
 	return (
 		<main className="flex flex-col min-h-svh">
 			<Navbar/>
