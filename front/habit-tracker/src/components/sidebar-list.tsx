@@ -146,7 +146,7 @@ export function AppSidebar() {
 			await auth.logout()
 			await router.invalidate();
 		} finally {
-			await navigate({to: "/login"});
+			await navigate({to: "/"});
 		}
 	}
 
