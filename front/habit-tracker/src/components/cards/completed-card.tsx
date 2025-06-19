@@ -4,7 +4,15 @@ import {
 } from "@/components/ui/card.tsx"
 import {Button} from "@/components/ui/button.tsx";
 import {Input} from "@/components/ui/input.tsx";
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form.tsx";
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage
+} from "@/components/ui/form.tsx";
 import z from "zod";
 import {useForm, useWatch} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -68,32 +76,35 @@ function MeasureForm({form, data}: { form: any, data: MeasureHabit }) {
 				control={form.control}
 				name="value"
 				render={({field}) => (
-					<FormItem className="flex flex-row flex-1 h-full">
-						<div className="flex h-full w-1/4 justify-center items-center">
-							<Button variant="outline" className="aspect-square rounded-full"
-							        onClick={() => form.setValue("value", Math.max(form.getValues().value as number - 1, 0))}>
-								<ChevronLeft/>
-							</Button>
-						</div>
-						<FormItem className="flex flex-row h-full w-1/2">
-							<FormControl className="flex flex-row w-full h-full justify-center items-center">
-								<Input
-									{...field} placeholder="Value" type="text" onChange={(e) => {
-									const sanitized = e.target.value.replace(/[^0-9]/g, "");
-									field.onChange(Number(sanitized));
-								}}
-									className="text-xl lg:text-8xl text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-								/>
-							</FormControl>
-							<FormMessage/>
+					<div className="flex flex-col flex-1 h-full gap-3">
+						<FormDescription className="text-center">Your target is {data.target_value} {data.unit}</FormDescription>
+						<FormItem className="flex flex-row flex-1">
+							<div className="flex h-full w-1/4 justify-center items-center">
+								<Button variant="outline" className="aspect-square rounded-full"
+								        onClick={() => form.setValue("value", Math.max(form.getValues().value as number - 1, 0))}>
+									<ChevronLeft/>
+								</Button>
+							</div>
+							<FormItem className="flex flex-row h-full w-1/2">
+								<FormControl className="flex flex-row w-full h-full justify-center items-center">
+									<Input
+										{...field} placeholder="Value" type="text" onChange={(e) => {
+										const sanitized = e.target.value.replace(/[^0-9]/g, "");
+										field.onChange(Number(sanitized));
+									}}
+										className="text-xl lg:text-8xl text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+									/>
+								</FormControl>
+								<FormMessage/>
+							</FormItem>
+							<div className="flex h-full w-1/4 justify-center items-center">
+								<Button variant="outline" className="aspect-square rounded-full"
+								        onClick={() => form.setValue("value", form.getValues().value as number + 1)}>
+									<ChevronRight/>
+								</Button>
+							</div>
 						</FormItem>
-						<div className="flex h-full w-1/4 justify-center items-center">
-							<Button variant="outline" className="aspect-square rounded-full"
-							        onClick={() => form.setValue("value", form.getValues().value as number + 1)}>
-								<ChevronRight/>
-							</Button>
-						</div>
-					</FormItem>
+					</div>
 				)}
 			/>
 			<h1 className="text-center text-xl lg:text-3xl">{data.unit}</h1>
@@ -101,7 +112,7 @@ function MeasureForm({form, data}: { form: any, data: MeasureHabit }) {
 	)
 }
 
-function WaterForm({form}: { form: any }) {
+function WaterForm({form, data}: { form: any, data: WaterHabit }) {
 	const cups = useWatch({
 		control: form.control,
 		name: "value",
@@ -114,7 +125,8 @@ function WaterForm({form}: { form: any }) {
 				control={form.control}
 				name="value"
 				render={({field}) => (
-					<FormItem className="flex flex-row w-full">
+					<FormItem className="flex flex-col w-full gap-3">
+						<FormDescription className="text-center">Your target is {data.target_value} cups</FormDescription>
 						<Slider value={[cups]} onValueChange={(val) => {
 							field.onChange(val[0]);
 						}} max={20} step={1}/>
@@ -167,7 +179,7 @@ export default function CompletionCard({numberOfDays = 7, data}: {
 			case "habit_measure":
 				return <MeasureForm form={form} data={data as MeasureHabit}/>
 			case "habit_water":
-				return <WaterForm form={form} />
+				return <WaterForm form={form} data={data as WaterHabit}/>
 		}
 	}
 
