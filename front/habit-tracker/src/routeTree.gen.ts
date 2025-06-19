@@ -17,7 +17,6 @@ import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedProfileImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedDashboardImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreateImport } from './routes/_authenticated/create'
-import { Route as AuthenticatedWaterIdImport } from './routes/_authenticated/water.$id'
 import { Route as AuthenticatedMealsIdImport } from './routes/_authenticated/meals.$id'
 import { Route as AuthenticatedHabitIdImport } from './routes/_authenticated/habit.$id'
 import { Route as AuthenticatedActivityIdImport } from './routes/_authenticated/activity.$id'
@@ -56,12 +55,6 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardImport.update({
 const AuthenticatedCreateRoute = AuthenticatedCreateImport.update({
   id: '/create',
   path: '/create',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-
-const AuthenticatedWaterIdRoute = AuthenticatedWaterIdImport.update({
-  id: '/water/$id',
-  path: '/water/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 
@@ -150,13 +143,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMealsIdImport
       parentRoute: typeof AuthenticatedImport
     }
-    '/_authenticated/water/$id': {
-      id: '/_authenticated/water/$id'
-      path: '/water/$id'
-      fullPath: '/water/$id'
-      preLoaderRoute: typeof AuthenticatedWaterIdImport
-      parentRoute: typeof AuthenticatedImport
-    }
   }
 }
 
@@ -169,7 +155,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedActivityIdRoute: typeof AuthenticatedActivityIdRoute
   AuthenticatedHabitIdRoute: typeof AuthenticatedHabitIdRoute
   AuthenticatedMealsIdRoute: typeof AuthenticatedMealsIdRoute
-  AuthenticatedWaterIdRoute: typeof AuthenticatedWaterIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -179,7 +164,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedActivityIdRoute: AuthenticatedActivityIdRoute,
   AuthenticatedHabitIdRoute: AuthenticatedHabitIdRoute,
   AuthenticatedMealsIdRoute: AuthenticatedMealsIdRoute,
-  AuthenticatedWaterIdRoute: AuthenticatedWaterIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -196,7 +180,6 @@ export interface FileRoutesByFullPath {
   '/activity/$id': typeof AuthenticatedActivityIdRoute
   '/habit/$id': typeof AuthenticatedHabitIdRoute
   '/meals/$id': typeof AuthenticatedMealsIdRoute
-  '/water/$id': typeof AuthenticatedWaterIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -209,7 +192,6 @@ export interface FileRoutesByTo {
   '/activity/$id': typeof AuthenticatedActivityIdRoute
   '/habit/$id': typeof AuthenticatedHabitIdRoute
   '/meals/$id': typeof AuthenticatedMealsIdRoute
-  '/water/$id': typeof AuthenticatedWaterIdRoute
 }
 
 export interface FileRoutesById {
@@ -223,7 +205,6 @@ export interface FileRoutesById {
   '/_authenticated/activity/$id': typeof AuthenticatedActivityIdRoute
   '/_authenticated/habit/$id': typeof AuthenticatedHabitIdRoute
   '/_authenticated/meals/$id': typeof AuthenticatedMealsIdRoute
-  '/_authenticated/water/$id': typeof AuthenticatedWaterIdRoute
 }
 
 export interface FileRouteTypes {
@@ -238,7 +219,6 @@ export interface FileRouteTypes {
     | '/activity/$id'
     | '/habit/$id'
     | '/meals/$id'
-    | '/water/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -250,7 +230,6 @@ export interface FileRouteTypes {
     | '/activity/$id'
     | '/habit/$id'
     | '/meals/$id'
-    | '/water/$id'
   id:
     | '__root__'
     | '/'
@@ -262,7 +241,6 @@ export interface FileRouteTypes {
     | '/_authenticated/activity/$id'
     | '/_authenticated/habit/$id'
     | '/_authenticated/meals/$id'
-    | '/_authenticated/water/$id'
   fileRoutesById: FileRoutesById
 }
 
@@ -304,8 +282,7 @@ export const routeTree = rootRoute
         "/_authenticated/profile",
         "/_authenticated/activity/$id",
         "/_authenticated/habit/$id",
-        "/_authenticated/meals/$id",
-        "/_authenticated/water/$id"
+        "/_authenticated/meals/$id"
       ]
     },
     "/login": {
@@ -333,10 +310,6 @@ export const routeTree = rootRoute
     },
     "/_authenticated/meals/$id": {
       "filePath": "_authenticated/meals.$id.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/water/$id": {
-      "filePath": "_authenticated/water.$id.tsx",
       "parent": "/_authenticated"
     }
   }

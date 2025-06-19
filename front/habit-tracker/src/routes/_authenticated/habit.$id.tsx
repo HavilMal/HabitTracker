@@ -3,7 +3,7 @@ import {LineplotCard} from "@/components/cards/lineplot-card.tsx";
 import CalendarCard from "@/components/cards/calendar-card.tsx";
 import CompletionCard from "@/components/cards/completed-card.tsx";
 import {NotesCard} from "@/components/cards/notes-card.tsx";
-import {type BoolHabit, type MeasureHabit, useHabits} from "@/hooks/habit-provider.tsx";
+import {type BoolHabit, type MeasureHabit, useHabits, type WaterHabit} from "@/hooks/habit-provider.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 
 export const Route = createFileRoute('/_authenticated/habit/$id')({
@@ -23,8 +23,8 @@ function RouteComponent() {
 			</div>
 		)
 	}
-	let list: (BoolHabit | MeasureHabit)[] = habits.bool
-	list = list.concat(habits.measure);
+	let list: (BoolHabit | MeasureHabit | WaterHabit)[] = habits.bool
+	list = list.concat(habits.measure).concat(habits.water);
 	const data = list.find((h) => h.id === Number(id))
 
 	if (data === undefined) {
