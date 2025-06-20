@@ -15,6 +15,10 @@ class Habit(metaclass=abc.ABCMeta):
     def get_history(self):
         ...
 
+    @abc.abstractmethod
+    def _check_target(self, total_amount: float) -> int:
+        ...
+
     @staticmethod
     def get_dates(start_date, end_date):
         return [start_date + datetime.timedelta(days=x) for x in range((end_date - start_date).days + 1)]
@@ -146,6 +150,7 @@ class HabitMeasure(Habit):
             for date in all_dates:
                 week_start = date -datetime.timedelta(days=date.weekday())
                 history.append((date.isoformat(), week_status.get(week_start, 0)))
+        return history
 
 @dataclass()
 class MeasurementInt:
@@ -162,9 +167,26 @@ class HabitDrinkingWater(Habit):
     def add_measurement(self, measure_date: datetime.date, amount: int):
         self.measurements.append(MeasurementInt(measure_date, amount))
 
-    def get_history(self) -> list[dict[str, str | float]]:
-        # todo to change to match HabitBool
-        return [{'date': m.date.isoformat(), 'amount': m.amount} for m in sorted(self.measurements, key=lambda x: x.date)]
+    def _check_target(self, total_amount: float) -> int:
+        return 1 if total_amount >= self.target_value else 0
+
+    def get_history(self) -> list[tuple[str, int]]:
+        """
+        returns history of completion of habit - starting from start_date of habit to today's date
+        """
+        all_dates: list[datetime.date] = self.get_dates(self.start_date, datetime.date.today())
+        history: list[tuple[str, int]] = []
+
+        measurements_by_day = defaultdict(list)
+        for m in self.measurements:
+            measurements_by_day[m.date].append(m.amount)
+
+        for date in all_dates:
+            daily_measurement = measurements_by_day.get(date, [])
+            total_amount = sum(daily_measurement)
+            history.append((date.isoformat(), self._check_target(total_amount)))
+
+        return history
 
 
 @dataclass
