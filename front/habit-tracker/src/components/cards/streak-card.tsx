@@ -35,7 +35,7 @@ export function StreakChart() {
 		<Card className="flex flex-col">
 			<CardHeader className="items-center pb-0">
 				<CardTitle>Longest streak</CardTitle>
-				<CardDescription>January - June 2024</CardDescription>
+				<CardDescription>Your longest streak is: {""}</CardDescription>
 			</CardHeader>
 			<CardContent className="flex-1 pb-0">
 				<ChartContainer

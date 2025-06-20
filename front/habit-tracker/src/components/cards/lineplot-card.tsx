@@ -12,6 +12,7 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart.tsx"
+import {cn} from "@/lib/utils.ts";
 
 export const description = "A line chart"
 
@@ -32,9 +33,9 @@ const chartConfig = {
 	},
 } satisfies ChartConfig
 
-export function LineplotCard({title="Line Chart", description = "description", data=chartData} : {title?: string, description?: string, data?: any}) {
+export function LineplotCard({title="Line Chart", description = "description", data=chartData, className=""} : {title?: string, description?: string, data?: any, className?: string}) {
 	return (
-		<Card className="flex flex-1">
+		<Card className={cn("flex flex-1", className)}>
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>{description}</CardDescription>
@@ -64,7 +65,7 @@ export function LineplotCard({title="Line Chart", description = "description", d
 						<Line
 							dataKey="desktop"
 							type="natural"
-							stroke="var(--color-desktop)"
+							stroke="var(--chart-2)"
 							strokeWidth={2}
 							dot={false}
 						/>

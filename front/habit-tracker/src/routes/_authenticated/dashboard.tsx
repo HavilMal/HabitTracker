@@ -4,6 +4,7 @@ import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 import {StreakChart} from "@/components/cards/streak-card.tsx";
 import {TodoCard} from "@/components/cards/todo-card.tsx";
 import {LineplotCard} from "@/components/cards/lineplot-card.tsx";
+import {CaloriesChart} from "@/components/cards/calories-card.tsx";
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
 	component: RouteComponent,
@@ -22,11 +23,14 @@ function RouteComponent() {
 				<div className="bg-muted/50 rounded-xl">
 					<StreakChart/>
 				</div>
-				<div className="bg-muted/50 rounded-xl">
+				<div className="bg-muted/50 rounded-xl ">
 					<TodoCard/>
 				</div>
-				<div className="bg-muted/50 rounded-xl"/>
+				<div className="bg-muted/50 rounded-xl ">
+					<CaloriesChart/>
+				</div>
 			</div>
-			<LineplotCard title="Total completion" description="Percentage of all habits completed" />
-		</div>)
+			<LineplotCard className="min-h-1/4" title="Total completion" description="Percentage of all habits completed" />
+		</div>
+	)
 }
