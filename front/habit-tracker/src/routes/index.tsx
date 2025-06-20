@@ -11,7 +11,7 @@ export const Route = createFileRoute('/')({
 function App() {
 	return (
 		<div className="min-h-screen flex">
-			<div className="fixed top-2 right-2">
+			<div className="fixed top-4 right-4">
 				<ModeToggle/>
 			</div>
 			<div className="grid grid-cols-1 lg:grid-cols-2 w-full">

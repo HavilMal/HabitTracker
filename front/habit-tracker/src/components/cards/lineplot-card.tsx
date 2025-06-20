@@ -12,6 +12,7 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart.tsx"
+import {cn} from "@/lib/utils.ts";
 
 export const description = "A line chart"
 
@@ -32,18 +33,18 @@ const chartConfig = {
 	},
 } satisfies ChartConfig
 
-export function LineplotCard() {
+export function LineplotCard({title="Line Chart", description = "description", data=chartData, className=""} : {title?: string, description?: string, data?: any, className?: string}) {
 	return (
-		<Card className="flex flex-1">
+		<Card className={cn("flex flex-1", className)}>
 			<CardHeader>
-				<CardTitle>Line Chart</CardTitle>
-				<CardDescription>January - June 2024</CardDescription>
+				<CardTitle>{title}</CardTitle>
+				<CardDescription>{description}</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-1">
 				<ChartContainer className="w-full h-full !aspect-auto" config={chartConfig}>
 					<LineChart
 						accessibilityLayer
-						data={chartData}
+						data={data}
 						margin={{
 							left: 12,
 							right: 12,
@@ -64,7 +65,7 @@ export function LineplotCard() {
 						<Line
 							dataKey="desktop"
 							type="natural"
-							stroke="var(--color-desktop)"
+							stroke="var(--chart-2)"
 							strokeWidth={2}
 							dot={false}
 						/>
