@@ -21,7 +21,6 @@ import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group.tsx";
 import {Toggle} from "@/components/ui/toggle.tsx";
 import type {BoolHabit, MeasureHabit, WaterHabit} from "@/hooks/habit-provider.tsx";
 import {Slider} from "@/components/ui/slider.tsx";
-import type {BoolHabit, MeasureHabit} from "@/hooks/habit-provider.tsx";
 import {useEffect} from "react";
 import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 
