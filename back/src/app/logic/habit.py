@@ -106,6 +106,14 @@ class HabitMeasure(Habit):
     def add_measurement(self, measure_date: datetime.date, amount: float):
         self.measurements.append(MeasurementFloat(measure_date, amount))
 
+    def _check_target(self, total_amount: float,) -> int:
+        if self.target_type == 'at_least':
+            return 1 if total_amount >= self.target_value else 0
+        elif self.target_type == 'at_most':
+            return 1 if total_amount <= self.target_value else 0
+        else:
+            return 0
+
     def get_history(self) -> list[tuple[str, int]]:
         """
         returns history of completion of habit - starting from start_date of habit to today's date
@@ -122,12 +130,7 @@ class HabitMeasure(Habit):
                 daily_measurement = measurements_by_day.get(date, [])
                 if daily_measurement:
                     total_amount = sum(daily_measurement)
-                    if self.target_type == 'at_least' and total_amount >= self.target_value:
-                        history.append((date.isoformat(), 1))
-                    elif self.target_type == 'at_most' and total_amount <= self.target_value:
-                        history.append((date.isoformat(), 1))
-                    else:
-                        history.append((date.isoformat(), 0))
+                    history.append((date.isoformat(), self._check_target(total_amount)))
                 else:
                     history.append((date.isoformat(), 0))
         else:
@@ -138,10 +141,7 @@ class HabitMeasure(Habit):
 
             week_status = {}
             for week_start, total in weekly_totals.items():
-                if self.target_type == 'at_least':
-                    week_status[week_start] = 1 if total >= self.target_value else 0
-                else:
-                    week_status[week_start] = 1 if total <= self.target_value else 0
+                week_status[week_start] = self._check_target(total)
 
             for date in all_dates:
                 week_start = date -datetime.timedelta(days=date.weekday())
