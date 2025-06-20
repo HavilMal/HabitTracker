@@ -22,7 +22,7 @@ class Habit(metaclass=abc.ABCMeta):
 class HabitBool(Habit):
     def __init__(self, name: str, start_date: datetime.date, freq_type: str, freq_value: int, notes: str = ''):
         super().__init__(name, start_date, notes)
-        self.freq_type: str = freq_type  # 'n_times_per_week' or 'every_n_days'
+        self.freq_type: str = freq_type  # only 'every_n_days' I think, 'n times a week' did not make sense a little bit with streaks
         self.freq_value: int = freq_value
         self.completed_days: list[datetime.date] = []
 
@@ -30,9 +30,12 @@ class HabitBool(Habit):
         if completion_date not in self.completed_days:
             self.completed_days.append(completion_date)
 
-    def get_history(self) -> list[tuple[str | int]]:
+    def get_history(self) -> list[tuple[str, int]]:
+        """
+        returns history of completion of habit - starting from start_date of habit to today's date
+        """
         all_dates: list[datetime.date] = self.get_dates(self.start_date, datetime.date.today())
-        history = []
+        history: list[tuple[str, int]] = []
         completed_days_set = set(self.completed_days)
         auto_completed_days_after = 0
 
@@ -47,6 +50,41 @@ class HabitBool(Habit):
                 history.append((date.isoformat(), 0))
 
         return history
+
+    def get_longest_streak(self) -> tuple[str, str, int]:
+        """
+        returns tuple[start_date, end_date, number_of_days] - longest streak
+        """
+        history = self.get_history()
+
+        current_streak = 0
+        start_date = ''
+        end_date = ''
+
+        longest_streak = 0
+        start_date_longest = ''
+        end_date_longest = ''
+
+        for entry in history:
+            if entry[1] == 1:
+                if current_streak == 0:
+                    start_date = entry[0]
+                current_streak += 1
+                end_date = entry[0]
+
+            if entry[1] == 0:
+                if current_streak > longest_streak:
+                    longest_streak = current_streak
+                    start_date_longest = start_date
+                    end_date_longest = end_date
+                current_streak = 0
+
+        if current_streak > longest_streak:
+            longest_streak = current_streak
+            start_date_longest = start_date
+            end_date_longest = end_date
+
+        return start_date_longest, end_date_longest, longest_streak
 
 
 @dataclass
@@ -68,6 +106,7 @@ class HabitMeasure(Habit):
         self.measurements.append(MeasurementFloat(measure_date, amount))
 
     def get_history(self) -> list[dict[str, str | float]]:
+        # todo to change to match HabitBool
         return [{'date': m.date.isoformat(), 'amount': m.amount} for m in self.measurements]
 
 
@@ -87,12 +126,13 @@ class HabitDrinkingWater(Habit):
         self.measurements.append(MeasurementInt(measure_date, amount))
 
     def get_history(self) -> list[dict[str, str | float]]:
+        # todo to change to match HabitBool
         return [{'date': m.date.isoformat(), 'amount': m.amount} for m in sorted(self.measurements, key=lambda x: x.date)]
 
 
 @dataclass
 class MeasurementActivity:
-    activity_datetime: datetime
+    activity_datetime: datetime.datetime
     amount: float
     duration: datetime.timedelta
     calories: float

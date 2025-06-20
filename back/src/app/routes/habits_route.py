@@ -1,8 +1,9 @@
 from flask       import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
-from app         import db
-from app.models  import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB
+from back.src.app         import db
+from back.src.app.models  import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB
+
 
 habit_bp = Blueprint('habit', __name__)
 
@@ -57,6 +58,17 @@ def add_habit():
                 target_value=float(data['target_value']),
                 target_data_unit=data['target_data_unit'],
                 target_type=data['target_type'],
+                notes=notes,
+                habit_type=habit_type,
+                user_id=current_user.uid
+            )
+
+        elif habit_type == 'activity':
+            habit = HabitActivityDB(
+                name=name,
+                freq_type=data['freq_type'],
+                unit=data['unit'],
+                target_value=float(data['target_value']),
                 notes=notes,
                 habit_type=habit_type,
                 user_id=current_user.uid
