@@ -113,7 +113,7 @@ function parseHabits(habits: any): HabitCategory[] {
 		},
 		{
 			name: "Water",
-			url: "/water",
+			url: "/habit",
 			icon: <GlassWater/>,
 			habits: habits["water"],
 		},
