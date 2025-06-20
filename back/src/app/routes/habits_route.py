@@ -1,9 +1,10 @@
+import datetime
 from flask       import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
 from back.src.app         import db
-from back.src.app.models  import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB
-
+from back.src.app.models import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
+    HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB
 
 habit_bp = Blueprint('habit', __name__)
 
@@ -12,9 +13,9 @@ habit_bp = Blueprint('habit', __name__)
 @login_required
 def add_habit():
     data = request.get_json()
-    habit_type = data.get('type')  # 'bool', 'measure', 'water', 'meal'
+    habit_type = data.get('type')  # 'bool', 'measure', 'water', 'meal', 'activity'
 
-    if habit_type not in {'bool', 'measure', 'water', 'meal'}:
+    if habit_type not in {'bool', 'measure', 'water', 'meal', 'activity'}:
         return jsonify({"error": "Invalid habit type"}), 400
 
     try:
@@ -117,3 +118,131 @@ def get_habits():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+
+@habit_bp.route('/habit/<int:habit_id>/entry', methods=['POST'])
+@login_required
+def add_habit_entry(habit_id):
+    """
+    Endpoint to add “one entry” to any habit subtype.
+    JSON differs by habit_type:
+      - habit_bool:    { "date": "YYYY-MM-DD" }
+      - habit_measure: { "date": "YYYY-MM-DD", "amount": 12.5 }
+      - habit_water:   { "date": "YYYY-MM-DD", "amount": 2 }
+      - habit_activity:{ "activity_datetime": "...", "amount": 5.2, "duration_seconds": 3600, "calories": 300 }
+      - habit_meal:
+    """
+    data = request.get_json() or {}
+
+    habit = HabitDB.query.filter_by(habit_id=habit_id, user_id=current_user.uid).first()
+    if not habit:
+        return jsonify({"error": "Habit not found or not yours"}), 404
+
+    habit_type = habit.habit_type  # 'bool', 'measure', 'water', 'activity', 'meal'
+
+    if habit_type == 'bool':
+        date_completion = data.get('date')
+        if not date_completion:
+            return jsonify({"error": "`date` is required for boolean habits"}), 400
+        try:
+            date_form = datetime.datetime.strptime(date_completion, "%Y-%m-%d").date()
+        except ValueError:
+            return jsonify({"error":"invalid `date`, use YYYY-MM-DD"}), 400
+
+        existing = HabitBoolCompletionDB.query.filter_by(habit_id=habit_id, date=date_form).first()
+        if existing:
+            return jsonify({"message": "Already marked"}), 200
+
+        row = HabitBoolCompletionDB(habit_id=habit_id, date=date_form)
+        db.session.add(row)
+
+    elif habit_type == 'measure':
+        date_completion = data.get('date')
+        amount = data.get('amount')
+
+        if date_completion is None or amount is None:
+            return jsonify({"error":"`date` and `amount` required"}), 400
+        try:
+            date_form = datetime.datetime.fromisoformat(date_completion)
+        except ValueError:
+            return jsonify({"error":"invalid `date`, use ISO8601"}), 400
+
+        existing = MeasurementFloatDB.query.filter_by(habit_id=habit_id, date=date_form).first()
+        if existing:
+            return jsonify({"message": "Already with measurement"}), 200
+
+        row = MeasurementFloatDB(habit_id=habit_id, date=date_form, amount=float(amount))
+        db.session.add(row)
+
+    elif habit_type == 'water':
+        date_completed = data.get('date')
+        amount = data.get('amount')
+        if date_completed is None or amount is None:
+            return jsonify({"error":"`date` and `amount` required"}), 400
+        try:
+            date_form = datetime.datetime.fromisoformat(date_completed)
+        except ValueError:
+            return jsonify({"error":"invalid `date`, use ISO8601"}), 400
+
+        existing = MeasurementIntDB.query.filter_by(habit_id=habit_id, date=date_form).first()
+        if existing:
+            return jsonify({"message": "Already with measurement"}), 200
+
+        row = MeasurementIntDB(habit_id=habit_id, date=date_form, amount=int(amount))
+        db.session.add(row)
+
+    elif habit_type == 'activity':
+        try:
+            dt_iso = data['activity_datetime']
+            amount = float(data['amount'])
+            dur    = float(data['duration_seconds'])
+            cal    = float(data['calories'])
+        except KeyError:
+            return jsonify({"error":"`activity_datetime, amount, duration_seconds, calories` required"}), 400
+        except ValueError:
+            return jsonify({"error":"`amount, duration_seconds, calories` must be numbers"}), 400
+
+        try:
+            dt = datetime.datetime.fromisoformat(dt_iso)
+        except ValueError:
+            return jsonify({"error":"invalid `activity_datetime`, use ISO8601"}), 400
+
+        row = MeasurementActivityDB(
+            habit_id=habit_id,
+            activity_datetime=dt,
+            amount=amount,
+            duration_seconds=dur,
+            calories=cal
+        )
+        db.session.add(row)
+
+    elif habit_type == 'meal':
+        ...
+        #todo implement meal adding
+
+    else:
+        return jsonify({"error": f"Unsupported habit_type: {habit_type}"}), 400
+
+    db.session.commit()
+    return jsonify({"message": "Entry recorded", "habit_type": habit_type}), 201
+
+
+@habit_bp.route('/habit/<int:habit_id>/notes', methods=['POST'])
+@login_required
+def edit_notes(habit_id):
+    data = request.get_json()
+    new_notes = data.get('notes', '').strip()
+
+    if new_notes is None:
+        return jsonify({'error': 'Missing "notes" in request'}), 400
+
+    habit = HabitDB.query.filter_by(habit_id=habit_id, user_id=current_user.uid).first()
+
+    if not habit:
+        return jsonify({'error': 'Habit not found or not authorized'}), 404
+
+    habit.notes = new_notes
+    db.session.commit()
+
+    return jsonify({'message': 'Notes updated successfully', 'habit_id': habit_id, 'notes': habit.notes}), 200
