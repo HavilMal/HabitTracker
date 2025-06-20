@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import datetime
 import abc
 from back.src.app.logic.meal import Meal
+from collections import defaultdict
 
 
 class Habit(metaclass=abc.ABCMeta):
@@ -105,12 +106,48 @@ class HabitMeasure(Habit):
     def add_measurement(self, measure_date: datetime.date, amount: float):
         self.measurements.append(MeasurementFloat(measure_date, amount))
 
-    def get_history(self) -> list[dict[str, str | float]]:
-        # todo to change to match HabitBool
-        return [{'date': m.date.isoformat(), 'amount': m.amount} for m in self.measurements]
+    def get_history(self) -> list[tuple[str, int]]:
+        """
+        returns history of completion of habit - starting from start_date of habit to today's date
+        """
+        all_dates: list[datetime.date] = self.get_dates(self.start_date, datetime.date.today())
+        history: list[tuple[str, int]] = []
 
+        measurements_by_day = defaultdict(list)
+        for m in self.measurements:
+            measurements_by_day[m.date].append(m.amount)
 
-@dataclass
+        if self.freq_type == 'daily':
+            for date in all_dates:
+                daily_measurement = measurements_by_day.get(date, [])
+                if daily_measurement:
+                    total_amount = sum(daily_measurement)
+                    if self.target_type == 'at_least' and total_amount >= self.target_value:
+                        history.append((date.isoformat(), 1))
+                    elif self.target_type == 'at_most' and total_amount <= self.target_value:
+                        history.append((date.isoformat(), 1))
+                    else:
+                        history.append((date.isoformat(), 0))
+                else:
+                    history.append((date.isoformat(), 0))
+        else:
+            weekly_totals = defaultdict(float)
+            for date, amounts in measurements_by_day.items():
+                week_start = date -datetime.timedelta(days=date.weekday())
+                weekly_totals[week_start] += sum(amounts)
+
+            week_status = {}
+            for week_start, total in weekly_totals.items():
+                if self.target_type == 'at_least':
+                    week_status[week_start] = 1 if total >= self.target_value else 0
+                else:
+                    week_status[week_start] = 1 if total <= self.target_value else 0
+
+            for date in all_dates:
+                week_start = date -datetime.timedelta(days=date.weekday())
+                history.append((date.isoformat(), week_status.get(week_start, 0)))
+
+@dataclass()
 class MeasurementInt:
     date: datetime.date
     amount: int
