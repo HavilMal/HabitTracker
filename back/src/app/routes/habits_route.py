@@ -1,12 +1,16 @@
 import datetime
 
-from flask                          import Blueprint, request, jsonify
-from flask_login                    import login_required, current_user
+from dataclasses import asdict
+
+from flask       import Blueprint, request, jsonify
+from flask_login import login_required, current_user
 
 from back.src.app.routes.food_route import create_meal
 from back.src.app                   import db
 from back.src.app.models            import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
-    HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB
+    HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB, MealDB
+
+from back.src.app.constants import *
 
 habit_bp = Blueprint('habit', __name__)
 
@@ -17,14 +21,14 @@ def add_habit():
     data = request.get_json()
     habit_type = data.get('type')  # 'bool', 'measure', 'water', 'meal', 'activity'
 
-    if habit_type not in {'bool', 'measure', 'water', 'meal', 'activity'}:
+    if habit_type not in {BOOL, MEASURE, WATER, MEAL, ACTIVITY}:
         return jsonify({"error": "Invalid habit type"}), 400
 
     try:
         name = data['name']
         notes = data.get('notes', '')
 
-        if habit_type == 'bool':
+        if habit_type == BOOL:
             habit = HabitBoolDB(
                 name=name,
                 freq_type=data['freq_type'],
@@ -34,7 +38,7 @@ def add_habit():
                 user_id=current_user.uid
             )
         
-        elif habit_type == 'measure':
+        elif habit_type == MEASURE:
             habit = HabitMeasureDB(
                 name=name,
                 freq_type=data['freq_type'],
@@ -46,7 +50,7 @@ def add_habit():
                 user_id=current_user.uid
             )
 
-        elif habit_type == 'water':
+        elif habit_type == WATER:
             habit = HabitDrinkingWaterDB(
                 name=name,
                 target_value=int(data['target_value']),
@@ -55,7 +59,7 @@ def add_habit():
                 user_id=current_user.uid
             )
 
-        elif habit_type == 'meal':
+        elif habit_type == MEAL:
             habit = HabitMealDB(
                 name=name,
                 target_value=float(data['target_value']),
@@ -66,7 +70,7 @@ def add_habit():
                 user_id=current_user.uid
             )
 
-        elif habit_type == 'activity':
+        elif habit_type == ACTIVITY:
             habit = HabitActivityDB(
                 name=name,
                 freq_type=data['freq_type'],
@@ -123,9 +127,9 @@ def get_habits():
 
 
 
-@habit_bp.route('/habit/<int:habit_id>/entry', methods=['POST'])
+@habit_bp.route('/habit/entry', methods=['POST'])
 @login_required
-def add_habit_entry(habit_id):
+def add_habit_entry():
     """
     Endpoint to add “one entry” to any habit subtype.
     JSON differs by habit_type:
@@ -136,12 +140,22 @@ def add_habit_entry(habit_id):
       - habit_meal:     {  }
     """
     data = request.get_json() or {}
+    habit_id = data.get('habit_id')
+
+    if not habit_id:
+        return jsonify({"error": "Missing habit_id"}), 400
+
+    try:
+        habit_id = int(habit_id)
+    except (ValueError, TypeError):
+        return jsonify({'error': '`habit_id` must be an integer'}), 400
 
     habit = HabitDB.query.filter_by(habit_id=habit_id, user_id=current_user.uid).first()
     if not habit:
         return jsonify({"error": "Habit not found or not yours"}), 404
 
     habit_type = habit.habit_type  # 'bool', 'measure', 'water', 'activity', 'meal'
+    message = ''
 
     if habit_type == 'bool':
         date_completion = data.get('date')
@@ -154,10 +168,12 @@ def add_habit_entry(habit_id):
 
         existing = HabitBoolCompletionDB.query.filter_by(habit_id=habit_id, date=date_form).first()
         if existing:
-            return jsonify({"message": "Already marked"}), 200
-
-        row = HabitBoolCompletionDB(habit_id=habit_id, date=date_form)
-        db.session.add(row)
+            db.session.delete(existing)
+            message = 'Entry toggled'
+        else:
+            row = HabitBoolCompletionDB(habit_id=habit_id, date=date_form)
+            db.session.add(row)
+            message = 'Entry recorded'
 
     elif habit_type == 'measure':
         date_completion = data.get('date')
@@ -170,12 +186,19 @@ def add_habit_entry(habit_id):
         except ValueError:
             return jsonify({"error":"invalid `date`, use ISO8601"}), 400
 
+        try:
+            amount = float(amount)
+        except (ValueError, TypeError):
+            return jsonify({"error": "amount must be a number"}), 400
+
         existing = MeasurementFloatDB.query.filter_by(habit_id=habit_id, date=date_form).first()
         if existing:
-            return jsonify({"message": "Already with measurement"}), 200
-
-        row = MeasurementFloatDB(habit_id=habit_id, date=date_form, amount=float(amount))
-        db.session.add(row)
+            existing.amount = amount
+            message = 'Entry modified'
+        else:
+            row = MeasurementFloatDB(habit_id=habit_id, date=date_form, amount=amount)
+            db.session.add(row)
+            message = 'Entry recorded'
 
     elif habit_type == 'water':
         date_completed = data.get('date')
@@ -187,12 +210,19 @@ def add_habit_entry(habit_id):
         except ValueError:
             return jsonify({"error":"invalid `date`, use ISO8601"}), 400
 
+        try:
+            amount = int(amount)
+        except (ValueError, TypeError):
+            return jsonify({"error": "amount must be a number"}), 400
+
         existing = MeasurementIntDB.query.filter_by(habit_id=habit_id, date=date_form).first()
         if existing:
-            return jsonify({"message": "Already with measurement"}), 200
-
-        row = MeasurementIntDB(habit_id=habit_id, date=date_form, amount=int(amount))
-        db.session.add(row)
+            existing.amount = amount
+            message = 'Entry modified'
+        else:
+            row = MeasurementIntDB(habit_id=habit_id, date=date_form, amount=amount)
+            db.session.add(row)
+            message = 'Entry recorded'
 
     elif habit_type == 'activity':
         try:
@@ -210,24 +240,33 @@ def add_habit_entry(habit_id):
         except ValueError:
             return jsonify({"error":"invalid `activity_datetime`, use ISO8601"}), 400
 
-        row = MeasurementActivityDB(
-            habit_id=habit_id,
-            activity_datetime=dt,
-            amount=amount,
-            duration_seconds=dur,
-            calories=cal
-        )
-        db.session.add(row)
+        existing = MeasurementActivityDB.query.filter_by(habit_id=habit_id, activity_datetime=dt).first()
+
+        if existing:
+            existing.amount = amount
+            existing.duration_seconds = dur
+            existing.calories = cal
+            message = 'Entry modified'
+        else:
+            row = MeasurementActivityDB(
+                habit_id=habit_id,
+                activity_datetime=dt,
+                amount=amount,
+                duration_seconds=dur,
+                calories=cal
+            )
+            db.session.add(row)
+            message = 'Entry recorded'
 
     elif habit_type == 'meal':
         try:
             name = data['name']
             foods = data['foods']
             created_at = data.get('created_at')
-                
+
         except KeyError as e:
             return jsonify({"error": f"Missing field: {str(e)}"}), 400
-        
+
         if not isinstance(foods, list) or not foods:
                 return jsonify({"error": "`foods` must be a non-empty list"}), 400
 
@@ -242,17 +281,23 @@ def add_habit_entry(habit_id):
         return jsonify({"error": f"Unsupported habit_type: {habit_type}"}), 400
 
     db.session.commit()
-    return jsonify({"message": "Entry recorded", "habit_type": habit_type}), 201
+    return jsonify({"message": message, "habit_type": habit_type}), 201
 
 
-@habit_bp.route('/habit/<int:habit_id>/notes', methods=['POST'])
+@habit_bp.route('/habit/notes', methods=['POST'])
 @login_required
-def edit_notes(habit_id):
+def edit_notes():
     data = request.get_json()
+    habit_id = data.get('habit_id')
     new_notes = data.get('notes', '').strip()
 
-    if new_notes is None:
-        return jsonify({'error': 'Missing "notes" in request'}), 400
+    if new_notes is None or habit_id is None:
+        return jsonify({'error': 'Missing data in request'}), 400
+
+    try:
+        habit_id = int(habit_id)
+    except (ValueError, TypeError):
+        return jsonify({'error': '`habit_id` must be an integer'}), 400
 
     habit = HabitDB.query.filter_by(habit_id=habit_id, user_id=current_user.uid).first()
 
@@ -263,3 +308,50 @@ def edit_notes(habit_id):
     db.session.commit()
 
     return jsonify({'message': 'Notes updated successfully', 'habit_id': habit_id, 'notes': habit.notes}), 200
+
+
+@habit_bp.route('/get-meals', methods=['GET'])
+@login_required
+def get_meals():
+    meals_db = MealDB.query.filter_by(user_id=current_user.uid).order_by(MealDB.created_at.desc()).all()
+
+    meals = [asdict(meal_db.to_dataclass()) for meal_db in meals_db]
+
+    return jsonify({"meals": meals}), 200
+
+
+@habit_bp.route('/get-longest-streaks', methods=['GET'])
+@login_required
+def get_longest_streaks():
+    habits_all = HabitDB.query.filter_by(user_id=current_user.uid).all()
+
+    streaks = []
+    for habit_model in habits_all:
+        habit = habit_model.to_dataclass()
+
+        start_iso, end_iso, length = habit.get_longest_streak()
+
+        streaks.append({
+            "habit_id":     habit_model.habit_id,
+            "name":         habit.name,
+            "start_date":   start_iso,
+            "end_date":     end_iso,
+            "length_days":  length
+        })
+
+    return jsonify({"streaks": streaks}), 200
+
+
+@habit_bp.route('/get-habits-todo', methods=['GET'])
+@login_required
+def get_habits_to_do():
+    habits_all = HabitDB.query.filter_by(user_id=current_user.uid).all()
+
+    habits_to_do = []
+
+    for habit_model in habits_all:
+        habit = habit_model.to_dataclass()
+        if habit.to_do():
+            habits_to_do.append({'habit_id': habit_model.habit_id, 'name': habit_model.name})
+
+    return jsonify({'habits_todo': habits_to_do}), 200

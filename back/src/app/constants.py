@@ -5,6 +5,13 @@ AT_MOST          = 'at_most'
 DAILY            = 'daily'
 WEEKLY           = 'weekly'
 
+#habit types
+BOOL = 'bool'
+MEASURE = 'measure'
+WATER = 'water'
+MEAL = 'meal'
+ACTIVITY = 'activity'
+
 # Constants used to describe food and meals
 CALORIES = 'calories'
 CARB     = 'carbs'

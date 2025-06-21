@@ -7,6 +7,7 @@ from .                  import db
 from back.src.app.logic.meal     import Meal
 from back.src.app.logic.food     import Food
 from back.src.app.logic.habit    import *
+from back.src.app.constants      import *
 
 
 class UserDB(UserMixin, db.Model):
@@ -51,7 +52,7 @@ class HabitBoolDB(HabitDB):
     freq_type       = db.Column(db.String(64))
     freq_value      = db.Column(db.Integer)
     completions     = db.relationship('HabitBoolCompletionDB', backref='habit', lazy=True)
-    __mapper_args__ = {'polymorphic_identity': 'habit_bool'}
+    __mapper_args__ = {'polymorphic_identity': BOOL}
 
     def to_dataclass(self) -> HabitBool:
         '''Converts this database object to a HabitBool dataclass'''
@@ -84,7 +85,7 @@ class HabitMeasureDB(HabitDB):
     target_value    = db.Column(db.Float)
     target_type     = db.Column(db.String(32)) 
     measurements    = db.relationship('MeasurementFloatDB', backref='habit', lazy=True)
-    __mapper_args__ = {'polymorphic_identity': 'habit_measure'}
+    __mapper_args__ = {'polymorphic_identity': MEASURE}
 
     def to_dataclass(self) -> HabitMeasure:
         '''Converts HabitMeasureDB database object to a HabitMeasure dataclass'''
@@ -120,7 +121,7 @@ class HabitDrinkingWaterDB(HabitDB):
     habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
     target_value    = db.Column(db.Integer)
     measurements    = db.relationship('MeasurementIntDB', backref='habit', lazy=True)
-    __mapper_args__ = {'polymorphic_identity': 'habit_water'}
+    __mapper_args__ = {'polymorphic_identity': WATER}
 
     def to_dataclass(self) -> HabitDrinkingWater:
         '''Converts this database object to a HabitDrinkingWater dataclass'''
@@ -155,7 +156,7 @@ class HabitActivityDB(HabitDB):
     unit = db.Column(db.String(64))
     target_value = db.Column(db.Float)
     measurements = db.relationship('MeasurementActivityDB', backref='habit', lazy=True)
-    __mapper_args__ = {'polymorphic_identity': 'habit_activity'}
+    __mapper_args__ = {'polymorphic_identity': ACTIVITY}
 
     def to_dataclass(self) -> HabitActivity:
         '''Converting ActivityDB database object to an Activity dataclass'''
@@ -195,7 +196,7 @@ class HabitMealDB(HabitDB):
     target_data_unit = db.Column(db.String(8))
     target_type      = db.Column(db.String(8))
     measurements     = db.relationship('MealDB', backref='habit', lazy=True)
-    __mapper_args__  = {'polymorphic_identity': 'habit_meal'}
+    __mapper_args__  = {'polymorphic_identity': MEAL}
 
     def to_dataclass(self) -> HabitMeal:
         habit = HabitMeal(
@@ -230,6 +231,7 @@ class FoodDB(db.Model):
 class MealDB(db.Model):
     '''Class representing a meal in the database'''
     meal_id    = db.Column(db.Integer, primary_key=True)
+    habit_id   = db.Column(db.Integer, db.ForeignKey('habit_meal.habit_id'), nullable=False)
     name       = db.Column(db.String(255), nullable=False)
     foods      = db.relationship('FoodDB', backref='meal', lazy=True)
     user_id    = db.Column(db.Integer, db.ForeignKey('user_db.uid'))
