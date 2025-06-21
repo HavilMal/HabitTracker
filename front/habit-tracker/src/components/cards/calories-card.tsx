@@ -13,11 +13,12 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import { type ChartConfig, ChartContainer } from "@/components/ui/chart"
+import {type ChartConfig, ChartContainer} from "@/components/ui/chart"
+import {cn} from "@/lib/utils.ts";
 
 
 const chartData = [
-	{ browser: "Safari", visitors: 200, fill: "var(--chart-2)" },
+	{browser: "Safari", visitors: 200, fill: "var(--chart-2)"},
 ]
 
 const chartConfig = {
@@ -30,17 +31,17 @@ const chartConfig = {
 	},
 } satisfies ChartConfig
 
-export function CaloriesCard() {
+export function CaloriesCard({className}: { className?: string }) {
 	return (
-		<Card className="flex flex-col flex-1 min-h-[300px]">
-			<CardHeader className="items-center pb-0">
+		<Card className={cn("h-full flex flex-col", className)}>
+			<CardHeader>
 				<CardTitle>Calories Today</CardTitle>
 				<CardDescription>How many calories did you consume today</CardDescription>
 			</CardHeader>
-			<CardContent className="flex-1 pb-0">
+			<CardContent className="flex flex-1 justify-center items-center">
 				<ChartContainer
 					config={chartConfig}
-					className="w-full h-full !aspect-auto"
+					className="flex flex-1 max-h-[250px]"
 				>
 					<RadialBarChart
 						data={chartData}
@@ -56,10 +57,10 @@ export function CaloriesCard() {
 							className="first:fill-muted last:fill-background"
 							polarRadius={[86, 74]}
 						/>
-						<RadialBar dataKey="visitors" background cornerRadius={10} />
+						<RadialBar dataKey="visitors" background cornerRadius={10}/>
 						<PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
 							<Label
-								content={({ viewBox }) => {
+								content={({viewBox}) => {
 									if (viewBox && "cx" in viewBox && "cy" in viewBox) {
 										return (
 											<text

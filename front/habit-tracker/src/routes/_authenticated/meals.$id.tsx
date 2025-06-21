@@ -43,20 +43,13 @@ function RouteComponent() {
 	}, []);
 
 	return (
-		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
-			<div className="bg-muted/50 flex flex-1 rounded-xl">
-				<LineplotCard/>
-			</div>
-			<div className="bg-muted/50 flex flex-1 rounded-xl">
-				<CompleteMealCard/>
-			</div>
-			<div className="bg-muted/50 flex rounded-xl">
-				<CalendarCard/>
-			</div>
-			<div className="bg-muted/50 flex flex-1 rounded-xl">
-				<CaloriesCard/>
-			</div>
-		{/*	todo notes card*/}
+
+		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-h-full h-full">
+			<LineplotCard className="flex h-full"/>
+			<CompleteMealCard className="flex h-full"/>
+			<CalendarCard className="flex h-full"/>
+			<CaloriesCard className="flex h-full"/>
+			{/*	todo notes card*/}
 		</div>
 	)
 }
