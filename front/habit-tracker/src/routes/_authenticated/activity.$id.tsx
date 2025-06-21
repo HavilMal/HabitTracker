@@ -24,6 +24,5 @@ function RouteComponent() {
 				<NotesCard/>
 			</div>
 		</div>
-
 	)
 }
