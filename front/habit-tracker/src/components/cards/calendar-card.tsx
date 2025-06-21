@@ -3,10 +3,11 @@ import {
 	CardContent,
 } from "@/components/ui/card.tsx"
 import {Calendar} from "@/components/ui/calendar.tsx"
+import {cn} from "@/lib/utils.ts";
 
-export default function CalendarCard({selected = []}: {selected?: Date[]}) {
+export default function CalendarCard({selected = [], className}: {selected?: Date[], className?: string}) {
 	return (
-		<Card className="flex flex-1">
+		<Card className={cn("flex flex-1", className)}>
 			<CardContent className="flex flex-1">
 				<Calendar className="flex w-full h-full"
 				          classNames={{

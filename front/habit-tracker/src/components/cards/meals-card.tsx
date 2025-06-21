@@ -7,7 +7,7 @@ import {Select, SelectTrigger, SelectValue, SelectContent, SelectItem,} from "@/
 import {Form, FormField, FormItem, FormLabel, FormControl, FormMessage} from "@/components/ui/form"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
-import {getLastDays, toDateString} from "@/lib/utils.ts";
+import {cn, getLastDays, toDateString} from "@/lib/utils.ts";
 
 const mealSchema = z.object({
 	id: z.number(),
@@ -52,10 +52,11 @@ function getPreviousMeals(): Map<string, Meal[]> {
 }
 
 
-export default function CompleteMealCard({numberOfDays = 7}: { numberOfDays?: number }) {
+export default function CompleteMealCard({numberOfDays = 7, className}: { numberOfDays?: number, className?: string }) {
 	const meals = getMeals();
 	const previousMeals = getPreviousMeals();
 	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
+	const labels = lastWeekDays.map(s => s.split("-")[2])
 
 	const form = useForm<z.infer<typeof mealsSchema>>({
 		resolver: zodResolver(mealsSchema),
@@ -116,7 +117,7 @@ export default function CompleteMealCard({numberOfDays = 7}: { numberOfDays?: nu
 
 
 	return (
-		<Card className="flex flex-1 space-y-4">
+		<Card className={cn("flex flex-1 space-y-4", className)}>
 			<CardHeader>
 				<CardTitle>Add a Meal</CardTitle>
 				<CardDescription>description</CardDescription>
@@ -125,8 +126,24 @@ export default function CompleteMealCard({numberOfDays = 7}: { numberOfDays?: nu
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 						<div className="flex flex-1 justify-center items-center">
-							<FormDatePicker form={form} dateName={"date"} valueName={"value"} dates={lastWeekDays}
-							                values={previousMeals}/>
+							<FormField
+								control={form.control}
+								name={"date"}
+								render={({field}) => (
+									<FormDatePicker labels={labels} dates={lastWeekDays} value={form.getValues("date")} onChange={
+										(value) => {
+											field.onChange(value)
+
+											const newValue = previousMeals.get(value)
+
+											if (newValue) {
+												form.setValue("value", newValue)
+											}
+										}
+									}
+									/>
+								)}
+							/>
 						</div>
 						<FormField
 							control={form.control}

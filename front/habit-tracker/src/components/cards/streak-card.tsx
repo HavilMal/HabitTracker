@@ -13,11 +13,12 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import { type ChartConfig, ChartContainer } from "@/components/ui/chart"
+import {type ChartConfig, ChartContainer} from "@/components/ui/chart"
+import {cn} from "@/lib/utils.ts";
 
 
 const chartData = [
-	{ browser: "days", visitors: 200, fill: "var(--color-safari)" },
+	{browser: "days", visitors: 200, fill: "var(--color-safari)"},
 ]
 
 const chartConfig = {
@@ -30,17 +31,18 @@ const chartConfig = {
 	},
 } satisfies ChartConfig
 
-export function StreakChart() {
+export function StreakChart({className}: { className?: string }) {
 	return (
-		<Card className="flex flex-col">
+
+		<Card className={cn("h-full flex flex-col", className)}>
 			<CardHeader className="items-center pb-0">
 				<CardTitle>Longest streak</CardTitle>
 				<CardDescription>Your longest streak is: {""}</CardDescription>
 			</CardHeader>
-			<CardContent className="flex-1 pb-0">
+			<CardContent className="flex flex-1 justify-center items-center" >
 				<ChartContainer
 					config={chartConfig}
-					className="mx-auto aspect-square max-h-[250px]"
+					className="flex flex-1 max-h-[250px]"
 				>
 					<RadialBarChart
 						data={chartData}
@@ -56,10 +58,10 @@ export function StreakChart() {
 							className="first:fill-muted last:fill-background"
 							polarRadius={[86, 74]}
 						/>
-						<RadialBar dataKey="visitors" background cornerRadius={10} />
+						<RadialBar dataKey="visitors" background cornerRadius={10}/>
 						<PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
 							<Label
-								content={({ viewBox }) => {
+								content={({viewBox}) => {
 									if (viewBox && "cx" in viewBox && "cy" in viewBox) {
 										return (
 											<text
