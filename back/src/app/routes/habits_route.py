@@ -1,9 +1,11 @@
 import datetime
-from flask       import Blueprint, request, jsonify
-from flask_login import login_required, current_user
 
-from back.src.app         import db
-from back.src.app.models import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
+from flask                          import Blueprint, request, jsonify
+from flask_login                    import login_required, current_user
+
+from back.src.app.routes.food_route import create_meal
+from back.src.app                   import db
+from back.src.app.models            import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
     HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB
 
 habit_bp = Blueprint('habit', __name__)
@@ -127,11 +129,11 @@ def add_habit_entry(habit_id):
     """
     Endpoint to add “one entry” to any habit subtype.
     JSON differs by habit_type:
-      - habit_bool:    { "date": "YYYY-MM-DD" }
-      - habit_measure: { "date": "YYYY-MM-DD", "amount": 12.5 }
-      - habit_water:   { "date": "YYYY-MM-DD", "amount": 2 }
-      - habit_activity:{ "activity_datetime": "...", "amount": 5.2, "duration_seconds": 3600, "calories": 300 }
-      - habit_meal:
+      - habit_bool:     { "date": "YYYY-MM-DD" }
+      - habit_measure:  { "date": "YYYY-MM-DD", "amount": 12.5 }
+      - habit_water:    { "date": "YYYY-MM-DD", "amount": 2 }
+      - habit_activity: { "activity_datetime": "...", "amount": 5.2, "duration_seconds": 3600, "calories": 300 }
+      - habit_meal:     {  }
     """
     data = request.get_json() or {}
 
@@ -218,8 +220,23 @@ def add_habit_entry(habit_id):
         db.session.add(row)
 
     elif habit_type == 'meal':
-        ...
-        #todo implement meal adding
+        try:
+            name = data['name']
+            foods = data['foods']
+            created_at = data.get('created_at')
+                
+        except KeyError as e:
+            return jsonify({"error": f"Missing field: {str(e)}"}), 400
+        
+        if not isinstance(foods, list) or not foods:
+                return jsonify({"error": "`foods` must be a non-empty list"}), 400
+
+        try:
+            dt = datetime.datetime.fromisoformat(created_at) if created_at else None
+        except ValueError:
+            return jsonify({"error": "Invalid `created_at`, use ISO8601"}), 400
+
+        create_meal(name=name, foods=foods, habit_id=habit_id, created_at=dt)
 
     else:
         return jsonify({"error": f"Unsupported habit_type: {habit_type}"}), 400
