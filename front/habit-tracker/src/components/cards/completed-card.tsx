@@ -10,19 +10,19 @@ import {
 	FormDescription,
 	FormField,
 	FormItem,
-	FormLabel,
 	FormMessage
 } from "@/components/ui/form.tsx";
 import z from "zod";
 import {useForm, useWatch} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Check, ChevronLeft, ChevronRight} from "lucide-react";
-import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group.tsx";
 import {Toggle} from "@/components/ui/toggle.tsx";
 import type {BoolHabit, MeasureHabit, WaterHabit} from "@/hooks/habit-provider.tsx";
 import {Slider} from "@/components/ui/slider.tsx";
 import {useEffect} from "react";
 import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
+import {FormDatePicker} from "@/components/form-date-picker.tsx";
+import {toDateString} from "@/lib/utils.ts";
 
 
 function getLastDays(numberOfDays: number): Date[] {
@@ -36,16 +36,16 @@ function getLastDays(numberOfDays: number): Date[] {
 	return list;
 }
 
-function getLastValues(days: Date[]): Map<string, number> {
+function getLastValues(days: string[]): Map<string, number> {
 	const map = new Map<string, number>();
 	for (let day of days) {
-		map.set(day.toDateString(), 11);
+		map.set(day, 11);
 	}
 
 	return map;
 }
 
-function BoolFrom({form, data}: { form: any, data: BoolHabit }) {
+function BoolFrom({form}: { form: any, data: BoolHabit }) {
 	return (
 		<FormField
 			control={form.control}
@@ -149,18 +149,18 @@ export default function CompletionCard({numberOfDays = 7, data}: {
 		setBreadcrumbs(["Habit", data.name])
 	}, []);
 
-	const lastWeekDays = getLastDays(numberOfDays);
+	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
 	const lastWeekValues = getLastValues(lastWeekDays);
 
 	const formSchema = z.object({
-		date: z.date(),
+		date: z.string(),
 		value: data.type === "habit_bool" ? z.boolean() : z.number(),
 	})
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			value: data.type === "habit_bool" ? false : lastWeekValues.get(lastWeekDays[0].toDateString()),
+			value: data.type === "habit_bool" ? false : lastWeekValues.get(lastWeekDays[0]),
 			date: lastWeekDays[0],
 		},
 		mode: "onChange",
@@ -196,50 +196,8 @@ export default function CompletionCard({numberOfDays = 7, data}: {
 
 
 					<CardContent className="flex flex-1 justify-center items-center">
-						<FormField
-							control={form.control}
-							name="date"
-							render={({field}) => (
-								<RadioGroup
-									onValueChange={(stringValue) => {
-										const selectedDate = lastWeekDays.find(
-											(day) => day.toDateString() === stringValue
-										)
-										if (selectedDate) {
-											field.onChange(selectedDate)
-
-											const newValue = lastWeekValues.get(selectedDate.toDateString())
-
-											if (newValue) {
-												form.setValue("value", newValue)
-											}
-										}
-									}}
-									defaultValue={lastWeekDays[lastWeekDays.length - 1].toDateString()}
-									className="bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]"
-								>
-									{
-										lastWeekDays.map((day, i) => (
-											<FormItem className="flex flex-row w-full h-full">
-												<FormControl>
-													<RadioGroupItem value={day.toDateString()}
-													                id={day.toDateString()}
-													                key={i}
-													                className="peer sr-only"
-													/>
-												</FormControl>
-												<FormLabel
-													htmlFor={day.toDateString()}
-													className="peer-data-[state=checked]:bg-background dark:peer-data-[state=checked]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:peer-data-[state=checked]:border-input dark:peer-data-[state=checked]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 peer-data-[state=checked]:shadow-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
-												>
-													{day.getDate().toString()}
-												</FormLabel>
-											</FormItem>
-										))
-									}
-								</RadioGroup>
-							)}
-						/>
+						<FormDatePicker form={form} dateName={"date"} valueName={"value"} dates={lastWeekDays}
+						                values={lastWeekValues}/>
 					</CardContent>
 					<CardContent className="flex flex-col w-full h-full gap-4">
 						{renderForm()}
