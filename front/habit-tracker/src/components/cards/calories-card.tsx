@@ -30,9 +30,9 @@ const chartConfig = {
 	},
 } satisfies ChartConfig
 
-export function CaloriesChart() {
+export function CaloriesCard() {
 	return (
-		<Card className="flex flex-col">
+		<Card className="flex flex-col flex-1 min-h-[300px]">
 			<CardHeader className="items-center pb-0">
 				<CardTitle>Calories Today</CardTitle>
 				<CardDescription>How many calories did you consume today</CardDescription>
@@ -40,7 +40,7 @@ export function CaloriesChart() {
 			<CardContent className="flex-1 pb-0">
 				<ChartContainer
 					config={chartConfig}
-					className="mx-auto aspect-square max-h-[250px]"
+					className="w-full h-full !aspect-auto"
 				>
 					<RadialBarChart
 						data={chartData}

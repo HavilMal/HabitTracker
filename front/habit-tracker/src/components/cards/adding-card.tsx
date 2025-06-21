@@ -9,7 +9,6 @@ import {useNavigate} from "@tanstack/react-router";
 import {Select, SelectTrigger, SelectItem, SelectContent, SelectValue} from "@/components/ui/select.tsx";
 import {type Dispatch, type JSX, type SetStateAction, useEffect, useState} from "react";
 import {Textarea} from "@/components/ui/textarea.tsx";
-import {cn} from "@/lib/utils.ts";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
 import {NumberInput} from "@/components/number-form-input.tsx";
 import {useHabits} from "@/hooks/habit-provider.tsx";
