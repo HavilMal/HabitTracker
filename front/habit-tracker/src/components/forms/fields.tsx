@@ -121,8 +121,8 @@ export function TargetTypeField<T extends MeasureSchema | MealSchema>({form}: { 
 							</SelectTrigger>
 						</FormControl>
 						<SelectContent>
-							<SelectItem value="positive">Positive</SelectItem>
-							<SelectItem value="negative">Negative</SelectItem>
+							<SelectItem value="at_least">At least</SelectItem>
+							<SelectItem value="at_most">At most</SelectItem>
 						</SelectContent>
 					</Select>
 				</FormItem>
@@ -208,7 +208,7 @@ export function TargetDataUnitField<T extends MealSchema>({form}: { form: UseFor
 			name={"target_data_unit" as Path<T>}
 			render={({field}) => (
 				<FormItem className="gap-2">
-					<FormLabel>Frequency</FormLabel>
+					<FormLabel>Unit</FormLabel>
 					<Select
 						onValueChange={(value: T["target_data_unit"]) => {
 							field.onChange(value);
@@ -221,8 +221,9 @@ export function TargetDataUnitField<T extends MealSchema>({form}: { form: UseFor
 						</FormControl>
 						<SelectContent>
 							<SelectItem value="calories">Calories</SelectItem>
-							<SelectItem value="proteins">Proteins</SelectItem>
-							<SelectItem value="carbohydrates">Carbohydrates</SelectItem>
+							<SelectItem value="prot">Proteins</SelectItem>
+							<SelectItem value="carb">Carbohydrates</SelectItem>
+							<SelectItem value="fat">Fat</SelectItem>
 						</SelectContent>
 					</Select>
 				</FormItem>
