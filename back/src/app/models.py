@@ -56,12 +56,12 @@ class HabitBoolDB(HabitDB):
     def to_dataclass(self) -> HabitBool:
         '''Converts this database object to a HabitBool dataclass'''
         habit = HabitBool(
-            self.name, 
+            self.name,
+            self.start_date,
             self.freq_type,
             self.freq_value, 
             self.notes
         )
-        habit.start_date     = self.start_date
         list_completions     = cast(list[HabitBoolCompletionDB], self.completions)
         habit.completed_days = [c.date for c in list_completions]
         return habit
@@ -90,13 +90,13 @@ class HabitMeasureDB(HabitDB):
         '''Converts HabitMeasureDB database object to a HabitMeasure dataclass'''
         habit = HabitMeasure(
             self.name,
+            self.start_date,
             self.freq_type,
             self.unit,
             self.target_value,
             self.target_type,
             self.notes
         )
-        habit.start_date   = self.start_date
         list_measurements  = cast(list[MeasurementFloatDB], self.measurements)
         habit.measurements = [
             MeasurementFloat(date=m.date, amount=m.amount)
@@ -126,10 +126,10 @@ class HabitDrinkingWaterDB(HabitDB):
         '''Converts this database object to a HabitDrinkingWater dataclass'''
         habit = HabitDrinkingWater(
             self.name,
+            self.start_date,
             self.target_value,
             self.notes
         )
-        habit.start_date   = self.start_date
         list_measurements  = cast(list[MeasurementIntDB], self.measurements)
         habit.measurements = [
             MeasurementInt(date=m.date, amount=m.amount)
@@ -200,12 +200,12 @@ class HabitMealDB(HabitDB):
     def to_dataclass(self) -> HabitMeal:
         habit = HabitMeal(
             self.name,
+            self.start_date,
             self.target_value,
             self.target_data_unit,
             self.target_type,
             self.notes
         )
-        habit.start_date   = self.start_date
         list_measurements  = cast(list[MealDB], self.measurements)
         habit.measurements = [m.to_dataclass() for m in list_measurements]
         return habit
@@ -240,6 +240,7 @@ class MealDB(db.Model):
         '''Converting MealDB database object from to a Meal dataclass'''
         list_foods = cast(list[FoodDB], self.foods)
         return Meal(
+            self.created_at.date(),
             self.name, 
             [(food.to_dataclass(), food.grams) for food in list_foods]
         )

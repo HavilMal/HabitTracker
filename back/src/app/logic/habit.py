@@ -3,6 +3,7 @@ import datetime
 import abc
 from back.src.app.logic.meal import Meal
 from collections import defaultdict
+from back.src.app.constants import *
 
 
 class Habit(metaclass=abc.ABCMeta):
@@ -277,7 +278,7 @@ class HabitMeal(Habit):
             elif self.target_data_unit == CALORIES:
                 total_amount = m.get_total_calories()
 
-            measurements_by_day[m.date].append(total_amount)
+            measurements_by_day[m.meal_date].append(total_amount)
 
         for date in all_dates:
             daily_measurement = measurements_by_day.get(date, [])
@@ -285,5 +286,4 @@ class HabitMeal(Habit):
             history.append((date.isoformat(), self._check_target(total)))
 
         return history
-
 
