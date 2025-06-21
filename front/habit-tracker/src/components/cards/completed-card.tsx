@@ -144,13 +144,14 @@ export default function CompletionCard({numberOfDays = 7, data}: {
 	data: BoolHabit | MeasureHabit | WaterHabit
 }) {
 	const {setBreadcrumbs} = useBreadcrumbs()
+	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
+	const lastWeekValues = getLastValues(lastWeekDays);
+	const labels = lastWeekDays.map(s=> s.split("-")[2])
+
 
 	useEffect(() => {
 		setBreadcrumbs(["Habit", data.name])
 	}, []);
-
-	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
-	const lastWeekValues = getLastValues(lastWeekDays);
 
 	const formSchema = z.object({
 		date: z.string(),
@@ -196,8 +197,28 @@ export default function CompletionCard({numberOfDays = 7, data}: {
 
 
 					<CardContent className="flex flex-1 justify-center items-center">
-						<FormDatePicker form={form} dateName={"date"} valueName={"value"} dates={lastWeekDays}
-						                values={lastWeekValues}/>
+						<FormField
+								control={form.control}
+								name={"date"}
+								render={({field}) => (
+									<FormDatePicker labels={labels} dates={lastWeekDays} value={form.getValues("date")} onChange={
+										(stringValue) => {
+											const selectedDate = lastWeekDays.find(
+												(day) => day === stringValue
+											)
+
+											if (selectedDate) {
+												field.onChange(selectedDate)
+
+												const newValue = lastWeekValues.get(selectedDate)
+
+												if (newValue) {
+													form.setValue("value", newValue)
+												}
+											}
+										}
+									}/>
+								)}/>
 					</CardContent>
 					<CardContent className="flex flex-col w-full h-full gap-4">
 						{renderForm()}
