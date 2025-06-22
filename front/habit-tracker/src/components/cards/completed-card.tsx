@@ -155,13 +155,13 @@ export default function CompletionCard({numberOfDays = 7, data}: {
 
 	const formSchema = z.object({
 		date: z.string(),
-		value: data.type === "habit_bool" ? z.boolean() : z.number(),
+		value: data.type === "bool" ? z.boolean() : z.number(),
 	})
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			value: data.type === "habit_bool" ? false : lastWeekValues.get(lastWeekDays[0]),
+			value: data.type === "bool" ? false : lastWeekValues.get(lastWeekDays[0]),
 			date: lastWeekDays[0],
 		},
 		mode: "onChange",
@@ -174,11 +174,11 @@ export default function CompletionCard({numberOfDays = 7, data}: {
 
 	function renderForm() {
 		switch (data.type) {
-			case "habit_bool":
+			case "bool":
 				return <BoolFrom form={form} data={data as BoolHabit}/>
-			case "habit_measure":
+			case "measure":
 				return <MeasureForm form={form} data={data as MeasureHabit}/>
-			case "habit_water":
+			case "water":
 				return <WaterForm form={form} data={data as WaterHabit}/>
 		}
 	}
@@ -223,7 +223,7 @@ export default function CompletionCard({numberOfDays = 7, data}: {
 					<CardContent className="flex flex-col w-full h-full gap-4">
 						{renderForm()}
 					</CardContent>
-					{data.type === "habit_bool" ?
+					{data.type === "bool" ?
 						<></> :
 						<CardFooter className="gap-6">
 							<FormControl>

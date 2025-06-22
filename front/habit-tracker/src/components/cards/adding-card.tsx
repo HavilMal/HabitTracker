@@ -40,6 +40,7 @@ function Test({selectedType, setError}: { selectedType: FormTypes, setError: Dis
 
 	// todo navigate to previous page
 	async function onSubmit(values) {
+		console.log(values)
 		const response = await fetch(import.meta.env.VITE_API_URL + "add-habit",
 			{
 				credentials: "include",

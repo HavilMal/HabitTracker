@@ -4,7 +4,7 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 
 export type Habit = {
 	id: number,
-	type: "habit_bool" | "habit_measure" | "habit_water",
+	type: "bool" | "measure" | "water" | "activity" | "meal",
 	name: string,
 	notes: string,
 }

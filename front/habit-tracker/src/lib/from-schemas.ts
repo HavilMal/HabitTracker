@@ -11,9 +11,6 @@ export type HabitSchema = z.infer<typeof habitSchema>
 export const boolSchema = habitSchema.extend({
 	freq_type: z.enum(["daily", "weekly", "monthly"]),
 	freq_value: z.number(),
-	unit: z.string(),
-	target_value: z.number(),
-	target_type: z.enum(["at_least", "at_most"]),
 })
 
 export type BoolSchema = z.infer<typeof boolSchema>
@@ -35,7 +32,6 @@ export const waterSchema = habitSchema.extend({
 export type WaterSchema= z.infer<typeof waterSchema>
 
 export const mealSchema = habitSchema.extend({
-	unit: z.string(),
 	target_value: z.number(),
 	target_type: z.enum(["at_least", "at_most"]),
 	target_data_unit: z.enum(["prot", "fat", "carb", "calories"]),
