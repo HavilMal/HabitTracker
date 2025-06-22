@@ -23,29 +23,22 @@ function RouteComponent() {
 			</div>
 		)
 	}
-	let list:  WaterHabit[] = habits.water
+	let list: WaterHabit[] = habits.water
 	const data = list.find((h) => h.id === Number(id))
 
 	if (data === undefined) {
 		throw notFound()
 	}
 
+	const selected = data.measurements.map((value) => value.date)
 
 
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
-			<div className="bg-muted/50 flex flex-1 rounded-xl">
-				<LineplotCard data={data}/>
-			</div>
-			<div className="bg-muted/50 flex flex-1 rounded-xl">
-				<CompletionWaterCard data={data}/>
-			</div>
-			<div className="bg-muted/50 flex rounded-xl">
-				<CalendarCard/>
-			</div>
-			<div className="bg-muted/50 flex flex-1 rounded-xl">
-				<NotesCard/>
-			</div>
+			<LineplotCard data={data}/>
+			<CompletionWaterCard data={data}/>
+			<CalendarCard selected={selected}/>
+			<NotesCard/>
 		</div>
 	)
 }

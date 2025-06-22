@@ -41,13 +41,6 @@ export function LineplotCard({title = "Line Chart", description = "description",
 
 	const chartData = generateCompletionData(data);
 
-	const maximum = chartData.reduce((max, curr) =>
-		curr.completion > max.completion ? curr : max
-	).completion;
-
-
-	console.log("data", chartData)
-
 	// todo change
 	if (chartData.length === 0) {
 		return <p>No data</p>

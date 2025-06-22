@@ -32,6 +32,12 @@ function RouteComponent() {
 		throw notFound()
 	}
 
+	let selected: string[] = [];
+	if (data.type === "bool") {
+		selected = data.completed_days;
+	} else {
+		selected = data.measurements.map((value) => value.date)
+	}
 
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
@@ -42,7 +48,7 @@ function RouteComponent() {
 				{data.type === "bool" ? <CompletionBoolCard data={data as BoolHabit} /> : <CompletionMeasureCard data={data as MeasureHabit} />}
 			</div>
 			<div className="bg-muted/50 flex rounded-xl">
-				<CalendarCard/>
+				<CalendarCard selected={selected}/>
 			</div>
 			<div className="bg-muted/50 flex flex-1 rounded-xl">
 				<NotesCard/>

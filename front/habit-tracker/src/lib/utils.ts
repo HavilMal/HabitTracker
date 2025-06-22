@@ -2,7 +2,7 @@ import {clsx, type ClassValue} from 'clsx'
 import {twMerge} from 'tailwind-merge'
 import type {Completion} from "@/components/cards/lineplot-card.tsx";
 import type {
-	ActivityHabit,
+	ActivityHabit, ActivityMeasurement,
 	BoolHabit,
 	Habit,
 	MealHabit,
@@ -42,6 +42,8 @@ export function generateCompletionData(data: BoolHabit | MeasureHabit | WaterHab
 		case "measure":
 		case "water":
 			return generateCompletionDataAmount(data.start_date, data.measurements);
+		case "activity":
+			return generateCompletionDataActivity(data.start_date, data.measurements)
 		default:
 			return []
 	}
@@ -84,6 +86,37 @@ function generateCompletionDataAmount(
 	const dateToAmount = new Map<string, number>();
 	markedDates.forEach(m => {
 		const dateStr = new Date(m.date).toISOString().slice(0, 10);
+		dateToAmount.set(dateStr, m.amount);
+	});
+
+	const current = new Date(start);
+	while (current <= today) {
+		const dateStr = current.toISOString().slice(0, 10);
+		result.push({
+			date: dateStr,
+			completion: dateToAmount.get(dateStr) ?? 0,
+		});
+
+		current.setDate(current.getDate() + 1);
+	}
+
+	return result;
+}
+
+
+function generateCompletionDataActivity(
+	startDate: string,
+	markedDates: ActivityMeasurement[],
+): Completion[] {
+	const result: Completion[] = [];
+	const start = new Date(startDate);
+	const today = new Date();
+
+	today.setHours(0, 0, 0, 0);
+
+	const dateToAmount = new Map<string, number>();
+	markedDates.forEach(m => {
+		const dateStr = new Date(m.activity_datetime).toISOString().slice(0, 10);
 		dateToAmount.set(dateStr, m.amount);
 	});
 

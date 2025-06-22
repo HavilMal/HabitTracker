@@ -35,11 +35,13 @@ function RouteComponent() {
 		throw notFound()
 	}
 
+	const selected = data.measurements.map((value) => value.activity_datetime)
+
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
-			<LineplotCard/>
+			<LineplotCard data={data}/>
 			<CompletionActivityCard data={data}/>
-			<CalendarCard/>
+			<CalendarCard selected={selected}/>
 			<NotesCard/>
 		</div>
 	)

@@ -66,7 +66,7 @@ export function CompletionActivityCard({numberOfDays = 7, data}: { numberOfDays?
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-1">
+			<form onSubmit={form.handleSubmit(onSubmit, e=> console.log(e))} className="flex flex-1">
 				<Card className="flex flex-1">
 					<CardHeader>
 						<CardTitle>Track your daily progress</CardTitle>
