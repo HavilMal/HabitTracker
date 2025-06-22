@@ -24,7 +24,7 @@ export type Measurement = {
 
 export type MeasureHabit = Habit & {
 	freq_type: "daily" | "weekly" | "monthly",
-	target_type: "positive" | "negative",
+	target_type: "at_least" | "at_most",
 	target_value: number,
 	unit: string,
 	measurements: Measurement[],

@@ -67,7 +67,7 @@ class HabitBoolDB(HabitDB):
             self.notes
         )
         list_completions     = cast(list[HabitBoolCompletionDB], self.completions)
-        habit.completed_days = [c.date.isoformat() for c in list_completions]
+        habit.completed_days = [c.date for c in list_completions]
         return habit
 
 
@@ -103,7 +103,7 @@ class HabitMeasureDB(HabitDB):
         )
         list_measurements  = cast(list[MeasurementFloatDB], self.measurements)
         habit.measurements = [
-            MeasurementFloat(date=m.date, amount=m.amount).to_dict()
+            MeasurementFloat(date=m.date, amount=m.amount)
             for m in list_measurements
         ]
         return habit
@@ -136,7 +136,7 @@ class HabitDrinkingWaterDB(HabitDB):
         )
         list_measurements  = cast(list[MeasurementIntDB], self.measurements)
         habit.measurements = [
-            MeasurementInt(date=m.date, amount=m.amount).to_dict()
+            MeasurementInt(date=m.date, amount=m.amount)
             for m in list_measurements
         ]
         return habit
@@ -155,10 +155,10 @@ class HabitActivityDB(HabitDB):
     '''Class representing an activity in the database'''
     __tablename__   = 'habit_activity'
     habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
-    freq_type = db.Column(db.String(64))
-    unit = db.Column(db.String(64))
-    target_value = db.Column(db.Float)
-    measurements = db.relationship('MeasurementActivityDB', backref='habit', lazy=True)
+    freq_type       = db.Column(db.String(64))
+    unit            = db.Column(db.String(64))
+    target_value    = db.Column(db.Float)
+    measurements    = db.relationship('MeasurementActivityDB', backref='habit', lazy=True)
     __mapper_args__ = {'polymorphic_identity': ACTIVITY}
 
     def to_dataclass(self) -> HabitActivity:
@@ -174,7 +174,7 @@ class HabitActivityDB(HabitDB):
         list_measurements = cast(list[MeasurementActivityDB], self.measurements)
         habit.measurements = [
             MeasurementActivity(activity_datetime=m.activity_datetime, amount=m.amount,
-                                duration=datetime.timedelta(seconds=m.duration_seconds), calories=m.calories).to_dict()
+                                duration=datetime.timedelta(seconds=m.duration_seconds).total_seconds(), calories=m.calories)
             for m in list_measurements
         ]
         return habit

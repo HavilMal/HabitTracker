@@ -22,7 +22,7 @@ class Habit(metaclass=abc.ABCMeta):
 
     @staticmethod
     def get_dates(start_date, end_date):
-        return [start_date + datetime.timedelta(days=x) for x in range((end_date - start_date).days + 1)]
+        return [start_date + datetime.timedelta(days=x) for x in range((end_date - start_date.date()).days + 1)]
 
     def get_longest_streak(self) -> tuple[str, str, int]:
         """
@@ -67,6 +67,7 @@ class HabitBool(Habit):
         self.freq_value: int = freq_value
         self.completed_days: list[datetime.date] = []
 
+
     def mark_completed(self, completion_date: datetime.date):
         if completion_date not in self.completed_days:
             self.completed_days.append(completion_date)
@@ -107,11 +108,6 @@ class MeasurementFloat:
     date: datetime.date
     amount: float
 
-    def to_dict(self):
-        return {
-            "date": self.date.isoformat(),
-            "amount": self.amount,
-        }
 
 
 class HabitMeasure(Habit):
@@ -172,7 +168,7 @@ class HabitMeasure(Habit):
         today_date = datetime.date.today()
 
         if self.freq_type == DAILY:
-            amount_sum = sum(m.amount for m in self.measurements if m.date == today_date)
+            amount_sum = sum(m.amount for m in self.measurements if m.date.date() == today_date)
             return self._check_target(amount_sum) == 0
 
         elif self.freq_type == WEEKLY:
@@ -189,11 +185,6 @@ class MeasurementInt:
     date: datetime.date
     amount: int
 
-    def to_dict(self):
-        return {
-            "date": self.date.isoformat(),
-            "amount": self.amount,
-        }
 
 
 class HabitDrinkingWater(Habit):
@@ -228,7 +219,7 @@ class HabitDrinkingWater(Habit):
 
     def to_do(self) -> bool:
         today_date = datetime.date.today()
-        amount_sum = sum(m.amount for m in self.measurements if m.date == today_date)
+        amount_sum = sum(m.amount for m in self.measurements if m.date.date() == today_date)
         return self._check_target(amount_sum) == 0
 
 
@@ -236,23 +227,16 @@ class HabitDrinkingWater(Habit):
 class MeasurementActivity:
     activity_datetime: datetime.datetime
     amount: float
-    duration: datetime.timedelta
+    duration: float
     calories: float
 
     @property
     def calories_burnt_per_minute(self) -> float:
-        duration_minutes = self.duration.total_seconds() / 60
+        duration_minutes = self.duration / 60
         if duration_minutes == 0 or self.calories == 0:
             return 0.0
         return self.calories / duration_minutes
 
-    def to_dict(self):
-        return {
-            'activity_datetime': self.activity_datetime.isoformat(),
-            'amount': self.amount,
-            'duration': self.duration.total_seconds(),
-            'calories': self.calories,
-        }
 
 
 class HabitActivity(Habit):

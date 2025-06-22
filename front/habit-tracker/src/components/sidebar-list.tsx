@@ -136,6 +136,8 @@ function ListSkeleton() {
 export function AppSidebar() {
 	const {isLoading, habits} = useHabits();
 
+	console.log("habits", habits);
+
 	const auth = useAuth()
 	const router = useRouter()
 	const navigate = useNavigate()

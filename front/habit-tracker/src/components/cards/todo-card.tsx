@@ -13,20 +13,56 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table"
+import {useQuery} from "@tanstack/react-query";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
 
 
-const data = [
-	// {
-	// 	name: "Habit",
-	// 	status: "Not completed",
-	// },
-	// {
-	// 	name: "Measure",
-	// 	status: "Missing"
-	// }
-]
+type ToDo = {
+	habit_id: number;
+	name: string;
+}
+
+type ToDoData = {
+	habits_todo: ToDo[];
+}
+
+
 
 export function TodoCard() {
+	async function fetchTodo(): Promise<ToDoData> {
+		const res = await fetch(import.meta.env.VITE_API_URL + "get-habits-todo", {
+			credentials: "include",
+			mode: "cors",
+			method: "GET",
+			headers: {
+				"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
+				"Content-Type": "application/json; charset=utf-8",
+			},
+		});
+		if (!res.ok) {
+			throw new Error('Failed to fetch habits');
+		}
+
+		return res.json();
+	}
+
+	const {data, isLoading} = useQuery({
+		queryKey: ['todo'],
+		queryFn: fetchTodo,
+		// staleTime: 1000 * 60 * 5,
+	});
+
+	if (isLoading) {
+		return <Skeleton className="flex flex-col h-full"/>;
+	}
+
+	// todo not loaded page
+	if (data === undefined) {
+		return <></>
+	}
+
+	console.log(data)
+
 	return (
 		<Card className="flex flex-col h-full">
 			<CardHeader className="items-center pb-0">
@@ -42,7 +78,7 @@ export function TodoCard() {
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{data.map((item, index) => (
+						{data.habits_todo.map((item, index) => (
 							<TableRow key={index}>
 								<TableCell className="font-medium">{item.name}</TableCell>
 								<TableCell>{item.status}</TableCell>
@@ -50,7 +86,7 @@ export function TodoCard() {
 						))}
 					</TableBody>
 				</Table>
-				{data.length > 0 ? <></> :
+				{data.habits_todo.length > 0 ? <></> :
 					<div className="flex p-6 justify-center">
 						<p>All done!</p>
 					</div>

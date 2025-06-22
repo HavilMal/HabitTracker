@@ -103,8 +103,7 @@ export default function CompletionMeasureCard({numberOfDays = 7, data}: {
 								name="amount"
 								render={({field}) => (
 									<div className="flex flex-col flex-1 h-full gap-3">
-										<FormDescription className="text-center">Your target
-											is {data.target_value} {data.unit}</FormDescription>
+										<FormDescription className="text-center">Your target is {data.target_type.replace("_", " ") } {data.target_value} {data.unit}</FormDescription>
 										<FormItem className="flex flex-row flex-1">
 											<div className="flex h-full w-1/4 justify-center items-center">
 												<Button variant="outline" type="button" className="aspect-square rounded-full"

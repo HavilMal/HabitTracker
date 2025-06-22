@@ -1,6 +1,7 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {useForm, type UseFormReturn} from "react-hook-form";
-import {z, zodResolver} from "@hookform/resolvers/zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod"
 import {Form} from "@/components/ui/form.tsx";
 import {useNavigate} from "@tanstack/react-router";
 import {Select, SelectTrigger, SelectItem, SelectContent, SelectValue} from "@/components/ui/select.tsx";

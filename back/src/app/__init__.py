@@ -2,6 +2,7 @@ from flask              import Flask
 from flask_sqlalchemy   import SQLAlchemy
 from flask_cors         import CORS
 from flask_login        import LoginManager
+from app.serializer import CustomJSONProvider
 
 db                       = SQLAlchemy()
 login_manager            = LoginManager()
@@ -12,6 +13,7 @@ def create_app() -> Flask:
     '''Creates and initializes the app'''
     app = Flask(__name__)
     app.config.from_object('app.config.Config')
+    app.json = CustomJSONProvider(app)
     CORS(app, origins="http://localhost:3000", supports_credentials=True)
 
     db.init_app(app)

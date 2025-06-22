@@ -3,7 +3,7 @@ import {z} from "zod"
 import {zodResolver} from "@hookform/resolvers/zod"
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
-import {Form, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
+import {Form, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
 import {compareDateStrings, getLastDays, toDateString} from "@/lib/utils.ts";
 import {NumberInput} from "@/components/number-form-input.tsx";
@@ -64,7 +64,6 @@ export function CompletionActivityCard({numberOfDays = 7, data}: { numberOfDays?
 		}
 	}
 
-
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-1">
@@ -94,12 +93,13 @@ export function CompletionActivityCard({numberOfDays = 7, data}: { numberOfDays?
 								)}
 							/>
 						</div>
+						<FormDescription className="text-center">Your target is {data.target_value} {data.unit}</FormDescription>
 						<FormField
 							control={form.control}
 							name="amount"
 							render={({field}) => (
 								<FormItem>
-									<FormLabel>Enter amount</FormLabel>
+									<FormLabel>Enter {data.unit}</FormLabel>
 									<NumberInput field={field} placeholder="amount"/>
 									<FormMessage/>
 								</FormItem>
