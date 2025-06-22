@@ -1,12 +1,14 @@
-from dataclasses         import dataclass, field
+import datetime
+from dataclasses             import dataclass, field
 
-from app.logic.food      import Food
-from app.constants import *
+from app.logic.food import Food
+from app.constants  import *
 
 
 @dataclass
 class Meal():
     '''Class representing a meal'''
+    meal_date: datetime.date
     name:  str        = ''
     foods: list[tuple[Food, float]] = field(default_factory=list)
 

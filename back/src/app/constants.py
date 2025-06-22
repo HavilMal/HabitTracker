@@ -1,10 +1,16 @@
 # Constants used to describe frequency
-N_TIMES_PER_WEEK = 'n_times_per_week'
 EVERY_N_DAYS     = 'every_n_days'
 AT_LEAST         = 'at_least'
 AT_MOST          = 'at_most'
 DAILY            = 'daily'
 WEEKLY           = 'weekly'
+
+#habit types
+BOOL = 'bool'
+MEASURE = 'measure'
+WATER = 'water'
+MEAL = 'meal'
+ACTIVITY = 'activity'
 
 # Constants used to describe food and meals
 CALORIES = 'calories'
