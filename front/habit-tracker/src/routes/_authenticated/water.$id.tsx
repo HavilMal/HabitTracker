@@ -38,7 +38,7 @@ function RouteComponent() {
 			<LineplotCard data={data}/>
 			<CompletionWaterCard data={data}/>
 			<CalendarCard selected={selected}/>
-			<NotesCard/>
+			<NotesCard key={data.id} data={data}/>
 		</div>
 	)
 }

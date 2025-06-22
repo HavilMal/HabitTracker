@@ -7,22 +7,44 @@ import {
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Button} from "@/components/ui/button.tsx";
 import {Textarea} from "@/components/ui/textarea.tsx";
+import {type Habit, useHabits} from "@/hooks/habit-provider.tsx";
 
 const formSchema = z.object({
 	notes: z.string(),
 })
 
-export function NotesCard() {
+export function NotesCard({data}: {data: Habit}) {
+	const {refreshHabits} = useHabits();
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			notes: "",
+			notes: data?.notes || "",
 		},
 	})
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		console.log(values)
+		const response = await fetch(import.meta.env.VITE_API_URL + "habit/notes",
+			{
+				credentials: "include",
+				mode: "cors",
+				method: "POST",
+				headers: {
+					"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
+					"Content-Type": "application/json; charset=utf-8",
+				},
+				body: JSON.stringify({...values, type: data.type, habit_id: data.id}),
+			})
+
+		if (response.ok) {
+			refreshHabits();
+		} else {
+			form.reset();
+			// todo
+			// setError(true)
+		}
 	}
+
 
 	return (
 		<div className="flex flex-col w-full h-full gap-6">
