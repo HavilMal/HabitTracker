@@ -1,8 +1,8 @@
 import datetime
 from dataclasses             import dataclass, field
 
-from back.src.app.logic.food import Food
-from back.src.app.constants  import *
+from app.logic.food import Food
+from app.constants  import *
 
 
 @dataclass

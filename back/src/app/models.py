@@ -4,10 +4,10 @@ from typing             import cast
 from datetime           import datetime, timezone
 
 from .                  import db
-from back.src.app.logic.meal     import Meal
-from back.src.app.logic.food     import Food
-from back.src.app.logic.habit    import *
-from back.src.app.constants      import *
+from app.logic.meal     import Meal
+from app.logic.food     import Food
+from app.logic.habit    import *
+from app.constants      import *
 
 
 class UserDB(UserMixin, db.Model):
@@ -26,6 +26,9 @@ class UserDB(UserMixin, db.Model):
     def check_password(self, password: str) -> bool:
         '''Checking for the password match'''
         return check_password_hash(self.password_hash, password)
+
+    def get_id(self):
+        return self.uid
     
 
 class HabitDB(db.Model):

@@ -5,12 +5,12 @@ from dataclasses import asdict
 from flask       import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
-from back.src.app.routes.food_route import create_meal
-from back.src.app                   import db
-from back.src.app.models            import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
+from app.routes.food_route import create_meal
+from app                   import db
+from app.models            import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
     HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB, MealDB
 
-from back.src.app.constants import *
+from app.constants import *
 
 habit_bp = Blueprint('habit', __name__)
 

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 import datetime
 import abc
-from back.src.app.logic.meal import Meal
+from app.logic.meal import Meal
 from collections import defaultdict
-from back.src.app.constants import *
+from app.constants import *
 
 
 class Habit(metaclass=abc.ABCMeta):
