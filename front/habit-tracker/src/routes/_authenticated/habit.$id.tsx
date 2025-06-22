@@ -1,10 +1,11 @@
 import {createFileRoute, notFound} from '@tanstack/react-router'
 import {LineplotCard} from "@/components/cards/lineplot-card.tsx";
 import CalendarCard from "@/components/cards/calendar-card.tsx";
-import CompletionCard from "@/components/cards/completed-card.tsx";
 import {NotesCard} from "@/components/cards/notes-card.tsx";
 import {type BoolHabit, type MeasureHabit, useHabits, type WaterHabit} from "@/hooks/habit-provider.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
+import CompletionBoolCard from "@/components/cards/completion-bool-card.tsx";
+import CompletionMeasureCard from "@/components/cards/completion-measure-card.tsx";
 
 export const Route = createFileRoute('/_authenticated/habit/$id')({
 	component: RouteComponent,
@@ -39,7 +40,7 @@ function RouteComponent() {
 				<LineplotCard/>
 			</div>
 			<div className="bg-muted/50 flex flex-1 rounded-xl">
-				<CompletionCard data={data} key={id}/>
+				{data.type === "bool" ? <CompletionBoolCard data={data as BoolHabit} /> : <CompletionMeasureCard data={data as MeasureHabit} />}
 			</div>
 			<div className="bg-muted/50 flex rounded-xl">
 				<CalendarCard/>

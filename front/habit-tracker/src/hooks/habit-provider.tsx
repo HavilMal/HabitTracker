@@ -7,6 +7,7 @@ export type Habit = {
 	type: "bool" | "measure" | "water" | "activity" | "meal",
 	name: string,
 	notes: string,
+	start_date: string,
 }
 
 export type BoolHabit = Habit & {
@@ -16,27 +17,45 @@ export type BoolHabit = Habit & {
 	completed_days: string[],
 }
 
+export type Measurement = {
+	amount: number,
+	date: string,
+}
+
 export type MeasureHabit = Habit & {
-	// freq_type: "daily" | "weekly" | "monthly",
-	// freq_value: number,
-	start_date: string,
+	freq_type: "daily" | "weekly" | "monthly",
 	target_type: "positive" | "negative",
 	target_value: number,
 	unit: string,
-	measurements: any,
+	measurements: Measurement[],
 }
 
 export type WaterHabit = Habit & {
 	start_date: string,
 	target_value: number,
+	measurements: Measurement[],
+}
+
+export type ActivityMeasurement = {
+	activity_datetime: string,
+	amount: number,
+	calories: number,
+	duration: number,
+}
+
+export type ActivityHabit = Habit & {
+	target_value: number,
+	freq_type: "daily" | "weekly" | "monthly",
+	unit: string,
+	measurements: ActivityMeasurement[],
 }
 
 export type Habits = {
 	bool: BoolHabit[],
 	measure: MeasureHabit[],
 	water: WaterHabit[],
+	activity: ActivityHabit[],
 }
-
 
 
 interface HabitsContext {
@@ -60,10 +79,10 @@ export const HabitsProvider = ({children}: { children?: JSX.Element | JSX.Elemen
 					"Content-Type": "application/json; charset=utf-8",
 				},
 			});
-			if (!
-				res.ok
-			)
+			if (!res.ok) {
 				throw new Error('Failed to fetch habits');
+			}
+
 			return res.json();
 		}
 

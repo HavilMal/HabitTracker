@@ -107,6 +107,12 @@ class MeasurementFloat:
     date: datetime.date
     amount: float
 
+    def to_dict(self):
+        return {
+            "date": self.date.isoformat(),
+            "amount": self.amount,
+        }
+
 
 class HabitMeasure(Habit):
     def __init__(self, name: str, start_date: datetime.date, freq_type: str, unit: str, target_value: float, target_type: str, notes: str = ''):
@@ -183,6 +189,12 @@ class MeasurementInt:
     date: datetime.date
     amount: int
 
+    def to_dict(self):
+        return {
+            "date": self.date.isoformat(),
+            "amount": self.amount,
+        }
+
 
 class HabitDrinkingWater(Habit):
     def __init__(self, name: str, start_date: datetime.date, target_value: int, notes: str = ''):
@@ -233,6 +245,14 @@ class MeasurementActivity:
         if duration_minutes == 0 or self.calories == 0:
             return 0.0
         return self.calories / duration_minutes
+
+    def to_dict(self):
+        return {
+            'activity_datetime': self.activity_datetime.isoformat(),
+            'amount': self.amount,
+            'duration': self.duration.total_seconds(),
+            'calories': self.calories,
+        }
 
 
 class HabitActivity(Habit):

@@ -67,7 +67,7 @@ class HabitBoolDB(HabitDB):
             self.notes
         )
         list_completions     = cast(list[HabitBoolCompletionDB], self.completions)
-        habit.completed_days = [c.date for c in list_completions]
+        habit.completed_days = [c.date.isoformat() for c in list_completions]
         return habit
 
 
@@ -103,7 +103,7 @@ class HabitMeasureDB(HabitDB):
         )
         list_measurements  = cast(list[MeasurementFloatDB], self.measurements)
         habit.measurements = [
-            MeasurementFloat(date=m.date, amount=m.amount)
+            MeasurementFloat(date=m.date, amount=m.amount).to_dict()
             for m in list_measurements
         ]
         return habit
@@ -136,7 +136,7 @@ class HabitDrinkingWaterDB(HabitDB):
         )
         list_measurements  = cast(list[MeasurementIntDB], self.measurements)
         habit.measurements = [
-            MeasurementInt(date=m.date, amount=m.amount)
+            MeasurementInt(date=m.date, amount=m.amount).to_dict()
             for m in list_measurements
         ]
         return habit
@@ -174,7 +174,7 @@ class HabitActivityDB(HabitDB):
         list_measurements = cast(list[MeasurementActivityDB], self.measurements)
         habit.measurements = [
             MeasurementActivity(activity_datetime=m.activity_datetime, amount=m.amount,
-                                duration=datetime.timedelta(seconds=m.duration_seconds), calories=m.calories)
+                                duration=datetime.timedelta(seconds=m.duration_seconds), calories=m.calories).to_dict()
             for m in list_measurements
         ]
         return habit

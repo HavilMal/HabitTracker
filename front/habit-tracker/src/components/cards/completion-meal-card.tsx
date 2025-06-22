@@ -15,7 +15,7 @@ const mealSchema = z.object({
 })
 
 const mealsSchema = z.object({
-	value: z.array(mealSchema),
+	amount: z.array(mealSchema),
 	date: z.string(),
 })
 
@@ -52,7 +52,7 @@ function getPreviousMeals(): Map<string, Meal[]> {
 }
 
 
-export default function CompleteMealCard({numberOfDays = 7, className}: { numberOfDays?: number, className?: string }) {
+export function CompletionMealCard({numberOfDays = 7, className}: { numberOfDays?: number, className?: string }) {
 	const meals = getMeals();
 	const previousMeals = getPreviousMeals();
 	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
@@ -61,7 +61,7 @@ export default function CompleteMealCard({numberOfDays = 7, className}: { number
 	const form = useForm<z.infer<typeof mealsSchema>>({
 		resolver: zodResolver(mealsSchema),
 		defaultValues: {
-			value: previousMeals.get(lastWeekDays[0]),
+			amount: previousMeals.get(lastWeekDays[0]),
 			date: lastWeekDays[0],
 		},
 	})

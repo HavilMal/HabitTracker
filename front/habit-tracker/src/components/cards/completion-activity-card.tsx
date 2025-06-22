@@ -5,8 +5,9 @@ import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} 
 import {Button} from "@/components/ui/button"
 import {Form, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
-import {getLastDays, toDateString} from "@/lib/utils.ts";
+import {compareDateStrings, getLastDays, toDateString} from "@/lib/utils.ts";
 import {NumberInput} from "@/components/number-form-input.tsx";
+import {type ActivityHabit, useHabits} from "@/hooks/habit-provider.tsx";
 
 const activitySchema = z.object({
 	id: z.number(),
@@ -16,55 +17,53 @@ const activitySchema = z.object({
 	calories: z.number(),
 })
 
-type Activity = {
-	activity_datetime: string,
-	amount: number,
-	duration_seconds: number,
-	calories: number,
-}
-
-function getPreviousActivities(): Activity[] {
-	return [
-		{
-			activity_datetime: "2025-06-15",
-			amount: 102,
-			duration_seconds: 360,
-			calories: 50,
-		},
-		{
-			activity_datetime: "2025-06-16",
-			amount: 90,
-			duration_seconds: 100,
-			calories: 1298,
-		}
-	]
-}
-
-
-export function CompleteActivityCard({numberOfDays = 7}: { numberOfDays?: number }) {
-	const previousActivities = getPreviousActivities();
+export function CompletionActivityCard({numberOfDays = 7, data}: { numberOfDays?: number, data: ActivityHabit }) {
 	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
+	const currentDay = lastWeekDays[lastWeekDays.length - 1];
+	const currentMeasurement = data.measurements.find(val => compareDateStrings(val.activity_datetime, currentDay))
 	const labels = lastWeekDays.map(s => s.split("-")[2])
+	const {refreshHabits} = useHabits()
+
 
 	const form = useForm<z.infer<typeof activitySchema>>({
 		resolver: zodResolver(activitySchema),
 		defaultValues: {
-			id: 1,
-			activity_datetime: lastWeekDays[0],
-			amount: previousActivities[0].amount,
-			duration_seconds: previousActivities[0].duration_seconds,
-			calories: previousActivities[0].calories,
+			id: data.id,
+			activity_datetime: currentDay,
+			amount: currentMeasurement?.amount || 0,
+			duration_seconds: currentMeasurement?.duration || 0,
+			calories: currentMeasurement?.calories || 0,
 		},
 	})
+
 
 	useWatch({
 		control: form.control,
 		name: "activity_datetime",
 	})
 
-	const onSubmit = (data: z.infer<typeof activitySchema>) => {
-		console.log(data)
+	async function onSubmit(values: z.infer<typeof activitySchema>) {
+		const response = await fetch(import.meta.env.VITE_API_URL + "habit/entry",
+			{
+				credentials: "include",
+				mode: "cors",
+				method: "POST",
+				headers: {
+					"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
+					"Content-Type": "application/json; charset=utf-8",
+				},
+				body: JSON.stringify({...values, habit_id: data.id, type: data.type}),
+			})
+
+		if (response.ok) {
+			console.log(response)
+			refreshHabits();
+		} else {
+			form.reset();
+			// setError(true)
+		}
 	}
+
 
 	return (
 		<Form {...form}>
@@ -83,13 +82,13 @@ export function CompleteActivityCard({numberOfDays = 7}: { numberOfDays?: number
 									<FormDatePicker labels={labels} dates={lastWeekDays} value={form.getValues("activity_datetime")}
 									                onChange={
 										                (value) => {
-											                const selected = previousActivities.find(a => a.activity_datetime === value);
-											                if (selected !== undefined) {
-												                field.onChange(value);
-												                form.reset(
-													                selected
-												                )
-											                }
+											                const selected = data.measurements.find(val => compareDateStrings(val.activity_datetime, value));
+											                field.onChange(value);
+											                form.reset({
+												                amount: selected?.amount || 0,
+												                duration_seconds: selected?.duration || 0,
+												                calories: selected?.calories || 0,
+											                })
 										                }
 									                }/>
 								)}

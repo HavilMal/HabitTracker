@@ -114,12 +114,14 @@ def get_habits():
         habits_measure  = HabitMeasureDB.query.filter_by(user_id=current_user.uid).all()
         habits_water    = HabitDrinkingWaterDB.query.filter_by(user_id=current_user.uid).all()
         habits_meal     = HabitMealDB.query.filter_by(user_id=current_user.uid).all()
+        habits_activity = HabitActivityDB.query.filter_by(user_id=current_user.uid).all()
 
         return jsonify({
             "bool":     habits_to_list(habits_bool),
             "measure":  habits_to_list(habits_measure),
             "water":    habits_to_list(habits_water),
             "meal":     habits_to_list(habits_meal),
+            "activity": habits_to_list(habits_activity),
         }), 200
 
     except Exception as e:

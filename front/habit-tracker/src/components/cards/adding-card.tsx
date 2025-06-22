@@ -1,6 +1,6 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {useForm, type UseFormReturn} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
+import {z, zodResolver} from "@hookform/resolvers/zod";
 import {Form} from "@/components/ui/form.tsx";
 import {useNavigate} from "@tanstack/react-router";
 import {Select, SelectTrigger, SelectItem, SelectContent, SelectValue} from "@/components/ui/select.tsx";
@@ -29,18 +29,18 @@ const formDefaults: Record<FormTypes, any> = {
 };
 
 
-function Test({selectedType, setError}: { selectedType: FormTypes, setError: Dispatch<SetStateAction<boolean>> }) {
+function AddingForm({selectedType, setError}: { selectedType: FormTypes, setError: Dispatch<SetStateAction<boolean>> }) {
 	const navigate = useNavigate();
 	const {refreshHabits} = useHabits();
+	const schema = schemas[selectedType];
 
 	const form: UseFormReturn<BoolSchema | MeasureSchema | MealSchema | WaterSchema | ActivitySchema> = useForm({
-		resolver: zodResolver(schemas[selectedType]),
+		resolver: zodResolver(schema),
 		defaultValues: formDefaults[selectedType],
 	})
 
 	// todo navigate to previous page
-	async function onSubmit(values) {
-		console.log(values)
+	async function onSubmit(values: z.infer<typeof schema>) {
 		const response = await fetch(import.meta.env.VITE_API_URL + "add-habit",
 			{
 				credentials: "include",
@@ -116,7 +116,7 @@ export function AddingCard() {
 							<SelectItem value="meal">Meal</SelectItem>
 						</SelectContent>
 					</Select>
-					<Test key={selectedType} selectedType={selectedType} setError={setError}/>
+					<AddingForm key={selectedType} selectedType={selectedType} setError={setError}/>
 				</CardContent>
 			</Card>
 			<div className="relative">

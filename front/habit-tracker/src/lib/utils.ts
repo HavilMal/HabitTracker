@@ -19,3 +19,9 @@ export function getLastDays(numberOfDays: number): Date[] {
 export function toDateString(date: Date): string {
 	return date.toISOString().split('T')[0];
 }
+
+
+export function compareDateStrings(d1: string, d2: string) {
+	return d1.split("T")[0] === d2.split("T")[0];
+}
+
