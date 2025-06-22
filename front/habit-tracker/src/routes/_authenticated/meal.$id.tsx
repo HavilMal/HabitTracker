@@ -43,7 +43,7 @@ function RouteComponent() {
 	return (
 
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-h-full h-full">
-			<LineplotCard className="flex h-full"/>
+			<LineplotCard  className="flex h-full"/>
 			<CompletionMealCard className="flex h-full"/>
 			<CalendarCard className="flex h-full"/>
 			<CaloriesCard className="flex h-full"/>

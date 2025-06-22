@@ -11,6 +11,7 @@ export type Habit = {
 }
 
 export type BoolHabit = Habit & {
+	type: "bool"
 	freq_type: "daily" | "weekly" | "monthly",
 	freq_value: number,
 	start_date: string,
@@ -23,6 +24,7 @@ export type Measurement = {
 }
 
 export type MeasureHabit = Habit & {
+	type: "measure"
 	freq_type: "daily" | "weekly" | "monthly",
 	target_type: "at_least" | "at_most",
 	target_value: number,
@@ -31,6 +33,7 @@ export type MeasureHabit = Habit & {
 }
 
 export type WaterHabit = Habit & {
+	type: "water"
 	start_date: string,
 	target_value: number,
 	measurements: Measurement[],
@@ -44,10 +47,16 @@ export type ActivityMeasurement = {
 }
 
 export type ActivityHabit = Habit & {
+	type: "activity"
 	target_value: number,
 	freq_type: "daily" | "weekly" | "monthly",
 	unit: string,
 	measurements: ActivityMeasurement[],
+}
+
+export type MealHabit = Habit & {
+	type: "meal"
+
 }
 
 export type Habits = {

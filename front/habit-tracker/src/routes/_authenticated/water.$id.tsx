@@ -35,7 +35,7 @@ function RouteComponent() {
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
 			<div className="bg-muted/50 flex flex-1 rounded-xl">
-				<LineplotCard/>
+				<LineplotCard data={data}/>
 			</div>
 			<div className="bg-muted/50 flex flex-1 rounded-xl">
 				<CompletionWaterCard data={data}/>

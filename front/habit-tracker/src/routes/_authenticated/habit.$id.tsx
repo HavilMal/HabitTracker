@@ -1,5 +1,5 @@
 import {createFileRoute, notFound} from '@tanstack/react-router'
-import {LineplotCard} from "@/components/cards/lineplot-card.tsx";
+import {type Completion, LineplotCard} from "@/components/cards/lineplot-card.tsx";
 import CalendarCard from "@/components/cards/calendar-card.tsx";
 import {NotesCard} from "@/components/cards/notes-card.tsx";
 import {type BoolHabit, type MeasureHabit, useHabits, type WaterHabit} from "@/hooks/habit-provider.tsx";
@@ -24,20 +24,19 @@ function RouteComponent() {
 			</div>
 		)
 	}
-	let list: (BoolHabit | MeasureHabit | WaterHabit)[] = habits.bool
-	list = list.concat(habits.measure).concat(habits.water);
-	const data = list.find((h) => h.id === Number(id))
+	let list: (BoolHabit | MeasureHabit)[] = habits.bool
+	list = list.concat(habits.measure);
+	let data = list.find((h) => h.id === Number(id))
 
 	if (data === undefined) {
 		throw notFound()
 	}
 
 
-
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
 			<div className="bg-muted/50 flex flex-1 rounded-xl">
-				<LineplotCard/>
+				<LineplotCard data={data} />
 			</div>
 			<div className="bg-muted/50 flex flex-1 rounded-xl">
 				{data.type === "bool" ? <CompletionBoolCard data={data as BoolHabit} /> : <CompletionMeasureCard data={data as MeasureHabit} />}

@@ -38,7 +38,7 @@ class HabitDB(db.Model):
     name            = db.Column(db.String(255), nullable=False)
     habit_type      = db.Column(db.String(64))
     notes           = db.Column(db.Text, default='')
-    start_date      = db.Column(db.DateTime(timezone=True), default=datetime.datetime.now(timezone.utc))
+    start_date      = db.Column(db.DateTime(timezone=True), default=datetime.datetime(2025, 6, 15, 12, 0) )
     user_id         = db.Column(db.Integer, db.ForeignKey('user_db.uid'), nullable=False)
     user            = db.relationship('UserDB', back_populates='habits')
 

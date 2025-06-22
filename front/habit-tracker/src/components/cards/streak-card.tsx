@@ -84,7 +84,7 @@ export function StreakChart({className}: { className?: string }) {
 
 
 	// todo not loaded page
-	if (data === undefined) {
+	if (data === undefined || data.streaks.length === 0) {
 		return <></>
 	}
 
