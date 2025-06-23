@@ -23,6 +23,11 @@ function RouteComponent() {
 			</div>
 		)
 	}
+
+	if (habits === undefined) {
+		throw notFound()
+	}
+
 	let list: WaterHabit[] = habits.water
 	const data = list.find((h) => h.id === Number(id))
 

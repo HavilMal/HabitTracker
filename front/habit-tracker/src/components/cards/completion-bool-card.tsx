@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card.tsx"
-import { Form, FormControl, FormField, FormItem, } from "@/components/ui/form.tsx";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle,} from "@/components/ui/card.tsx"
+import {Form, FormControl, FormField, FormItem,} from "@/components/ui/form.tsx";
 import z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -10,6 +10,7 @@ import {useEffect} from "react";
 import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
 import {toDateString, compareDateStrings, getLastDays} from "@/lib/utils.ts";
+import {onSubmit} from "@/lib/form-submit.ts";
 
 
 const formSchema = z.object({
@@ -41,33 +42,11 @@ export default function CompletionBoolCard({numberOfDays = 7, data}: {
 		},
 	})
 
-	async function onSubmit(values: z.infer<typeof formSchema>) {
-		const response = await fetch(import.meta.env.VITE_API_URL + "habit/entry",
-			{
-				credentials: "include",
-				mode: "cors",
-				method: "POST",
-				headers: {
-					"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
-					"Content-Type": "application/json; charset=utf-8",
-				},
-				body: JSON.stringify({...values, type: data.type, habit_id: data.id}),
-			})
-
-		if (response.ok) {
-			refreshHabits();
-		} else {
-			form.reset();
-			// setError(true)
-		}
-	}
-
 	return (
 		<Form {...form}>
-			<form className="flex flex-1 flex-col" onSubmit={form.handleSubmit(onSubmit, (e) => {
-				console.log(e);
-				console.log(form.getValues())
-			})}>
+			<form className="flex flex-1 flex-col" onSubmit={form.handleSubmit((values => onSubmit(
+			values, data, form, refreshHabits, "habit/entry", "Failed to save progress", "Could not connect to the server"
+		)))}>
 				<Card className="flex flex-1">
 
 					<CardHeader>
@@ -101,9 +80,10 @@ export default function CompletionBoolCard({numberOfDays = 7, data}: {
 										{form.getValues("value") ? "Completed!" : "Not completed"}
 									</h3>
 									<FormControl>
-										<Toggle type="submit" variant="outline" className="aspect-square flex h-1/4" defaultPressed={field.value}
+										<Toggle type="submit" variant="outline" className="aspect-square flex h-1/4"
+										        defaultPressed={field.value}
 										        onPressedChange={(value) => form.setValue("value", value)} pressed={field.value}>
-											{field.value ? <Check/> : <X /> }
+											{field.value ? <Check/> : <X/>}
 										</Toggle>
 									</FormControl>
 								</FormItem>

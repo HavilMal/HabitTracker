@@ -13,6 +13,7 @@ import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
 import {toDateString, compareDateStrings, getLastDays} from "@/lib/utils.ts";
 import {Slider} from "@/components/ui/slider.tsx";
+import {onSubmit} from "@/lib/form-submit.ts";
 
 const formSchema = z.object({
 	date: z.string(),
@@ -48,30 +49,11 @@ export default function CompletionWaterCard({numberOfDays = 7, data}: {
 	});
 
 
-	async function onSubmit(values: z.infer<typeof formSchema>) {
-		const response = await fetch(import.meta.env.VITE_API_URL + "habit/entry",
-			{
-				credentials: "include",
-				mode: "cors",
-				method: "POST",
-				headers: {
-					"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
-					"Content-Type": "application/json; charset=utf-8",
-				},
-				body: JSON.stringify({...values, type: data.type, habit_id: data.id}),
-			})
-
-		if (response.ok) {
-			refreshHabits();
-		} else {
-			form.reset();
-			// setError(true)
-		}
-	}
-
 	return (
 		<Form {...form}>
-			<form className="flex flex-1 flex-col" onSubmit={form.handleSubmit(onSubmit)}>
+			<form className="flex flex-1 flex-col" onSubmit={form.handleSubmit((values => onSubmit(
+				values, data, form, refreshHabits, "habit/entry", "Failed to save progress", "Could not connect to the server"
+			)))}>
 				<Card className="flex flex-1">
 
 					<CardHeader>

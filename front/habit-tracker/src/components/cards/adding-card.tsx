@@ -25,6 +25,7 @@ import {
 import {useHabits} from "@/hooks/habit-provider.tsx";
 import {FormItem, FormControl} from "@/components/ui/form.tsx";
 import {Button} from "@/components/ui/button.tsx";
+import {toast} from "sonner";
 
 
 const formDefaults: Record<FormTypes, any> = {
@@ -36,9 +37,8 @@ const formDefaults: Record<FormTypes, any> = {
 };
 
 
-function AddingForm({selectedType, setError}: {
+function AddingForm({selectedType}: {
 	selectedType: FormTypes,
-	setError: Dispatch<SetStateAction<boolean>>
 }) {
 	const navigate = useNavigate();
 	const {refreshHabits} = useHabits();
@@ -69,11 +69,11 @@ function AddingForm({selectedType, setError}: {
 				await navigate({to: "/dashboard"})
 			} else {
 				form.reset();
-				setError(true)
+				toast.error("Failed to create habit")
 			}
 		} catch (e) {
 			form.reset();
-			setError(true)
+			toast.error("Failed to create habit", {description: "Could not connect to the server"})
 		}
 	}
 
@@ -113,46 +113,35 @@ export function AddingCard() {
 	const [error, setError] = useState(false);
 
 	useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => {
-        setError(false);
-      }, 10000);
+		if (error) {
+			const timer = setTimeout(() => {
+				setError(false);
+			}, 10000);
 
-      return () => clearTimeout(timer);
-    }
-  }, [error]);
+			return () => clearTimeout(timer);
+		}
+	}, [error]);
 
 	return (
-		<div className="flex flex-col gap-6">
-			<Card>
-				<CardHeader>
-					<CardTitle>Add Habit</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-8">
-					<Select value={selectedType} onValueChange={(val: FormTypes) => setSelectedType(val)}>
-						<SelectTrigger className="w-full">
-							<SelectValue placeholder="Select form type"/>
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="bool">Yes/No</SelectItem>
-							<SelectItem value="measure">Measure</SelectItem>
-							<SelectItem value="activity">Activity</SelectItem>
-							<SelectItem value="water">Water</SelectItem>
-							<SelectItem value="meal">Meal</SelectItem>
-						</SelectContent>
-					</Select>
-					<AddingForm key={selectedType} selectedType={selectedType} setError={setError}/>
-				</CardContent>
-			</Card>
-			<div className="relative">
-				{error && (
-					<Alert variant="destructive" className="absolute">
-						<AlertTitle>Failed to create habit</AlertTitle>
-						<AlertDescription>Habit was not created try again.</AlertDescription>
-					</Alert>
-				)}
-			</div>
-		</div>
-
+		<Card>
+			<CardHeader>
+				<CardTitle>Add Habit</CardTitle>
+			</CardHeader>
+			<CardContent className="space-y-8">
+				<Select value={selectedType} onValueChange={(val: FormTypes) => setSelectedType(val)}>
+					<SelectTrigger className="w-full">
+						<SelectValue placeholder="Select form type"/>
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="bool">Yes/No</SelectItem>
+						<SelectItem value="measure">Measure</SelectItem>
+						<SelectItem value="activity">Activity</SelectItem>
+						<SelectItem value="water">Water</SelectItem>
+						<SelectItem value="meal">Meal</SelectItem>
+					</SelectContent>
+				</Select>
+				<AddingForm key={selectedType} selectedType={selectedType}/>
+			</CardContent>
+		</Card>
 	)
 }

@@ -3,10 +3,12 @@ import {useAuth} from "@/hooks/auth.tsx";
 import {ErrorPage} from "@/components/error-page.tsx";
 import Layout from "@/components/layout.tsx";
 import {HabitsProvider} from "@/hooks/habit-provider.tsx";
+import {Toaster} from "sonner";
 
 export const Route = createRootRoute({
 	component: () => (
 		<>
+			<Toaster/>
 			<Outlet/>
 			{/*<TanStackRouterDevtools/>*/}
 		</>

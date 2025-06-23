@@ -1,8 +1,8 @@
 import {createFileRoute, notFound} from '@tanstack/react-router'
-import {type Completion, LineplotCard} from "@/components/cards/lineplot-card.tsx";
+import {LineplotCard} from "@/components/cards/lineplot-card.tsx";
 import CalendarCard from "@/components/cards/calendar-card.tsx";
 import {NotesCard} from "@/components/cards/notes-card.tsx";
-import {type BoolHabit, type MeasureHabit, useHabits, type WaterHabit} from "@/hooks/habit-provider.tsx";
+import {type BoolHabit, type MeasureHabit, useHabits} from "@/hooks/habit-provider.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import CompletionBoolCard from "@/components/cards/completion-bool-card.tsx";
 import CompletionMeasureCard from "@/components/cards/completion-measure-card.tsx";
@@ -24,6 +24,11 @@ function RouteComponent() {
 			</div>
 		)
 	}
+
+	if (habits === undefined) {
+		throw notFound()
+	}
+
 	let list: (BoolHabit | MeasureHabit)[] = habits.bool
 	list = list.concat(habits.measure);
 	let data = list.find((h) => h.id === Number(id))

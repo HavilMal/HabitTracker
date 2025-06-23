@@ -8,6 +8,7 @@ import {FormDatePicker} from "@/components/form-date-picker.tsx";
 import {compareDateStrings, getLastDays, toDateString} from "@/lib/utils.ts";
 import {NumberInput} from "@/components/number-form-input.tsx";
 import {type ActivityHabit, useHabits} from "@/hooks/habit-provider.tsx";
+import {onSubmit} from "@/lib/form-submit.ts";
 
 const activitySchema = z.object({
 	id: z.number(),
@@ -42,31 +43,11 @@ export function CompletionActivityCard({numberOfDays = 7, data}: { numberOfDays?
 		name: "activity_datetime",
 	})
 
-	async function onSubmit(values: z.infer<typeof activitySchema>) {
-		const response = await fetch(import.meta.env.VITE_API_URL + "habit/entry",
-			{
-				credentials: "include",
-				mode: "cors",
-				method: "POST",
-				headers: {
-					"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
-					"Content-Type": "application/json; charset=utf-8",
-				},
-				body: JSON.stringify({...values, habit_id: data.id, type: data.type}),
-			})
-
-		if (response.ok) {
-			console.log(response)
-			refreshHabits();
-		} else {
-			form.reset();
-			// setError(true)
-		}
-	}
-
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit, e=> console.log(e))} className="flex flex-1">
+			<form className="flex flex-1" onSubmit={form.handleSubmit((values => onSubmit(
+			values, data, form, refreshHabits, "habit/entry", "Failed to save progress", "Could not connect to the server"
+		)))}>
 				<Card className="flex flex-1">
 					<CardHeader>
 						<CardTitle>Track your daily progress</CardTitle>

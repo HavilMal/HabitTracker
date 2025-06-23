@@ -8,14 +8,13 @@ import {
 	FormControl,
 	FormMessage
 } from "@/components/ui/form.tsx";
-import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
 import {useForm} from "react-hook-form"
 import {z} from "zod"
 import {zodResolver} from "@hookform/resolvers/zod"
 import {Input} from "@/components/ui/input.tsx";
 import {useAuth} from "@/hooks/auth.tsx";
 import {useNavigate} from "@tanstack/react-router";
-import {useState} from "react";
+import {toast} from "sonner";
 
 const formSchema = z.object({
 	username: z.string().regex(/^\S*$/g, "Username cannot include whitespace")
@@ -29,7 +28,6 @@ const formSchema = z.object({
 export function LoginCard() {
 	const auth = useAuth()
 	const navigate = useNavigate()
-	const [error, setError] = useState(false);
 
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -41,68 +39,64 @@ export function LoginCard() {
 	})
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		const response = await auth.login(values.username, values.password)
-		if (response) {
-			await navigate({to: "/dashboard"})
-		} else {
+		try {
+			const response = await auth.login(values.username, values.password)
+			if (response) {
+				await navigate({to: "/dashboard"})
+			} else {
+				form.reset();
+				toast.error("Failed to login", {description: "Invalid login or password"})
+			}
+		} catch (e) {
 			form.reset();
-			setError(true);
+			toast.error("Failed to login", {description: "Could not connect to the server"})
 		}
 	}
 
 	return (
-		<div className="flex flex-col gap-6">
-			<Card>
-				<CardHeader>
-					<CardTitle>Login to your account</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<Form {...form}>
-						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-							<FormField
-								control={form.control}
-								name="username"
-								render={({field}) => (
-									<FormItem>
-										<FormLabel>Username</FormLabel>
-										<FormControl>
-											<Input placeholder="username" {...field} />
-										</FormControl>
-										<FormMessage/>
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name="password"
-								render={({field}) => (
-									<FormItem>
-										<FormLabel>Password</FormLabel>
-										<FormControl>
-											<Input type="password" placeholder="password" {...field} />
-										</FormControl>
-										<FormMessage/>
-									</FormItem>
-								)}
-							/>
-							<FormItem>
-								<FormControl>
-									<Button type="submit">Login</Button>
-								</FormControl>
-							</FormItem>
-						</form>
-					</Form>
+		<Card>
+			<CardHeader>
+				<CardTitle>Login to your account</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+						<FormField
+							control={form.control}
+							name="username"
+							render={({field}) => (
+								<FormItem>
+									<FormLabel>Username</FormLabel>
+									<FormControl>
+										<Input placeholder="username" {...field} />
+									</FormControl>
+									<FormMessage/>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="password"
+							render={({field}) => (
+								<FormItem>
+									<FormLabel>Password</FormLabel>
+									<FormControl>
+										<Input type="password" placeholder="password" {...field} />
+									</FormControl>
+									<FormMessage/>
+								</FormItem>
+							)}
+						/>
+						<FormItem>
+							<FormControl>
+								<Button type="submit">Login</Button>
+							</FormControl>
+						</FormItem>
+					</form>
+				</Form>
 
-				</CardContent>
-			</Card>
-			<div className="relative">
-				{error && (
-					<Alert variant="destructive" className="absolute">
-						<AlertTitle>Login Failed</AlertTitle>
-						<AlertDescription>Incorrect login or password</AlertDescription>
-					</Alert>
-				)}
-			</div>
-		</div>
+			</CardContent>
+		</Card>
+
 	)
 }

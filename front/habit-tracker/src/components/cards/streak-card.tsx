@@ -5,7 +5,6 @@ import {
 	RadialBar,
 	RadialBarChart,
 } from "recharts"
-
 import {
 	Card,
 	CardContent,
@@ -15,8 +14,7 @@ import {
 } from "@/components/ui/card"
 import {type ChartConfig, ChartContainer} from "@/components/ui/chart"
 import {cn} from "@/lib/utils.ts";
-import {useQuery, useQueryClient} from "@tanstack/react-query";
-import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {useQuery} from "@tanstack/react-query";
 
 
 type Streak = {
@@ -78,89 +76,97 @@ export function StreakChart({className}: { className?: string }) {
 		staleTime: 1000 * 60 * 5,
 	});
 
+	let message = ""
+
 	if (isLoading) {
-		return <Skeleton className="h-full flex flex-col"/>;
+		message = "Loading..."
+	} else if (data === undefined) {
+		message = "Failed to load"
 	}
 
+	let maxStreak = undefined;
+	let angle = undefined;
+	let chartData = undefined;
 
-	// todo not loaded page
-	if (data === undefined || data.streaks.length === 0) {
-		return <></>
+	if (data !== undefined) {
+		maxStreak = data.streaks.reduce((max, curr) =>
+			curr.length_days > max.length_days ? curr : max
+		);
+
+		angle = calculateAngle(maxStreak);
+
+
+		chartData = [
+			{days: maxStreak.length_days, fill: "var(--chart-2)"},
+		]
 	}
-
-	console.log(data)
-
-	const maxStreak = data.streaks.reduce((max, curr) =>
-		curr.length_days > max.length_days ? curr : max
-	);
-
-	const angle = calculateAngle(maxStreak);
-
-
-	const chartData = [
-		{days: maxStreak.length_days, fill: "var(--chart-2)"},
-	]
-
 
 	return (
 		<Card className={cn("h-full flex flex-col", className)}>
 			<CardHeader className="items-center pb-0">
 				<CardTitle>Longest streak</CardTitle>
-				<CardDescription>Your longest streak is: {maxStreak.name}</CardDescription>
+				<CardDescription>Your longest streak is: {maxStreak?.name || ""}</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-1 justify-center items-center">
-				<ChartContainer
-					config={chartConfig}
-					className="flex flex-1 max-h-[250px]"
-				>
-					<RadialBarChart
-						data={chartData}
-						startAngle={0}
-						endAngle={angle}
-						innerRadius={80}
-						outerRadius={110}
+				{data !== undefined ?
+					<ChartContainer
+						config={chartConfig}
+						className="flex flex-1 max-h-[250px]"
 					>
-						<PolarGrid
-							gridType="circle"
-							radialLines={false}
-							stroke="none"
-							className="first:fill-muted last:fill-background"
-							polarRadius={[86, 74]}
-						/>
-						<RadialBar dataKey="days" background cornerRadius={10}/>
-						<PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-							<Label
-								content={({viewBox}) => {
-									if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-										return (
-											<text
-												x={viewBox.cx}
-												y={viewBox.cy}
-												textAnchor="middle"
-												dominantBaseline="middle"
-											>
-												<tspan
+						<RadialBarChart
+							data={chartData}
+							startAngle={0}
+							endAngle={angle}
+							innerRadius={80}
+							outerRadius={110}
+						>
+							<PolarGrid
+								gridType="circle"
+								radialLines={false}
+								stroke="none"
+								className="first:fill-muted last:fill-background"
+								polarRadius={[86, 74]}
+							/>
+							<RadialBar dataKey="days" background cornerRadius={10}/>
+							<PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+								<Label
+									content={({viewBox}) => {
+										if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+											return (
+												<text
 													x={viewBox.cx}
 													y={viewBox.cy}
-													className="fill-foreground text-4xl font-bold"
+													textAnchor="middle"
+													dominantBaseline="middle"
 												>
-													{maxStreak.length_days}
-												</tspan>
-												<tspan
-													x={viewBox.cx}
-													y={(viewBox.cy || 0) + 24}
-													className="fill-muted-foreground"
-												>
-													Days
-												</tspan>
-											</text>
-										)
-									}
-								}}
-							/>
-						</PolarRadiusAxis>
-					</RadialBarChart>
-				</ChartContainer>
+													<tspan
+														x={viewBox.cx}
+														y={viewBox.cy}
+														className="fill-foreground text-4xl font-bold"
+													>
+														{maxStreak?.length_days}
+													</tspan>
+													<tspan
+														x={viewBox.cx}
+														y={(viewBox.cy || 0) + 24}
+														className="fill-muted-foreground"
+													>
+														Days
+													</tspan>
+												</text>
+											)
+										}
+									}}
+								/>
+							</PolarRadiusAxis>
+						</RadialBarChart>
+					</ChartContainer>
+					:
+					<div className="flex p-6 justify-center">
+						<p className="text-muted-foreground text-sm text-center">{message}</p>
+					</div>
+				}
+
 			</CardContent>
 		</Card>
 	)

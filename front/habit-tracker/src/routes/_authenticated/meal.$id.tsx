@@ -1,4 +1,4 @@
-import {createFileRoute, notFound} from '@tanstack/react-router'
+import {createFileRoute} from '@tanstack/react-router'
 import {LineplotCard} from "@/components/cards/lineplot-card.tsx";
 import CalendarCard from "@/components/cards/calendar-card.tsx";
 import {CaloriesCard} from "@/components/cards/calories-card.tsx";

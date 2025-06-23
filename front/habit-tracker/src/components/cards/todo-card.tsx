@@ -27,7 +27,6 @@ type ToDoData = {
 }
 
 
-
 export function TodoCard() {
 	async function fetchTodo(): Promise<ToDoData> {
 		const res = await fetch(import.meta.env.VITE_API_URL + "get-habits-todo", {
@@ -52,16 +51,14 @@ export function TodoCard() {
 		// staleTime: 1000 * 60 * 5,
 	});
 
+
+	let message = "All done!"
+
 	if (isLoading) {
-		return <Skeleton className="flex flex-col h-full"/>;
+		message = "Loading..."
+	} else if (data === undefined) {
+		message = "Failed to load"
 	}
-
-	// todo not loaded page
-	if (data === undefined) {
-		return <></>
-	}
-
-	console.log(data)
 
 	return (
 		<Card className="flex flex-col h-full">
@@ -70,26 +67,25 @@ export function TodoCard() {
 				<CardDescription>List of habits that you need to do today</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-1 flex-col ">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead className="w-1/2 font-bold">Name</TableHead>
-							<TableHead className="font-bold">Status</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{data.habits_todo.map((item, index) => (
-							<TableRow key={index}>
-								<TableCell className="font-medium">{item.name}</TableCell>
-								<TableCell>{item.status}</TableCell>
-							</TableRow>
-						))}
-					</TableBody>
-				</Table>
-				{data.habits_todo.length > 0 ? <></> :
-					<div className="flex p-6 justify-center">
-						<p>All done!</p>
+				{data === undefined || data.habits_todo.length === 0 ?
+					<div className="flex flex-1 p-6 justify-center items-center">
+						<p className="text-muted-foreground text-sm text-center">{message}</p>
 					</div>
+					:
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead className="w-1/2 font-bold">Name</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{data?.habits_todo.map((item, index) => (
+								<TableRow key={index}>
+									<TableCell className="font-medium">{item.name}</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
 				}
 			</CardContent>
 		</Card>

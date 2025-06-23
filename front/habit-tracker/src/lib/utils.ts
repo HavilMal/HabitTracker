@@ -4,7 +4,6 @@ import type {Completion} from "@/components/cards/lineplot-card.tsx";
 import type {
 	ActivityHabit, ActivityMeasurement,
 	BoolHabit,
-	Habit,
 	MealHabit,
 	MeasureHabit,
 	Measurement,
@@ -57,7 +56,7 @@ function generateCompletionDataBool(
 	const start = new Date(startDate);
 	const today = new Date();
 
-	today.setHours(0, 0, 0, 0);
+	today.setHours(12, 0);
 
 	const markedSet = new Set(markedDates.map(date => new Date(date).toISOString().slice(0, 10)));
 

@@ -1,4 +1,4 @@
-import {CartesianGrid, Line, LineChart, XAxis, YAxis} from "recharts"
+import {CartesianGrid,  Line, LineChart, XAxis, YAxis} from "recharts"
 import {
 	Card,
 	CardContent,
@@ -34,17 +34,15 @@ export function LineplotCard({title = "Line Chart", description = "description",
 	data?: BoolHabit | MeasureHabit | WaterHabit | ActivityHabit | MealHabit,
 	className?: string
 }) {
-	// todo change
-	if (data === undefined) {
-		return <p>No data</p>
+
+	let errorMessage = "No entries yet"
+	let chartData: Completion[]  = []
+	if (data !== undefined) {
+		chartData = generateCompletionData(data)
+	} else {
+		errorMessage = "Failed to load"
 	}
 
-	const chartData = generateCompletionData(data);
-
-	// todo change
-	if (chartData.length === 0) {
-		return <p>No data</p>
-	}
 
 	return (
 		<Card className={cn("flex flex-1", className)}>
@@ -53,42 +51,48 @@ export function LineplotCard({title = "Line Chart", description = "description",
 				<CardDescription>{description}</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-1">
-				<ChartContainer className="w-full h-full !aspect-auto" config={chartConfig}>
-					<LineChart
-
-						accessibilityLayer
-						data={chartData}
-						margin={{
-							left: 0,
-							right: 0,
-						}}
-					>
-						<CartesianGrid vertical={false}/>
-						<XAxis
-							dataKey="date"
-							tickLine={false}
-							axisLine={false}
-							tickMargin={8}
-						/>
-						<YAxis
-							tick={false}
-							domain={[0, 'dataMax + 10']}
-							tickLine={true}
-							axisLine={false}
-						/>
-						<ChartTooltip
-							cursor={false}
-							content={<ChartTooltipContent hideLabel/>}
-						/>
-						<Line
-							dataKey="completion"
-							type="natural"
-							stroke="var(--chart-2)"
-							strokeWidth={2}
-							dot={false}
-						/>
-					</LineChart>
-				</ChartContainer>
+				{chartData.length === 0 ?
+					<div className="flex flex-1 justify-center items-center">
+						<p className="text-muted-foreground text-sm text-center">{errorMessage}</p>
+					</div>
+					:
+					<ChartContainer className="w-full h-full !aspect-auto" config={chartConfig}>
+						<LineChart
+							accessibilityLayer
+							data={chartData}
+							margin={{
+								left: 0,
+								right: 60,
+							}}
+						>
+							<CartesianGrid vertical={false}/>
+							<XAxis
+								dataKey="date"
+								tickLine={false}
+								axisLine={false}
+								tickMargin={8}
+							/>
+							<YAxis
+								tick={false}
+								domain={[0, 'dataMax + 10']}
+								tickLine={true}
+								axisLine={false}
+								// hide={true}
+							/>
+							<ChartTooltip
+								cursor={false}
+								content={<ChartTooltipContent hideLabel/>}
+							/>
+							<Line
+								dataKey="completion"
+								type="bump"
+								stroke="var(--chart-2)"
+								strokeWidth={2}
+								dot={false}
+							/>
+						</LineChart>
+					</ChartContainer>
+				}
 			</CardContent>
 		</Card>
 	)

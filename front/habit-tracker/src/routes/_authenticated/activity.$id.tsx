@@ -28,6 +28,10 @@ function RouteComponent() {
     )
   }
 
+  if (habits === undefined) {
+    throw notFound()
+  }
+
   let list: ActivityHabit[] = habits.activity
   const data = list.find((h) => h.id === Number(id))
 
