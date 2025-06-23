@@ -10,8 +10,6 @@ import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import {type MeasureHabit, useHabits} from "@/hooks/habit-provider.tsx";
-import {useEffect} from "react";
-import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
 import {toDateString, compareDateStrings, getLastDays} from "@/lib/utils.ts";
 import {onSubmit} from "@/lib/form-submit.ts";
@@ -25,16 +23,11 @@ export default function CompletionMeasureCard({numberOfDays = 7, data}: {
 	numberOfDays?: number,
 	data: MeasureHabit,
 }) {
-	const {setBreadcrumbs} = useBreadcrumbs()
 	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
 	const currentDay = lastWeekDays[lastWeekDays.length - 1];
 	const currentMeasurement = data.measurements.find(val => compareDateStrings(val.date, currentDay))
 	const labels = lastWeekDays.map(s => s.split("-")[2])
 	const {refreshHabits} = useHabits();
-
-	useEffect(() => {
-		setBreadcrumbs(["Habit", data.name])
-	}, []);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),

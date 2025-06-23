@@ -15,7 +15,7 @@ const mealSchema = z.object({
 })
 
 const mealsSchema = z.object({
-	amount: z.array(mealSchema),
+	value: z.array(mealSchema),
 	date: z.string(),
 })
 
@@ -61,7 +61,7 @@ export function CompletionMealCard({numberOfDays = 7, className}: { numberOfDays
 	const form = useForm<z.infer<typeof mealsSchema>>({
 		resolver: zodResolver(mealsSchema),
 		defaultValues: {
-			amount: previousMeals.get(lastWeekDays[0]),
+			value: previousMeals.get(lastWeekDays[0]),
 			date: lastWeekDays[0],
 		},
 	})

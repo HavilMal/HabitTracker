@@ -1,6 +1,5 @@
 import {createFileRoute, notFound} from '@tanstack/react-router'
 import {
-  type ActivityHabit,
   useHabits,
 } from "@/hooks/habit-provider.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
@@ -8,6 +7,8 @@ import {LineplotCard} from "@/components/cards/lineplot-card.tsx";
 import CalendarCard from "@/components/cards/calendar-card.tsx";
 import {NotesCard} from "@/components/cards/notes-card.tsx";
 import {CompletionActivityCard} from "@/components/cards/completion-activity-card.tsx";
+import {useEffect} from "react";
+import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 
 export const Route = createFileRoute('/_authenticated/activity/$id')({
   component: RouteComponent,
@@ -16,6 +17,17 @@ export const Route = createFileRoute('/_authenticated/activity/$id')({
 function RouteComponent() {
   const {id} = Route.useParams();
   const {isLoading, habits} = useHabits();
+  const {setBreadcrumbs} = useBreadcrumbs()
+
+  const data = habits?.activity.find((h) => h.id === Number(id))
+
+	useEffect(() => {
+		if (data === undefined) {
+			setBreadcrumbs(["Activity"])
+		} else {
+			setBreadcrumbs(["Activity", data.name])
+		}
+	}, [data]);
 
   if (isLoading) {
     return (
@@ -27,13 +39,6 @@ function RouteComponent() {
       </div>
     )
   }
-
-  if (habits === undefined) {
-    throw notFound()
-  }
-
-  let list: ActivityHabit[] = habits.activity
-  const data = list.find((h) => h.id === Number(id))
 
   if (data === undefined) {
     throw notFound()

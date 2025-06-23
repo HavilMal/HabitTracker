@@ -6,8 +6,6 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {Check, X} from "lucide-react";
 import {Toggle} from "@/components/ui/toggle.tsx";
 import {type BoolHabit, useHabits} from "@/hooks/habit-provider.tsx";
-import {useEffect} from "react";
-import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
 import {toDateString, compareDateStrings, getLastDays} from "@/lib/utils.ts";
 import {onSubmit} from "@/lib/form-submit.ts";
@@ -22,16 +20,13 @@ export default function CompletionBoolCard({numberOfDays = 7, data}: {
 	numberOfDays?: number,
 	data: BoolHabit,
 }) {
-	const {setBreadcrumbs} = useBreadcrumbs()
 	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
 	const currentDay = lastWeekDays[lastWeekDays.length - 1];
 	const currentMeasurement = data.completed_days.find(val => compareDateStrings(val, currentDay))
 	const labels = lastWeekDays.map(s => s.split("-")[2])
 	const {refreshHabits} = useHabits();
 
-	useEffect(() => {
-		setBreadcrumbs(["Habit", data.name])
-	}, []);
+
 
 
 	const form = useForm<z.infer<typeof formSchema>>({

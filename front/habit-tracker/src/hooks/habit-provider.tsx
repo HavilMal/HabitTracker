@@ -64,6 +64,7 @@ export type Habits = {
 	measure: MeasureHabit[],
 	water: WaterHabit[],
 	activity: ActivityHabit[],
+	meal: MealHabit[],
 }
 
 

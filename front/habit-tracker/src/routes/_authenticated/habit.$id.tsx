@@ -6,6 +6,8 @@ import {type BoolHabit, type MeasureHabit, useHabits} from "@/hooks/habit-provid
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import CompletionBoolCard from "@/components/cards/completion-bool-card.tsx";
 import CompletionMeasureCard from "@/components/cards/completion-measure-card.tsx";
+import {useEffect} from "react";
+import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 
 export const Route = createFileRoute('/_authenticated/habit/$id')({
 	component: RouteComponent,
@@ -14,6 +16,18 @@ export const Route = createFileRoute('/_authenticated/habit/$id')({
 function RouteComponent() {
 	const {id} = Route.useParams();
 	const {isLoading, habits} = useHabits();
+	const {setBreadcrumbs} = useBreadcrumbs()
+
+	const data = [...(habits?.bool ?? []), ...(habits?.measure ?? [])].find(h => h.id === Number(id));
+
+	useEffect(() => {
+		if (data === undefined) {
+			setBreadcrumbs(["Habit"])
+		} else {
+			setBreadcrumbs(["Habit", data.name])
+		}
+	}, [data]);
+
 	if (isLoading) {
 		return (
 			<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
@@ -25,17 +39,13 @@ function RouteComponent() {
 		)
 	}
 
-	if (habits === undefined) {
-		throw notFound()
-	}
-
-	let list: (BoolHabit | MeasureHabit)[] = habits.bool
-	list = list.concat(habits.measure);
-	let data = list.find((h) => h.id === Number(id))
-
 	if (data === undefined) {
 		throw notFound()
 	}
+
+	useEffect(() => {
+		setBreadcrumbs(["Habit", data.name])
+	}, []);
 
 	let selected: string[] = [];
 	if (data.type === "bool") {
@@ -43,6 +53,8 @@ function RouteComponent() {
 	} else {
 		selected = data.measurements.map((value) => value.date)
 	}
+
+
 
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
