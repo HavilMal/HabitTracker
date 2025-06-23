@@ -3,10 +3,12 @@ import {z} from "zod"
 import {zodResolver} from "@hookform/resolvers/zod"
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
-import {Form, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
+import {Form, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
-import {getLastDays, toDateString} from "@/lib/utils.ts";
+import {compareDateStrings, getLastDays, toDateString} from "@/lib/utils.ts";
 import {NumberInput} from "@/components/number-form-input.tsx";
+import {type ActivityHabit, useHabits} from "@/hooks/habit-provider.tsx";
+import {onSubmit} from "@/lib/form-submit.ts";
 
 const activitySchema = z.object({
 	id: z.number(),
@@ -16,59 +18,36 @@ const activitySchema = z.object({
 	calories: z.number(),
 })
 
-type Activity = {
-	activity_datetime: string,
-	amount: number,
-	duration_seconds: number,
-	calories: number,
-}
-
-function getPreviousActivities(): Activity[] {
-	return [
-		{
-			activity_datetime: "2025-06-15",
-			amount: 102,
-			duration_seconds: 360,
-			calories: 50,
-		},
-		{
-			activity_datetime: "2025-06-16",
-			amount: 90,
-			duration_seconds: 100,
-			calories: 1298,
-		}
-	]
-}
-
-
-export function CompleteActivityCard({numberOfDays = 7}: { numberOfDays?: number }) {
-	const previousActivities = getPreviousActivities();
+export function CompletionActivityCard({numberOfDays = 7, data}: { numberOfDays?: number, data: ActivityHabit }) {
 	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
+	const currentDay = lastWeekDays[lastWeekDays.length - 1];
+	const currentMeasurement = data.measurements.find(val => compareDateStrings(val.activity_datetime, currentDay))
 	const labels = lastWeekDays.map(s => s.split("-")[2])
+	const {refreshHabits} = useHabits()
+
 
 	const form = useForm<z.infer<typeof activitySchema>>({
 		resolver: zodResolver(activitySchema),
 		defaultValues: {
-			id: 1,
-			activity_datetime: lastWeekDays[0],
-			amount: previousActivities[0].amount,
-			duration_seconds: previousActivities[0].duration_seconds,
-			calories: previousActivities[0].calories,
+			id: data.id,
+			activity_datetime: currentDay,
+			amount: currentMeasurement?.amount || 0,
+			duration_seconds: currentMeasurement?.duration || 0,
+			calories: currentMeasurement?.calories || 0,
 		},
 	})
+
 
 	useWatch({
 		control: form.control,
 		name: "activity_datetime",
 	})
 
-	const onSubmit = (data: z.infer<typeof activitySchema>) => {
-		console.log(data)
-	}
-
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-1">
+			<form className="flex flex-1" onSubmit={form.handleSubmit((values => onSubmit(
+			values, data, form, refreshHabits, "habit/entry", "Failed to save progress", "Could not connect to the server"
+		)))}>
 				<Card className="flex flex-1">
 					<CardHeader>
 						<CardTitle>Track your daily progress</CardTitle>
@@ -79,28 +58,30 @@ export function CompleteActivityCard({numberOfDays = 7}: { numberOfDays?: number
 							<FormField
 								control={form.control}
 								name={"activity_datetime"}
-								render={({field}) => (
+								render={() => (
 									<FormDatePicker labels={labels} dates={lastWeekDays} value={form.getValues("activity_datetime")}
 									                onChange={
 										                (value) => {
-											                const selected = previousActivities.find(a => a.activity_datetime === value);
-											                if (selected !== undefined) {
-												                field.onChange(value);
-												                form.reset(
-													                selected
-												                )
-											                }
+											                const selected = data.measurements.find(val => compareDateStrings(val.activity_datetime, value));
+											                form.reset({
+												                id: data.id,
+												                activity_datetime: value,
+												                amount: selected?.amount || 0,
+												                duration_seconds: selected?.duration || 0,
+												                calories: selected?.calories || 0,
+											                })
 										                }
 									                }/>
 								)}
 							/>
 						</div>
+						<FormDescription className="text-center">Your target is {data.target_value} {data.unit}</FormDescription>
 						<FormField
 							control={form.control}
 							name="amount"
 							render={({field}) => (
 								<FormItem>
-									<FormLabel>Enter amount</FormLabel>
+									<FormLabel>Enter {data.unit}</FormLabel>
 									<NumberInput field={field} placeholder="amount"/>
 									<FormMessage/>
 								</FormItem>

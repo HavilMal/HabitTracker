@@ -1,10 +1,11 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {useForm, type UseFormReturn} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod"
 import {Form} from "@/components/ui/form.tsx";
 import {useNavigate} from "@tanstack/react-router";
 import {Select, SelectTrigger, SelectItem, SelectContent, SelectValue} from "@/components/ui/select.tsx";
-import {type Dispatch, type SetStateAction, useState} from "react";
+import {type Dispatch, type SetStateAction, useEffect, useState} from "react";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
 import {
 	schemas,
@@ -14,10 +15,17 @@ import {
 	type MealSchema,
 	type WaterSchema, type ActivitySchema
 } from "@/lib/from-schemas.ts";
-import {BoolFields, MeasureFields, ActivityFields, WaterFields, MealFields} from "@/components/forms/bool-form.tsx";
+import {
+	BoolFields,
+	MeasureFields,
+	ActivityFields,
+	WaterFields,
+	MealFields
+} from "@/components/forms/form-components.tsx";
 import {useHabits} from "@/hooks/habit-provider.tsx";
 import {FormItem, FormControl} from "@/components/ui/form.tsx";
 import {Button} from "@/components/ui/button.tsx";
+import {toast} from "sonner";
 
 
 const formDefaults: Record<FormTypes, any> = {
@@ -29,35 +37,43 @@ const formDefaults: Record<FormTypes, any> = {
 };
 
 
-function Test({selectedType, setError}: { selectedType: FormTypes, setError: Dispatch<SetStateAction<boolean>> }) {
+function AddingForm({selectedType}: {
+	selectedType: FormTypes,
+}) {
 	const navigate = useNavigate();
 	const {refreshHabits} = useHabits();
+	const schema = schemas[selectedType];
 
 	const form: UseFormReturn<BoolSchema | MeasureSchema | MealSchema | WaterSchema | ActivitySchema> = useForm({
-		resolver: zodResolver(schemas[selectedType]),
+		resolver: zodResolver(schema),
 		defaultValues: formDefaults[selectedType],
 	})
 
 	// todo navigate to previous page
-	async function onSubmit(values) {
-		const response = await fetch(import.meta.env.VITE_API_URL + "add-habit",
-			{
-				credentials: "include",
-				mode: "cors",
-				method: "POST",
-				headers: {
-					"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
-					"Content-Type": "application/json; charset=utf-8",
-				},
-				body: JSON.stringify(values),
-			})
+	async function onSubmit(values: z.infer<typeof schema>) {
+		try {
+			const response = await fetch(import.meta.env.VITE_API_URL + "add-habit",
+				{
+					credentials: "include",
+					mode: "cors",
+					method: "POST",
+					headers: {
+						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
+						"Content-Type": "application/json; charset=utf-8",
+					},
+					body: JSON.stringify(values),
+				})
 
-		if (response.ok) {
-			refreshHabits();
-			await navigate({to: "/dashboard"})
-		} else {
+			if (response.ok) {
+				refreshHabits();
+				await navigate({to: "/dashboard"})
+			} else {
+				form.reset();
+				toast.error("Failed to create habit")
+			}
+		} catch (e) {
 			form.reset();
-			setError(true)
+			toast.error("Failed to create habit", {description: "Could not connect to the server"})
 		}
 	}
 
@@ -96,37 +112,36 @@ export function AddingCard() {
 	const [selectedType, setSelectedType] = useState<FormTypes>("bool");
 	const [error, setError] = useState(false);
 
-	return (
-		<div className="flex flex-col gap-6">
-			<Card>
-				<CardHeader>
-					<CardTitle>Add Habit</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-8">
-					<Select value={selectedType} onValueChange={(val: FormTypes) => setSelectedType(val)}>
-						<SelectTrigger className="w-full">
-							<SelectValue placeholder="Select form type"/>
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="bool">Yes/No</SelectItem>
-							<SelectItem value="measure">Measure</SelectItem>
-							<SelectItem value="activity">Activity</SelectItem>
-							<SelectItem value="water">Water</SelectItem>
-							<SelectItem value="meal">Meal</SelectItem>
-						</SelectContent>
-					</Select>
-					<Test key={selectedType} selectedType={selectedType} setError={setError}/>
-				</CardContent>
-			</Card>
-			<div className="relative">
-				{error && (
-					<Alert variant="destructive" className="absolute">
-						<AlertTitle>Failed to create habit</AlertTitle>
-						<AlertDescription>Habit was not created try again.</AlertDescription>
-					</Alert>
-				)}
-			</div>
-		</div>
+	useEffect(() => {
+		if (error) {
+			const timer = setTimeout(() => {
+				setError(false);
+			}, 10000);
 
+			return () => clearTimeout(timer);
+		}
+	}, [error]);
+
+	return (
+		<Card>
+			<CardHeader>
+				<CardTitle>Add Habit</CardTitle>
+			</CardHeader>
+			<CardContent className="space-y-8">
+				<Select value={selectedType} onValueChange={(val: FormTypes) => setSelectedType(val)}>
+					<SelectTrigger className="w-full">
+						<SelectValue placeholder="Select form type"/>
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="bool">Yes/No</SelectItem>
+						<SelectItem value="measure">Measure</SelectItem>
+						<SelectItem value="activity">Activity</SelectItem>
+						<SelectItem value="water">Water</SelectItem>
+						<SelectItem value="meal">Meal</SelectItem>
+					</SelectContent>
+				</Select>
+				<AddingForm key={selectedType} selectedType={selectedType}/>
+			</CardContent>
+		</Card>
 	)
 }

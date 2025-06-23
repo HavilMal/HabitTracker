@@ -4,39 +4,68 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 
 export type Habit = {
 	id: number,
-	type: "habit_bool" | "habit_measure" | "habit_water",
+	type: "bool" | "measure" | "water" | "activity" | "meal",
 	name: string,
 	notes: string,
+	start_date: string,
 }
 
 export type BoolHabit = Habit & {
+	type: "bool"
 	freq_type: "daily" | "weekly" | "monthly",
 	freq_value: number,
 	start_date: string,
 	completed_days: string[],
 }
 
+export type Measurement = {
+	amount: number,
+	date: string,
+}
+
 export type MeasureHabit = Habit & {
-	// freq_type: "daily" | "weekly" | "monthly",
-	// freq_value: number,
-	start_date: string,
-	target_type: "positive" | "negative",
+	type: "measure"
+	freq_type: "daily" | "weekly" | "monthly",
+	target_type: "at_least" | "at_most",
 	target_value: number,
 	unit: string,
-	measurements: any,
+	measurements: Measurement[],
 }
 
 export type WaterHabit = Habit & {
+	type: "water"
 	start_date: string,
 	target_value: number,
+	measurements: Measurement[],
+}
+
+export type ActivityMeasurement = {
+	activity_datetime: string,
+	amount: number,
+	calories: number,
+	duration: number,
+}
+
+export type ActivityHabit = Habit & {
+	type: "activity"
+	target_value: number,
+	freq_type: "daily" | "weekly" | "monthly",
+	unit: string,
+	measurements: ActivityMeasurement[],
+}
+
+export type MealHabit = Habit & {
+	type: "meal"
+
 }
 
 export type Habits = {
 	bool: BoolHabit[],
 	measure: MeasureHabit[],
 	water: WaterHabit[],
+	activity: ActivityHabit[],
+	meal: MealHabit[],
 }
-
 
 
 interface HabitsContext {
@@ -60,10 +89,10 @@ export const HabitsProvider = ({children}: { children?: JSX.Element | JSX.Elemen
 					"Content-Type": "application/json; charset=utf-8",
 				},
 			});
-			if (!
-				res.ok
-			)
+			if (!res.ok) {
 				throw new Error('Failed to fetch habits');
+			}
+
 			return res.json();
 		}
 

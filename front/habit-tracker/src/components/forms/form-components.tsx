@@ -1,22 +1,37 @@
 import type {ActivitySchema, BoolSchema, MealSchema, MeasureSchema, WaterSchema} from "@/lib/from-schemas.ts";
-import {type UseFormReturn} from "react-hook-form";
+import {type UseFormReturn, useWatch} from "react-hook-form";
 import {
 	FrequencyTypeField,
 	FrequencyValueField,
 	NameField,
-	NotesField, TargetDataUnitField, TargetTypeField,
+	NotesField,
+	TargetDataUnitField,
+	TargetTypeField,
 	TargetValueField,
 	UnitField
 } from "@/components/forms/fields.tsx";
+import {type JSX} from "react";
 
 export function BoolFields({form}: {
 	form: UseFormReturn<BoolSchema>
 }) {
+	let field: JSX.Element | null = null;
+	if (form.getValues("freq_type") === "daily") {
+		form.setValue("freq_value", 1)
+	} else {
+		field = <FrequencyValueField form={form}/>;
+	}
+
+	useWatch({
+		control: form.control,
+		name: "freq_type",
+	})
+
 	return (
 		<>
 			<NameField form={form}/>
 			<FrequencyTypeField form={form}/>
-			<FrequencyValueField form={form}/>
+			{field}
 			<NotesField form={form}/>
 		</>
 	)

@@ -38,7 +38,7 @@ class HabitDB(db.Model):
     name            = db.Column(db.String(255), nullable=False)
     habit_type      = db.Column(db.String(64))
     notes           = db.Column(db.Text, default='')
-    start_date      = db.Column(db.DateTime(timezone=True), default=datetime.datetime.now(timezone.utc))
+    start_date      = db.Column(db.DateTime(timezone=True), default=datetime.datetime.now(timezone.utc) )
     user_id         = db.Column(db.Integer, db.ForeignKey('user_db.uid'), nullable=False)
     user            = db.relationship('UserDB', back_populates='habits')
 
@@ -155,10 +155,10 @@ class HabitActivityDB(HabitDB):
     '''Class representing an activity in the database'''
     __tablename__   = 'habit_activity'
     habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
-    freq_type = db.Column(db.String(64))
-    unit = db.Column(db.String(64))
-    target_value = db.Column(db.Float)
-    measurements = db.relationship('MeasurementActivityDB', backref='habit', lazy=True)
+    freq_type       = db.Column(db.String(64))
+    unit            = db.Column(db.String(64))
+    target_value    = db.Column(db.Float)
+    measurements    = db.relationship('MeasurementActivityDB', backref='habit', lazy=True)
     __mapper_args__ = {'polymorphic_identity': ACTIVITY}
 
     def to_dataclass(self) -> HabitActivity:
@@ -174,7 +174,7 @@ class HabitActivityDB(HabitDB):
         list_measurements = cast(list[MeasurementActivityDB], self.measurements)
         habit.measurements = [
             MeasurementActivity(activity_datetime=m.activity_datetime, amount=m.amount,
-                                duration=datetime.timedelta(seconds=m.duration_seconds), calories=m.calories)
+                                duration=datetime.timedelta(seconds=m.duration_seconds).total_seconds(), calories=m.calories)
             for m in list_measurements
         ]
         return habit

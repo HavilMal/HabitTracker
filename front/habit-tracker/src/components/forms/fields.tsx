@@ -6,7 +6,7 @@ import type {
 	MeasureSchema,
 	WaterSchema
 } from "@/lib/from-schemas.ts";
-import {FormField, FormItem, FormLabel, FormControl} from "@/components/ui/form.tsx";
+import {FormField, FormItem, FormLabel, FormControl, FormMessage} from "@/components/ui/form.tsx";
 import type {Path, UseFormReturn} from "react-hook-form";
 import {Input} from "@/components/ui/input.tsx";
 import {NumberInput} from "@/components/number-form-input.tsx";
@@ -35,6 +35,7 @@ export function TypeField<T extends HabitSchema>({form}: { form: UseFormReturn<T
 							<SelectItem value="water">Water</SelectItem>
 						</SelectContent>
 					</Select>
+					<FormMessage/>
 				</FormItem>
 			)}
 		/>
@@ -54,6 +55,7 @@ export function NameField<T extends HabitSchema>({form}: { form: UseFormReturn<T
 						<FormControl>
 							<Input placeholder="name" {...field} />
 						</FormControl>
+						<FormMessage/>
 					</FormItem>
 				</FormItem>
 			)}
@@ -75,6 +77,7 @@ export function TargetValueField<T extends MeasureSchema | WaterSchema | MealSch
 						<FormControl>
 							<NumberInput field={field} placeholder="value" {...field}/>
 						</FormControl>
+						<FormMessage/>
 					</FormItem>
 				</FormItem>
 			)}
@@ -94,6 +97,7 @@ export function NotesField<T extends HabitSchema>({form}: { form: UseFormReturn<
 						<FormControl>
 							<Textarea placeholder="notes" {...field}/>
 						</FormControl>
+						<FormMessage/>
 					</FormItem>
 				</FormItem>
 			)}
@@ -125,6 +129,7 @@ export function TargetTypeField<T extends MeasureSchema | MealSchema>({form}: { 
 							<SelectItem value="at_most">At most</SelectItem>
 						</SelectContent>
 					</Select>
+					<FormMessage/>
 				</FormItem>
 			)}
 		/>
@@ -143,6 +148,7 @@ export function UnitField<T extends MeasureSchema | ActivitySchema>({form}: { fo
 						<FormControl>
 							<Input placeholder="unit" {...field}/>
 						</FormControl>
+						<FormMessage/>
 					</FormItem>
 				</FormItem>
 			)}
@@ -173,9 +179,9 @@ export function FrequencyTypeField<T extends MeasureSchema | BoolSchema | Activi
 						<SelectContent>
 							<SelectItem value="daily">Daily</SelectItem>
 							<SelectItem value="weekly">Weekly</SelectItem>
-							<SelectItem value="monthly">Monthly</SelectItem>
 						</SelectContent>
 					</Select>
+					<FormMessage/>
 				</FormItem>
 			)}
 		/>
@@ -190,11 +196,10 @@ export function FrequencyValueField<T extends BoolSchema>({form}: { form: UseFor
 			render={({field}) => (
 				<FormItem className="gap-2">
 					<FormLabel>Frequency value</FormLabel>
-					<FormItem>
-						<FormControl>
-							<NumberInput field={field} placeholder="value" {...field}/>
-						</FormControl>
-					</FormItem>
+					<FormControl>
+						<NumberInput field={field} placeholder="value" {...field}/>
+					</FormControl>
+					<FormMessage/>
 				</FormItem>
 			)}
 		/>
@@ -226,6 +231,7 @@ export function TargetDataUnitField<T extends MealSchema>({form}: { form: UseFor
 							<SelectItem value="fat">Fat</SelectItem>
 						</SelectContent>
 					</Select>
+					<FormMessage/>
 				</FormItem>
 			)}
 		/>

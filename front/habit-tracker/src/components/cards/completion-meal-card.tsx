@@ -52,7 +52,7 @@ function getPreviousMeals(): Map<string, Meal[]> {
 }
 
 
-export default function CompleteMealCard({numberOfDays = 7, className}: { numberOfDays?: number, className?: string }) {
+export function CompletionMealCard({numberOfDays = 7, className}: { numberOfDays?: number, className?: string }) {
 	const meals = getMeals();
 	const previousMeals = getPreviousMeals();
 	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);

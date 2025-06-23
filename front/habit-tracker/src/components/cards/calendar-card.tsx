@@ -5,7 +5,7 @@ import {
 import {Calendar} from "@/components/ui/calendar.tsx"
 import {cn} from "@/lib/utils.ts";
 
-export default function CalendarCard({selected = [], className}: {selected?: Date[], className?: string}) {
+export default function CalendarCard({selected = [], className}: {selected?: string[], className?: string}) {
 	return (
 		<Card className={cn("flex flex-1", className)}>
 			<CardContent className="flex flex-1">
@@ -19,7 +19,7 @@ export default function CalendarCard({selected = [], className}: {selected?: Dat
 					          row: "w-full mt-2",
 					          day_selected: "bg-chart-2 text-primary-foreground hover:bg-chart-2 dark:hover:brightness-110 focus:bg-primary/90 dark:focus:brightness-110",
 				          }}
-				          selected={selected}
+				          selected={selected.map((value) => new Date(value))}
 				/>
 			</CardContent>
 		</Card>

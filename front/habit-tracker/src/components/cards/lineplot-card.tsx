@@ -1,4 +1,4 @@
-import {CartesianGrid, Line, LineChart, XAxis} from "recharts"
+import {CartesianGrid,  Line, LineChart, XAxis, YAxis} from "recharts"
 import {
 	Card,
 	CardContent,
@@ -12,28 +12,38 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart.tsx"
-import {cn} from "@/lib/utils.ts";
-
-export const description = "A line chart"
-
-// todo temporary
-const chartData = [
-	{month: "January", desktop: 186},
-	{month: "February", desktop: 305},
-	{month: "March", desktop: 237},
-	{month: "April", desktop: 73},
-	{month: "May", desktop: 209},
-	{month: "June", desktop: 214},
-]
+import {cn, generateCompletionData} from "@/lib/utils.ts";
+import type {ActivityHabit, BoolHabit, MealHabit, MeasureHabit, WaterHabit} from "@/hooks/habit-provider.tsx";
 
 const chartConfig = {
-	desktop: {
-		label: "Desktop",
-		color: "var(--chart-1)",
+	completion: {
+		label: "Completion",
+		color: "var(--chart-2)",
 	},
 } satisfies ChartConfig
 
-export function LineplotCard({title="Line Chart", description = "description", data=chartData, className=""} : {title?: string, description?: string, data?: any, className?: string}) {
+
+export type Completion = {
+	date: string,
+	completion: number
+}
+
+export function LineplotCard({title = "Line Chart", description = "description", data, className = ""}: {
+	title?: string,
+	description?: string,
+	data?: BoolHabit | MeasureHabit | WaterHabit | ActivityHabit | MealHabit,
+	className?: string
+}) {
+
+	let errorMessage = "No entries yet"
+	let chartData: Completion[]  = []
+	if (data !== undefined) {
+		chartData = generateCompletionData(data)
+	} else {
+		errorMessage = "Failed to load"
+	}
+
+
 	return (
 		<Card className={cn("flex flex-1", className)}>
 			<CardHeader>
@@ -41,36 +51,48 @@ export function LineplotCard({title="Line Chart", description = "description", d
 				<CardDescription>{description}</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-1">
-				<ChartContainer className="w-full h-full !aspect-auto" config={chartConfig}>
-					<LineChart
-						accessibilityLayer
-						data={data}
-						margin={{
-							left: 12,
-							right: 12,
-						}}
-					>
-						<CartesianGrid vertical={false}/>
-						<XAxis
-							dataKey="month"
-							tickLine={false}
-							axisLine={false}
-							tickMargin={8}
-							tickFormatter={(value) => value.slice(0, 3)}
-						/>
-						<ChartTooltip
-							cursor={false}
-							content={<ChartTooltipContent hideLabel/>}
-						/>
-						<Line
-							dataKey="desktop"
-							type="natural"
-							stroke="var(--chart-2)"
-							strokeWidth={2}
-							dot={false}
-						/>
-					</LineChart>
-				</ChartContainer>
+				{chartData.length === 0 ?
+					<div className="flex flex-1 justify-center items-center">
+						<p className="text-muted-foreground text-sm text-center">{errorMessage}</p>
+					</div>
+					:
+					<ChartContainer className="w-full h-full !aspect-auto" config={chartConfig}>
+						<LineChart
+							accessibilityLayer
+							data={chartData}
+							margin={{
+								left: 0,
+								right: 60,
+							}}
+						>
+							<CartesianGrid vertical={false}/>
+							<XAxis
+								dataKey="date"
+								tickLine={false}
+								axisLine={false}
+								tickMargin={8}
+							/>
+							<YAxis
+								tick={false}
+								domain={[0, 'dataMax + 10']}
+								tickLine={true}
+								axisLine={false}
+								// hide={true}
+							/>
+							<ChartTooltip
+								cursor={false}
+								content={<ChartTooltipContent hideLabel/>}
+							/>
+							<Line
+								dataKey="completion"
+								type="bump"
+								stroke="var(--chart-2)"
+								strokeWidth={2}
+								dot={false}
+							/>
+						</LineChart>
+					</ChartContainer>
+				}
 			</CardContent>
 		</Card>
 	)

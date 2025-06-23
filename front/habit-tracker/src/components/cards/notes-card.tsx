@@ -7,27 +7,31 @@ import {
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Button} from "@/components/ui/button.tsx";
 import {Textarea} from "@/components/ui/textarea.tsx";
+import {type Habit, useHabits} from "@/hooks/habit-provider.tsx";
+import {onSubmit} from "@/lib/form-submit.ts";
 
 const formSchema = z.object({
 	notes: z.string(),
 })
 
-export function NotesCard() {
+export function NotesCard({data}: { data: Habit }) {
+	const {refreshHabits} = useHabits();
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			notes: "",
+			notes: data?.notes || "",
 		},
 	})
 
-	async function onSubmit(values: z.infer<typeof formSchema>) {
-		console.log(values)
-	}
+	const handleSubmit = form.handleSubmit((values) => onSubmit(
+		values, data, form, refreshHabits, "habit/notes", "Failed to save notes", "Could not connect to the server"
+	))
 
 	return (
 		<div className="flex flex-col w-full h-full gap-6">
 			<Form {...form} >
-				<form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 space-y-8">
+				<form onSubmit={handleSubmit} className="flex flex-col flex-1 space-y-8">
 					<Card className="w-full h-full">
 						<CardHeader>
 							<CardTitle className="flex flex-row">
@@ -47,10 +51,10 @@ export function NotesCard() {
 							/>
 						</CardContent>
 						<CardFooter className="flex gap-6">
-							<Button type="submit" className="flex flex-1" onClick={form.handleSubmit(onSubmit)}>
+							<Button type="submit" className="flex flex-1" onClick={handleSubmit}>
 								Submit
 							</Button>
-							<Button type="submit" variant="destructive" className="flex flex-1" onClick={form.handleSubmit(onSubmit)}>
+							<Button type="submit" variant="destructive" className="flex flex-1" onClick={handleSubmit}>
 								Delete
 							</Button>
 						</CardFooter>

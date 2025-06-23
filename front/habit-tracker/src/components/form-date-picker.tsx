@@ -15,10 +15,9 @@ export function FormDatePicker({labels, dates, onChange, value}: {
 		>
 			{
 				dates.map((day, i) => (
-					<div className="flex flex-row w-full h-full">
+					<div key={i} className="flex flex-row w-full h-full">
 						<RadioGroupItem value={day}
 						                id={day}
-						                key={i}
 						                className="peer sr-only"
 						/>
 						<Label

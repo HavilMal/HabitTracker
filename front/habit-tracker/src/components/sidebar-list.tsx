@@ -100,20 +100,20 @@ function parseHabits(habits: any): HabitCategory[] {
 			habits: habits["bool"].concat(habits["measure"]),
 		},
 		{
-			name: "Exercises",
-			url: "/exercises",
+			name: "Activity",
+			url: "/activity",
 			icon: <Dumbbell/>,
-			habits: [],
+			habits: habits["activity"],
 		},
 		{
-			name: "Food",
-			url: "/food",
+			name: "Meals",
+			url: "/meal",
 			icon: <CookingPot/>,
-			habits: [],
+			habits: habits["meal"],
 		},
 		{
 			name: "Water",
-			url: "/habit",
+			url: "/water",
 			icon: <GlassWater/>,
 			habits: habits["water"],
 		},
@@ -136,6 +136,8 @@ function ListSkeleton() {
 export function AppSidebar() {
 	const {isLoading, habits} = useHabits();
 
+	console.log("habits", habits);
+
 	const auth = useAuth()
 	const router = useRouter()
 	const navigate = useNavigate()
@@ -151,6 +153,7 @@ export function AppSidebar() {
 	}
 
 	function renderList() {
+		console.log(habits)
 		if (isLoading) {
 			return (
 				<ListSkeleton/>
