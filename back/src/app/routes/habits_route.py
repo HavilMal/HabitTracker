@@ -357,3 +357,102 @@ def get_habits_to_do():
             habits_to_do.append({'habit_id': habit_model.habit_id, 'name': habit_model.name})
 
     return jsonify({'habits_todo': habits_to_do}), 200
+
+
+@habit_bp.route('/get-habit-history', methods=['GET'])
+@login_required
+def get_habit_history():
+    data = request.get_json()
+    habit_id = data.get('habit_id')
+
+    if habit_id is None:
+        return jsonify({'error': 'Missing data in request'}), 400
+
+    try:
+        habit_id = int(habit_id)
+    except (ValueError, TypeError):
+        return jsonify({'error': '`habit_id` must be an integer'}), 400
+
+    habit_db = HabitDB.query.filter_by(habit_id=habit_id, user_id=current_user.uid).first()
+
+    if not habit_db:
+        return jsonify({'error': 'Habit not found or not authorized'}), 404
+
+    habit = habit_db.to_dataclass()
+
+    history = habit.get_history()
+
+    return jsonify({'history': history}), 200
+
+
+@habit_bp.route('/get-habits-summary', methods=['GET'])
+@login_required
+def get_habit_summary():
+    habits_all = HabitDB.query.filter_by(user_id=current_user.uid).all()
+
+    habits_list = [habit.to_dataclass() for habit in habits_all]
+
+    habits_histories = [habit.get_history() for habit in habits_list]
+
+    earliest_dates = [min(history, key=lambda x: x[0])[0] for history in habits_histories if history]
+    if not earliest_dates:
+        return jsonify({'summary': []}), 200
+
+    min_date_str = min(earliest_dates)
+    min_date = datetime.date.fromisoformat(min_date_str)
+
+    curr_date = min_date
+    curr_date_str = min_date.isoformat()
+
+    today_date = datetime.date.today()
+
+    habits_summary = []
+
+    while curr_date <= today_date:
+        current_number_of_habits = 0
+        current_number_of_completions = 0
+
+        for history in habits_histories:
+            if history and history[0][0] == curr_date_str:
+                current_number_of_habits += 1
+                current_number_of_completions += history[0][1]
+                history.pop(0)
+
+        if current_number_of_habits == 0:
+            percentage = 0.0
+        else:
+            percentage = round(current_number_of_completions / current_number_of_habits, 2)
+
+        habits_summary.append({'date': curr_date_str, 'percentage': percentage})
+
+        curr_date += datetime.timedelta(days=1)
+        curr_date_str = curr_date.isoformat()
+
+    return jsonify({'summary': habits_summary}), 200
+
+
+@habit_bp.route('/get-habit-stats', methods=['GET'])
+@login_required
+def get_habit_stats():
+    data = request.get_json()
+    habit_id = data.get('habit_id')
+
+    if habit_id is None:
+        return jsonify({'error': 'Missing data in request'}), 400
+
+    try:
+        habit_id = int(habit_id)
+    except (ValueError, TypeError):
+        return jsonify({'error': '`habit_id` must be an integer'}), 400
+
+    habit_db = HabitDB.query.filter_by(habit_id=habit_id, user_id=current_user.uid).first()
+
+    if not habit_db:
+        return jsonify({'error': 'Habit not found or not authorized'}), 404
+
+    habit = habit_db.to_dataclass()
+
+    habit_stats = habit.get_completion_stats()
+
+    return jsonify({'stats': habit_stats}), 200
+

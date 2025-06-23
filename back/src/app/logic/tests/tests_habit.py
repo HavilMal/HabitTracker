@@ -37,8 +37,21 @@ def test_todo():
     print(habit.to_do())
 
 
+def test_stat_completion():
+    habit = HabitBool('piwo', datetime.date(2025, 6, 14), EVERY_N_DAYS, 1)
+
+    habit.mark_completed(datetime.date(2025, 6, 16))
+    habit.mark_completed(datetime.date(2025, 6, 18))
+    habit.mark_completed(datetime.date(2025, 6, 19))
+    habit.mark_completed(datetime.date(2025, 6, 20))
+
+    print(habit.get_completion_stats())
+
+
+
 if __name__ == '__main__':
     # test_habit_dates()
     # test_habit_completion()
     # test_habit_streak()
-    test_todo()
+    # test_todo()
+    test_stat_completion()
