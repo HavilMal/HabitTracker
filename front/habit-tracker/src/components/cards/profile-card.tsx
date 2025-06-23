@@ -9,6 +9,20 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {Button} from "@/components/ui/button.tsx";
 import {NumberInput} from "@/components/number-form-input.tsx";
 import {SelectTrigger, SelectItem, SelectContent, SelectValue, Select} from "@/components/ui/select.tsx";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {toast} from "sonner";
+import {useNavigate, type UseNavigateResult} from "@tanstack/react-router";
+
 
 const formSchema = z.object({
 	sex: z.enum(["male", "female"]),
@@ -19,6 +33,58 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
+async function deleteAccount(navigate: UseNavigateResult<string>) {
+	try {
+		const response = await fetch(import.meta.env.VITE_API_URL + "delete-account",
+			{
+				credentials: "include",
+				mode: "cors",
+				method: "POST",
+				headers: {
+					"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
+					"Content-Type": "application/json; charset=utf-8",
+				},
+			})
+
+		if (response.ok) {
+			await navigate({to: "/"});
+		} else {
+			toast.error("Failed to delete account");
+		}
+	} catch (e) {
+		toast.error("Failed to delete account", {description: "Could not connect to the server"});
+	}
+
+}
+
+export function DeleteButton() {
+	const navigate = useNavigate();
+
+	return (
+		<AlertDialog>
+			<AlertDialogTrigger asChild>
+				<Button variant="destructive" type="button" className="flex flex-1">Delete</Button>
+			</AlertDialogTrigger>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+					<AlertDialogDescription>
+						This action cannot be undone. It will permanently destroy all your data and you will not be able to recover it.
+					</AlertDialogDescription>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogAction className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
+					                   {/*todo turn on*/}
+					                   {/*onClick={() => deleteAccount(navigate)}*/}
+					>
+						Confirm
+					</AlertDialogAction>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
+	)
+}
 
 function ProfileAttribute({description, fieldName, form}: {
 	description: string,
@@ -98,11 +164,16 @@ export function ProfileCard() {
 							<ProfileAttribute description={"Age"} fieldName={"age"} form={form}/>
 							<ProfileAttribute description={"Weight"} fieldName={"weight"} form={form}/>
 							<ProfileAttribute description={"Height"} fieldName={"height"} form={form}/>
-							<FormControl>
-								<Button variant="outline" className="ml-auto" onClick={form.handleSubmit(onSubmit)}>
-									Save changes
-								</Button>
-							</FormControl>
+							<div className="flex w-full flex-row gap-6">
+								<FormControl>
+									<Button variant="outline" className="flex flex-1">
+										Save changes
+									</Button>
+								</FormControl>
+								<FormControl>
+									<DeleteButton/>
+								</FormControl>
+							</div>
 						</form>
 					</Form>
 				</CardContent>
