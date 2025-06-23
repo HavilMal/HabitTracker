@@ -59,6 +59,26 @@ class Habit(metaclass=abc.ABCMeta):
 
         return start_date_longest, end_date_longest, longest_streak
 
+    def get_completion_stats(self) -> list[dict[str, float]]:
+        """
+        Returns a list of cumulative completion statistics.
+        Each entry contains the date and the average completion percentage up to that day.
+        """
+        history = self.get_history()
+
+        partial_length = 0
+        partial_sum = 0
+        stats = []
+
+        for entry in history:
+            partial_length += 1
+            partial_sum += entry[1]
+            percentage = round(partial_sum / partial_length, 2)
+
+            stats.append({'date': entry[0], 'percentage': percentage})
+
+        return stats
+
 
 class HabitBool(Habit):
     def __init__(self, name: str, start_date: datetime.date, freq_type: str, freq_value: int, notes: str = ''):
