@@ -1,5 +1,5 @@
 from flask       import Blueprint, request, jsonify
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 from ..models    import UserDB
 from ..          import db
@@ -13,6 +13,12 @@ def register():
     data = request.get_json()
     if UserDB.query.filter_by(username=data['username']).first():
         return jsonify({"msg": "Username already exists"}), 409
+    
+    if not data:
+        return jsonify({"error": "Missing JSON body"}), 400
+    
+    if 'username' not in data or 'password' not in data:
+        return jsonify({"error": "Missing `username` or `password`"}), 400
 
     user = UserDB(username=data['username']) # type: ignore
     user.set_password(data['password'])
@@ -26,8 +32,13 @@ def register():
 def login():
     '''Logging the user in'''
     data = request.get_json()
-    user = UserDB.query.filter_by(username=data['username']).first()
+    if not data:
+        return jsonify({"error": "Missing JSON body"}), 400
+    
+    if 'username' not in data or 'password' not in data:
+        return jsonify({"error": "Missing `username` or `password`"}), 400
 
+    user = UserDB.query.filter_by(username=data['username']).first()
     if not user or not user.check_password(data['password']):
         return jsonify({"msg": "Wrong username or password"}), 401
 
@@ -41,3 +52,18 @@ def logout():
     '''Logging the user out'''
     logout_user()
     return jsonify({"msg": "Logged out"}), 200
+
+
+@auth_bp.route('/delete-account', methods=['DELETE'])
+@login_required
+def delete_account():
+    '''Deleting current user's account'''
+    user = UserDB.query.get(current_user.uid)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    db.session.delete(user)
+    db.session.commit()
+    logout_user()
+    return jsonify({"msg": "Account deleted and logged out successfully"}), 200

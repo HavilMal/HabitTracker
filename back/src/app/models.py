@@ -16,8 +16,8 @@ class UserDB(UserMixin, db.Model):
     uid           = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    meals         = db.relationship('MealDB', back_populates='user', lazy=True)
-    habits        = db.relationship('HabitDB', back_populates='user', lazy=True)
+    meals         = db.relationship('MealDB', back_populates='user', lazy=True, cascade="all, delete-orphan")
+    habits        = db.relationship('HabitDB', back_populates='user', lazy=True, cascade="all, delete-orphan")
 
     def set_password(self, password: str) -> None:
         '''Setting the password'''
@@ -114,7 +114,7 @@ class MeasurementFloatDB(db.Model):
     __tablename__ = 'measurement_float'
     measure_id    = db.Column(db.Integer, primary_key=True)
     habit_id      = db.Column(db.Integer, db.ForeignKey('habit_measure.habit_meas_id'))
-    date          = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    date          = db.Column(db.DateTime(timezone=True), default=lambda: datetime.datetime.now(timezone.utc), nullable=False)
     amount        = db.Column(db.Float, nullable=False)
 
 
@@ -147,7 +147,7 @@ class MeasurementIntDB(db.Model):
     __tablename__ = 'measurement_int'
     measure_id    = db.Column(db.Integer, primary_key=True)
     habit_id      = db.Column(db.Integer, db.ForeignKey('habit_water.habit_id'))
-    date          = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    date          = db.Column(db.DateTime(timezone=True), default=lambda: datetime.datetime.now(timezone.utc), nullable=False)
     amount        = db.Column(db.Integer, nullable=False)
 
 
@@ -185,7 +185,7 @@ class MeasurementActivityDB(db.Model):
     __tablename__       = 'measurement_activity'
     measure_id          = db.Column(db.Integer, primary_key=True)
     habit_id            = db.Column(db.Integer, db.ForeignKey('habit_activity.habit_id'))
-    activity_datetime   = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    activity_datetime   = db.Column(db.DateTime(timezone=True), default=lambda: datetime.datetime.now(timezone.utc), nullable=False)
     amount              = db.Column(db.Float, nullable=False)
     duration_seconds    = db.Column(db.Float, nullable=False)
     calories            = db.Column(db.Float, nullable=False)
@@ -238,7 +238,7 @@ class MealDB(db.Model):
     name       = db.Column(db.String(255), nullable=False)
     foods      = db.relationship('FoodDB', backref='meal', lazy=True)
     user_id    = db.Column(db.Integer, db.ForeignKey('user_db.uid'))
-    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.datetime.now(timezone.utc))
     user       = db.relationship('UserDB', back_populates='meals')
 
     def to_dataclass(self) -> Meal:
