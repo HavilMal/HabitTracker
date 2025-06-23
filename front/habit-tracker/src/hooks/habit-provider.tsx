@@ -54,9 +54,27 @@ export type ActivityHabit = Habit & {
 	measurements: ActivityMeasurement[],
 }
 
+// todo check
+export type Food = {
+	id: number,
+	name: string,
+	calories: number,
+	carb: number,
+	prot: number,
+	fat: number,
+	grams: number,
+}
+
+export type MealMeasurement = {
+	name: string,
+	foods: Food[],
+	meal_date: string,
+}
+
+
 export type MealHabit = Habit & {
 	type: "meal"
-
+	measurements: MealMeasurement[],
 }
 
 export type Habits = {
@@ -76,7 +94,7 @@ interface HabitsContext {
 
 const HabitsContext = createContext<HabitsContext | null>(null);
 
-const habitQueries = ["habits", "todo", "streak", "summary"]
+const habitQueries = ["habits", "todo", "streak", "summary", "stats", "history"]
 
 export const HabitsProvider = ({children}: { children?: JSX.Element | JSX.Element[] }) => {
 		const queryClient = useQueryClient();
@@ -104,12 +122,8 @@ export const HabitsProvider = ({children}: { children?: JSX.Element | JSX.Elemen
 		});
 
 		const refreshHabits = () => {
-			habitQueries.forEach((habit) => {
-				queryClient.invalidateQueries({queryKey: [habit]});
-			})
-
 			queryClient.invalidateQueries({
-				predicate: (query) => query.queryKey[0] === "stats",
+				predicate: (query) => habitQueries.includes(query.queryKey[0] as string),
 			});
 		};
 

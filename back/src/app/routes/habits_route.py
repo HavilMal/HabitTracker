@@ -11,7 +11,7 @@ from app.models            import HabitBoolDB, HabitMeasureDB, HabitDrinkingWate
     HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB, MealDB, FoodDB
 from app.logic.habit import HabitMeal
 
-    
+
 
 
 from app.constants import *
@@ -300,8 +300,8 @@ def add_habit_entry():
                 MealDB.habit_id == habit_id,
                 MealDB.user_id == current_user.uid,
                 db.func.date(MealDB.created_at) == dt.date()
-            ).first()              
-              
+            ).first()
+
             if existing_meal:
                 existing_meal.name = name
                 FoodDB.query.filter_by(meal_id=existing_meal.meal_id).delete()

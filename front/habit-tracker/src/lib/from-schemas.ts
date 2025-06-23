@@ -1,5 +1,8 @@
 import z from "zod";
 
+
+// adding-card
+
 const habitSchema = z.object({
 	name: z.string().min(1),
 	type: z.enum(["bool", "measure", "water", "activity", "meal"]),
@@ -57,3 +60,24 @@ export const schemas = {
 }
 
 export type FormTypes = keyof typeof schemas;
+
+// completion-meal-card
+
+export const foodSchema = z.object({
+	name: z.string().min(1),
+	calories: z.number(),
+	carb: z.number(),
+	prot: z.number(),
+	fat: z.number(),
+	grams: z.number(),
+});
+
+export type FoodSchema = z.infer<typeof foodSchema>;
+
+export const mealsSchema = z.object({
+	name: z.string().min(1),
+	created_at: z.string(),
+	foods: z.array(foodSchema),
+})
+
+export type MealsSchema = z.infer<typeof mealsSchema>

@@ -3,7 +3,7 @@ from datetime      import datetime, timezone
 
 from flask_login   import current_user
 
-from config        import Config
+from app.config        import Config
 from app           import db
 from app.models    import MealDB, FoodDB
 from app.constants import *
