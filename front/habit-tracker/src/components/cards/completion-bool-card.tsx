@@ -3,7 +3,7 @@ import { Form, FormControl, FormField, FormItem, } from "@/components/ui/form.ts
 import z from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {Check} from "lucide-react";
+import {Check, X} from "lucide-react";
 import {Toggle} from "@/components/ui/toggle.tsx";
 import {type BoolHabit, useHabits} from "@/hooks/habit-provider.tsx";
 import {useEffect} from "react";
@@ -37,7 +37,7 @@ export default function CompletionBoolCard({numberOfDays = 7, data}: {
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			value: currentMeasurement !== undefined,
-			date: lastWeekDays[0],
+			date: currentDay,
 		},
 	})
 
@@ -95,15 +95,15 @@ export default function CompletionBoolCard({numberOfDays = 7, data}: {
 						<FormField
 							control={form.control}
 							name="value"
-							render={() => (
+							render={({field}) => (
 								<FormItem className="flex flex-row flex-1 h-full justify-center items-center gap-6">
 									<h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
 										{form.getValues("value") ? "Completed!" : "Not completed"}
 									</h3>
 									<FormControl>
-										<Toggle type="submit" variant="outline" className="aspect-square flex h-1/4"
-										        onPressedChange={(value) => form.setValue("value", value)} pressed={form.getValues("value")}>
-											<Check/>
+										<Toggle type="submit" variant="outline" className="aspect-square flex h-1/4" defaultPressed={field.value}
+										        onPressedChange={(value) => form.setValue("value", value)} pressed={field.value}>
+											{field.value ? <Check/> : <X /> }
 										</Toggle>
 									</FormControl>
 								</FormItem>

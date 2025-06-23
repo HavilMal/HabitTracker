@@ -5,7 +5,7 @@ import {z} from "zod"
 import {Form} from "@/components/ui/form.tsx";
 import {useNavigate} from "@tanstack/react-router";
 import {Select, SelectTrigger, SelectItem, SelectContent, SelectValue} from "@/components/ui/select.tsx";
-import {type Dispatch, type SetStateAction, useState} from "react";
+import {type Dispatch, type SetStateAction, useEffect, useState} from "react";
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert.tsx";
 import {
 	schemas,
@@ -15,7 +15,13 @@ import {
 	type MealSchema,
 	type WaterSchema, type ActivitySchema
 } from "@/lib/from-schemas.ts";
-import {BoolFields, MeasureFields, ActivityFields, WaterFields, MealFields} from "@/components/forms/bool-form.tsx";
+import {
+	BoolFields,
+	MeasureFields,
+	ActivityFields,
+	WaterFields,
+	MealFields
+} from "@/components/forms/form-components.tsx";
 import {useHabits} from "@/hooks/habit-provider.tsx";
 import {FormItem, FormControl} from "@/components/ui/form.tsx";
 import {Button} from "@/components/ui/button.tsx";
@@ -30,7 +36,10 @@ const formDefaults: Record<FormTypes, any> = {
 };
 
 
-function AddingForm({selectedType, setError}: { selectedType: FormTypes, setError: Dispatch<SetStateAction<boolean>> }) {
+function AddingForm({selectedType, setError}: {
+	selectedType: FormTypes,
+	setError: Dispatch<SetStateAction<boolean>>
+}) {
 	const navigate = useNavigate();
 	const {refreshHabits} = useHabits();
 	const schema = schemas[selectedType];
@@ -42,22 +51,27 @@ function AddingForm({selectedType, setError}: { selectedType: FormTypes, setErro
 
 	// todo navigate to previous page
 	async function onSubmit(values: z.infer<typeof schema>) {
-		const response = await fetch(import.meta.env.VITE_API_URL + "add-habit",
-			{
-				credentials: "include",
-				mode: "cors",
-				method: "POST",
-				headers: {
-					"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
-					"Content-Type": "application/json; charset=utf-8",
-				},
-				body: JSON.stringify(values),
-			})
+		try {
+			const response = await fetch(import.meta.env.VITE_API_URL + "add-habit",
+				{
+					credentials: "include",
+					mode: "cors",
+					method: "POST",
+					headers: {
+						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
+						"Content-Type": "application/json; charset=utf-8",
+					},
+					body: JSON.stringify(values),
+				})
 
-		if (response.ok) {
-			refreshHabits();
-			await navigate({to: "/dashboard"})
-		} else {
+			if (response.ok) {
+				refreshHabits();
+				await navigate({to: "/dashboard"})
+			} else {
+				form.reset();
+				setError(true)
+			}
+		} catch (e) {
 			form.reset();
 			setError(true)
 		}
@@ -97,6 +111,16 @@ function AddingForm({selectedType, setError}: { selectedType: FormTypes, setErro
 export function AddingCard() {
 	const [selectedType, setSelectedType] = useState<FormTypes>("bool");
 	const [error, setError] = useState(false);
+
+	useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(false);
+      }, 10000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
 	return (
 		<div className="flex flex-col gap-6">

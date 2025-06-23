@@ -77,13 +77,14 @@ export function CompletionActivityCard({numberOfDays = 7, data}: { numberOfDays?
 							<FormField
 								control={form.control}
 								name={"activity_datetime"}
-								render={({field}) => (
+								render={() => (
 									<FormDatePicker labels={labels} dates={lastWeekDays} value={form.getValues("activity_datetime")}
 									                onChange={
 										                (value) => {
 											                const selected = data.measurements.find(val => compareDateStrings(val.activity_datetime, value));
-											                field.onChange(value);
 											                form.reset({
+												                id: data.id,
+												                activity_datetime: value,
 												                amount: selected?.amount || 0,
 												                duration_seconds: selected?.duration || 0,
 												                calories: selected?.calories || 0,

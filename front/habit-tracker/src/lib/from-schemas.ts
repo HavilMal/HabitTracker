@@ -9,15 +9,15 @@ const habitSchema = z.object({
 export type HabitSchema = z.infer<typeof habitSchema>
 
 export const boolSchema = habitSchema.extend({
-	freq_type: z.enum(["daily", "weekly", "monthly"]),
-	freq_value: z.number(),
+	freq_type: z.enum(["daily", "weekly"]),
+	freq_value: z.number().min(1).max(6),
 })
 
 export type BoolSchema = z.infer<typeof boolSchema>
 
 
 export const measureSchema = habitSchema.extend({
-	freq_type: z.enum(["daily", "weekly", "monthly"]),
+	freq_type: z.enum(["daily", "weekly"]),
 	unit: z.string(),
 	target_value: z.number(),
 	target_type: z.enum(["at_least", "at_most"]),
@@ -41,7 +41,7 @@ export type MealSchema= z.infer<typeof mealSchema>
 
 export const activitySchema= habitSchema.extend({
 	unit: z.string(),
-	freq_type: z.enum(["daily", "weekly", "monthly"]),
+	freq_type: z.enum(["daily", "weekly"]),
 	target_value: z.number(),
 })
 
