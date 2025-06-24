@@ -64,9 +64,9 @@ export type FormTypes = keyof typeof schemas;
 // completion-meal-card
 
 export const foodSchema = z.object({
-	name: z.string().min(1),
+	product_name: z.string().min(1),
 	calories: z.number(),
-	carb: z.number(),
+	carbs: z.number(),
 	prot: z.number(),
 	fat: z.number(),
 	grams: z.number(),

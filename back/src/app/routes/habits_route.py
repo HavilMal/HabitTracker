@@ -42,7 +42,7 @@ def add_habit():
                 habit_type=habit_type,
                 user_id=current_user.uid
             )
-        
+
         elif habit_type == MEASURE:
             habit = HabitMeasureDB(
                 name=name,
@@ -285,9 +285,6 @@ def add_habit_entry():
             except KeyError as e:
                 return jsonify({"error": f"Missing field: {str(e)}"}), 400
 
-            if not isinstance(foods, list) or not foods:
-                    return jsonify({"error": "`foods` must be a non-empty list"}), 400
-
             try:
                 dt = datetime.datetime.fromisoformat(created_at) if created_at else datetime.datetime.now(datetime.timezone.utc)
             except ValueError:
@@ -309,11 +306,10 @@ def add_habit_entry():
                 for item in foods:
                     nutrients = item.get('nutrients', {})
                     food = FoodDB(
-                        name=item.get('product_name', 'Unknown'),
-                        calories=nutrients.get(CALORIES, 0),
-                        carb=nutrients.get(CARB, 0),
-                        prot=nutrients.get(PROT, 0),
-                        fat=nutrients.get(FAT, 0),
+                        calories=item.get(CALORIES, 0),
+                        carb=item.get(CARB, 0),
+                        prot=item.get(PROT, 0),
+                        fat=item.get(FAT, 0),
                         grams=item.get('grams', 100),
                         meal_id=existing_meal.meal_id
                     )

@@ -1,6 +1,4 @@
 import {
-	type FieldArray,
-	type FieldArrayMethodProps,
 	useFieldArray,
 	useForm,
 	type UseFormReturn,
@@ -27,18 +25,25 @@ import {
 import {foodSchema, mealsSchema, type FoodSchema, type MealsSchema} from "@/lib/from-schemas.ts";
 import {FoodFormField} from "@/components/forms/fields.tsx";
 import {Input} from "@/components/ui/input.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {onSubmit} from "@/lib/form-submit.ts";
 
 
-function AddIngredient({handleSubmit, foodForm, disabled = false, className, children}: {
+function AddIngredient({handleSubmit, foodForm, disabled = false, className, children, onOpen}: {
 	children: string,
 	className?: string,
 	handleSubmit: () => void,
 	foodForm: UseFormReturn<FoodSchema>,
 	disabled: boolean,
+	onOpen?: () => void,
 }) {
 	const [open, setOpen] = useState(false);
+
+	useEffect(() => {
+		if (open && onOpen !== undefined) {
+			onOpen();
+		}
+	}, [open]);
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
@@ -47,10 +52,11 @@ function AddIngredient({handleSubmit, foodForm, disabled = false, className, chi
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<Form {...foodForm}>
-					<form onSubmit={() => {
+					<form onSubmit={foodForm.handleSubmit(() => {
 						setOpen(false);
 						handleSubmit();
-					}}>
+					})
+					}>
 						<DialogHeader>
 							<DialogTitle>{children}</DialogTitle>
 							<DialogDescription>
@@ -60,7 +66,7 @@ function AddIngredient({handleSubmit, foodForm, disabled = false, className, chi
 						<div className="grid gap-6 py-6">
 							<FormField
 								control={foodForm.control}
-								name={"name"}
+								name={"product_name"}
 								render={({field}) => (
 									<FormItem className="gap-2">
 										<FormLabel>Name</FormLabel>
@@ -74,7 +80,7 @@ function AddIngredient({handleSubmit, foodForm, disabled = false, className, chi
 								)}
 							/>
 							<FoodFormField form={foodForm} fieldName="calories" fieldLabel="Calories"/>
-							<FoodFormField form={foodForm} fieldName="carb" fieldLabel="Carbohydrates"/>
+							<FoodFormField form={foodForm} fieldName="carbs" fieldLabel="Carbohydrates"/>
 							<FoodFormField form={foodForm} fieldName="fat" fieldLabel="Fat"/>
 							<FoodFormField form={foodForm} fieldName="prot" fieldLabel="Proteins"/>
 							<FoodFormField form={foodForm} fieldName="grams" fieldLabel="Weight (g)"/>
@@ -118,10 +124,10 @@ function FoodTable({form, foodForm, handleDelete, handleEdit}: {
 						{
 							form.getValues("foods").map((value, i) => (
 								<TableRow key={i}>
-									<TableCell>{value.name}</TableCell>
+									<TableCell>{value.product_name}</TableCell>
 									<TableCell>{value.calories}</TableCell>
 									<TableCell>{value.prot}</TableCell>
-									<TableCell>{value.carb}</TableCell>
+									<TableCell>{value.carbs}</TableCell>
 									<TableCell>{value.fat}</TableCell>
 									<TableCell>{value.grams}</TableCell>
 									<TableCell className="w-8 justify-between">
@@ -129,7 +135,7 @@ function FoodTable({form, foodForm, handleDelete, handleEdit}: {
 											Delete
 										</Button>
 
-										<AddIngredient foodForm={foodForm}  disabled={false}
+										<AddIngredient foodForm={foodForm} disabled={false} onOpen={() => foodForm.reset(form.getValues("foods")[i])}
 										               handleSubmit={() => handleEdit(i)}>
 											Edit
 										</AddIngredient>
@@ -163,9 +169,19 @@ export function CompletionMealCard({
 		defaultValues: {
 			created_at: currentDay,
 			name: currentMeasurement?.name || "",
-			foods: currentMeasurement?.foods || [],
+			foods: currentMeasurement?.foods.map(([food, grams]) => ({
+				product_name: food.name,
+				calories: food.calories,
+				carbs: food.carb,
+				prot: food.prot,
+				fat: food.fat,
+				grams: grams,
+			})) || [],
 		},
 	})
+
+
+	console.log(form.getValues())
 
 	form.getValues()
 
@@ -177,9 +193,9 @@ export function CompletionMealCard({
 	const foodForm = useForm<FoodSchema>({
 		resolver: zodResolver(foodSchema),
 		defaultValues: {
-			name: "",
+			product_name: "",
 			calories: 0,
-			carb: 0,
+			carbs: 0,
 			prot: 0,
 			fat: 0,
 			grams: 0,
@@ -216,7 +232,15 @@ export function CompletionMealCard({
 
 										form.reset({
 											created_at: value,
-											foods: selected?.foods || [],
+											name: selected?.name || "",
+											foods: selected?.foods.map(([food, grams]) => ({
+												product_name: food.name,
+												calories: food.calories,
+												carbs: food.carb,
+												prot: food.prot,
+												fat: food.fat,
+												grams: grams,
+											})) || [],
 										})
 									}
 								}
@@ -243,29 +267,33 @@ export function CompletionMealCard({
 							           remove(i)
 							           form.handleSubmit(values => onSubmit(
 								           values, data, form, refreshHabits, "habit/entry", "Failed to delete ingredient", "Could not connect to the server"
-							           ))
+							           ))();
 						           }}
-						           handleEdit={(i) => {
-							           foodForm.handleSubmit(foodValues => {
+						           handleEdit={async (i) => {
+							           await foodForm.handleSubmit(foodValues => {
+													 console.log("log", foodValues)
 								           update(i, foodValues);
 								           foodForm.reset();
-							           });
-							           form.handleSubmit(values => {
+							           })();
+												 console.log(form.getValues("foods"))
+							           await form.handleSubmit(values => {
+													 console.log("values", values)
 								           onSubmit(values, data, form, refreshHabits, "habit/entry", "Failed to save ingredient", "Could not connect to the server");
-							           })
+							           }, e=> console.log(e))();
 						           }}/>
 					</form>
 				</Form>
 				<AddIngredient foodForm={foodForm} className="w-full"
 				               disabled={form.getValues("name") === undefined || form.getValues("name")?.length === 0}
-				               handleSubmit={async () => {
+				               handleSubmit={() => {
 					               foodForm.handleSubmit(foodValues => {
 						               append(foodValues);
 						               foodForm.reset();
-					               });
+					               })();
+					               console.log(form.getValues())
 					               form.handleSubmit(values => {
 						               onSubmit(values, data, form, refreshHabits, "habit/entry", "Failed to save ingredient", "Could not connect to the server");
-					               })
+					               }, e => console.log(e))();
 				               }}>
 					Add ingredient
 				</AddIngredient>

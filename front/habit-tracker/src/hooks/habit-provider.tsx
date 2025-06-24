@@ -55,7 +55,7 @@ export type ActivityHabit = Habit & {
 }
 
 // todo check
-export type Food = {
+export type Food = [{
 	id: number,
 	name: string,
 	calories: number,
@@ -63,7 +63,7 @@ export type Food = {
 	prot: number,
 	fat: number,
 	grams: number,
-}
+}, number]
 
 export type MealMeasurement = {
 	name: string,
