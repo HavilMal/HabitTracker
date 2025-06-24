@@ -1,3 +1,5 @@
+import datetime
+
 from flask import jsonify, Response
 from flask_login import current_user
 
@@ -33,3 +35,15 @@ def get_habit(data, to_dataclass=True) -> Habit | tuple[Response, int] | HabitDB
 
     return habit_db
 
+
+def check_entry_date(start_date, entry_date):
+    if not entry_date:
+        return True
+
+    if isinstance(start_date, datetime.datetime):
+        start_date = start_date.date()
+
+    if isinstance(entry_date, datetime.datetime):
+        entry_date = entry_date.date()
+
+    return start_date <= entry_date

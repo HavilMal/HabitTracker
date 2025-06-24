@@ -9,9 +9,10 @@ from app.routes.food_route import create_meal
 from app                   import db
 from app.models            import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
     HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB, MealDB
+from app.logic.habit import HabitMeal
 
 from app.constants import *
-from utils import check_entity_id, get_habit
+from utils import check_entity_id, get_habit, check_entry_date
 
 habit_bp = Blueprint('habit', __name__)
 
@@ -169,6 +170,9 @@ def add_habit_entry():
             except ValueError:
                 return jsonify({"error":"invalid `date`, use YYYY-MM-DD"}), 400
 
+            if not check_entry_date(habit.start_date, date_form):
+                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
+
             existing = HabitBoolCompletionDB.query.filter_by(habit_id=habit_id, date=date_form).first()
             if existing:
                 db.session.delete(existing)
@@ -188,6 +192,9 @@ def add_habit_entry():
                 date_form = datetime.datetime.fromisoformat(date_completion)
             except ValueError:
                 return jsonify({"error":"invalid `date`, use ISO8601"}), 400
+
+            if not check_entry_date(habit.start_date, date_form):
+                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
 
             try:
                 amount = float(amount)
@@ -212,6 +219,9 @@ def add_habit_entry():
                 date_form = datetime.datetime.fromisoformat(date_completed)
             except ValueError:
                 return jsonify({"error":"invalid `date`, use ISO8601"}), 400
+
+            if not check_entry_date(habit.start_date, date_form):
+                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
 
             try:
                 amount = int(amount)
@@ -242,6 +252,9 @@ def add_habit_entry():
                 dt = datetime.datetime.fromisoformat(dt_iso)
             except ValueError:
                 return jsonify({"error":"invalid `activity_datetime`, use ISO8601"}), 400
+
+            if not check_entry_date(habit.start_date, dt):
+                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
 
             existing = MeasurementActivityDB.query.filter_by(habit_id=habit_id, activity_datetime=dt).first()
 
@@ -277,6 +290,9 @@ def add_habit_entry():
                 dt = datetime.datetime.fromisoformat(created_at) if created_at else None
             except ValueError:
                 return jsonify({"error": "Invalid `created_at`, use ISO8601"}), 400
+
+            if not check_entry_date(habit.start_date, dt):
+                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
 
             create_meal(name=name, foods=foods, habit_id=habit_id, created_at=dt)
 
@@ -438,6 +454,22 @@ def get_habit_stats():
 
     return jsonify({'stats': habit_stats}), 200
 
+
+@habit_bp.route('/get-nutrients-today', methods=['GET'])
+@login_required
+def get_nutrients_today():
+    data = request.args
+
+    res = get_habit(data)
+
+    if isinstance(res, tuple):
+        return res
+
+    if isinstance(res, HabitMeal):
+        nutrients = res.get_nutrients_today()
+        return jsonify({'nutrients': nutrients}), 200
+    else:
+        return jsonify({'error': 'Wrong habit type'}), 400
 
 
 @habit_bp.route('/delete-habit', methods=['DELETE'])
