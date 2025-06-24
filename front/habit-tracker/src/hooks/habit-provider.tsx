@@ -76,6 +76,8 @@ interface HabitsContext {
 
 const HabitsContext = createContext<HabitsContext | null>(null);
 
+const habitQueries = ["habits", "todo", "streak", "summary"]
+
 export const HabitsProvider = ({children}: { children?: JSX.Element | JSX.Element[] }) => {
 		const queryClient = useQueryClient();
 
@@ -85,7 +87,6 @@ export const HabitsProvider = ({children}: { children?: JSX.Element | JSX.Elemen
 				mode: "cors",
 				method: "GET",
 				headers: {
-					"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
 					"Content-Type": "application/json; charset=utf-8",
 				},
 			});
@@ -103,7 +104,13 @@ export const HabitsProvider = ({children}: { children?: JSX.Element | JSX.Elemen
 		});
 
 		const refreshHabits = () => {
-			queryClient.invalidateQueries({queryKey: ['habits']});
+			habitQueries.forEach((habit) => {
+				queryClient.invalidateQueries({queryKey: [habit]});
+			})
+
+			queryClient.invalidateQueries({
+				predicate: (query) => query.queryKey[0] === "stats",
+			});
 		};
 
 		return (

@@ -8,6 +8,8 @@ import CompletionBoolCard from "@/components/cards/completion-bool-card.tsx";
 import CompletionMeasureCard from "@/components/cards/completion-measure-card.tsx";
 import {useEffect} from "react";
 import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
+import {useQuery} from "@tanstack/react-query";
+import {fetchHabitStats, type Stats, type  History} from "@/lib/utils.ts";
 
 export const Route = createFileRoute('/_authenticated/habit/$id')({
 	component: RouteComponent,
@@ -28,6 +30,19 @@ function RouteComponent() {
 		}
 	}, [data]);
 
+	const {data: chartData} = useQuery({
+		queryKey: ["stats", Number(id)],
+		queryFn: () => fetchHabitStats<Stats>({id: Number(id)}),
+		staleTime: 1000 * 60 * 5,
+	});
+
+
+	const {data: history} = useQuery({
+		queryKey: ["history", Number(id)],
+		queryFn: () => fetchHabitStats<History>({endpoint: "get-habit-history", id: Number(id)}),
+		staleTime: 1000 * 60 * 5,
+	});
+
 	if (isLoading) {
 		return (
 			<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
@@ -43,25 +58,14 @@ function RouteComponent() {
 		throw notFound()
 	}
 
-	useEffect(() => {
-		setBreadcrumbs(["Habit", data.name])
-	}, []);
-
-	let selected: string[] = [];
-	if (data.type === "bool") {
-		selected = data.completed_days;
-	} else {
-		selected = data.measurements.map((value) => value.date)
-	}
-
-
-
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
-				<LineplotCard data={data} />
-				{data.type === "bool" ? <CompletionBoolCard data={data as BoolHabit} /> : <CompletionMeasureCard data={data as MeasureHabit} />}
-				<CalendarCard selected={selected}/>
-				<NotesCard key={data.id} data={data}/>
+			<LineplotCard chartData={chartData} accessKey="stats" title="Habit completion"
+			              description="Percentage of habits completed up to given date"/>
+			{data.type === "bool" ? <CompletionBoolCard data={data as BoolHabit}/> :
+				<CompletionMeasureCard data={data as MeasureHabit}/>}
+			<CalendarCard history={history}/>
+			<NotesCard key={data.id} data={data}/>
 		</div>
 	)
 }

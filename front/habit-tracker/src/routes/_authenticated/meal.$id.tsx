@@ -5,8 +5,11 @@ import {CaloriesCard} from "@/components/cards/calories-card.tsx";
 import {CompletionMealCard} from "@/components/cards/completion-meal-card.tsx";
 import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 import {useEffect} from "react";
-import { useHabits} from "@/hooks/habit-provider.tsx";
+import {useHabits} from "@/hooks/habit-provider.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {useQuery} from "@tanstack/react-query";
+import {fetchHabitStats, type Stats, type History} from "@/lib/utils.ts";
+
 
 export const Route = createFileRoute('/_authenticated/meal/$id')({
 	component: RouteComponent,
@@ -27,6 +30,20 @@ function RouteComponent() {
 		}
 	}, [data]);
 
+	const {data: chartData} = useQuery({
+		queryKey: ["stats", Number(id)],
+		queryFn: () => fetchHabitStats<Stats>({id: Number(id)}),
+		staleTime: 1000 * 60 * 5,
+	});
+
+	const {data: history} = useQuery({
+		queryKey: ["history", Number(id)],
+		queryFn: () => fetchHabitStats<History>({endpoint: "get-habit-history", id: Number(id)}),
+		staleTime: 1000 * 60 * 5,
+	});
+
+
+
 	if (isLoading) {
 		return (
 			<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
@@ -44,9 +61,10 @@ function RouteComponent() {
 
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-h-full h-full">
-			<LineplotCard data={data} className="flex h-full"/>
+			<LineplotCard chartData={chartData} accessKey="stats" className="flex h-full" title="Habit completion"
+			              description="Percentage of habits completed up to given date"/>
 			<CompletionMealCard className="flex h-full"/>
-			<CalendarCard  className="flex h-full"/>
+			<CalendarCard history={history} className="flex h-full"/>
 			<CaloriesCard className="flex h-full"/>
 			{/*	todo notes card*/}
 		</div>

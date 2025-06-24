@@ -161,7 +161,7 @@ def add_habit_entry():
     message = ''
 
     try:
-        if habit_type == 'bool':
+        if habit_type == BOOL:
             date_completion = data.get('date')
             if not date_completion:
                 return jsonify({"error": "`date` is required for boolean habits"}), 400
@@ -182,7 +182,7 @@ def add_habit_entry():
                 db.session.add(row)
                 message = 'Entry recorded'
 
-        elif habit_type == 'measure':
+        elif habit_type == MEASURE:
             date_completion = data.get('date')
             amount = data.get('amount')
 
@@ -210,7 +210,7 @@ def add_habit_entry():
                 db.session.add(row)
                 message = 'Entry recorded'
 
-        elif habit_type == 'water':
+        elif habit_type == WATER:
             date_completed = data.get('date')
             amount = data.get('amount')
             if date_completed is None or amount is None:
@@ -237,7 +237,7 @@ def add_habit_entry():
                 db.session.add(row)
                 message = 'Entry recorded'
 
-        elif habit_type == 'activity':
+        elif habit_type == ACTIVITY:
             try:
                 dt_iso = data['activity_datetime']
                 amount = float(data['amount'])
@@ -274,7 +274,7 @@ def add_habit_entry():
                 db.session.add(row)
                 message = 'Entry recorded'
 
-        elif habit_type == 'meal':
+        elif habit_type == MEAL:
             try:
                 name = data['name']
                 foods = data['foods']
@@ -408,7 +408,8 @@ def get_habit_summary():
         return jsonify({'summary': []}), 200
 
     min_date_str = min(earliest_dates)
-    min_date = datetime.datetime.fromisoformat(min_date_str)
+
+    min_date = datetime.datetime.fromisoformat(min_date_str).date()
 
     curr_date = min_date
     curr_date_str = min_date.isoformat()
@@ -479,7 +480,7 @@ def delete_habit():
     require: habit_id: int
     """
     data = request.get_json()
-
+    
     res = get_habit(data)
 
     if isinstance(res, tuple):

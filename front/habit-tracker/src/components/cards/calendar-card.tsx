@@ -3,9 +3,11 @@ import {
 	CardContent,
 } from "@/components/ui/card.tsx"
 import {Calendar} from "@/components/ui/calendar.tsx"
-import {cn} from "@/lib/utils.ts";
+import {cn, type History} from "@/lib/utils.ts";
 
-export default function CalendarCard({selected = [], className}: {selected?: string[], className?: string}) {
+export default function CalendarCard({history, className}: {history?: History, className?: string}) {
+	const data = history?.history.filter(val => val[1] === 1).map(val => new Date(val[0]))
+
 	return (
 		<Card className={cn("flex flex-1", className)}>
 			<CardContent className="flex flex-1">
@@ -19,7 +21,7 @@ export default function CalendarCard({selected = [], className}: {selected?: str
 					          row: "w-full mt-2",
 					          day_selected: "bg-chart-2 text-primary-foreground hover:bg-chart-2 dark:hover:brightness-110 focus:bg-primary/90 dark:focus:brightness-110",
 				          }}
-				          selected={selected.map((value) => new Date(value))}
+				          selected={data}
 				/>
 			</CardContent>
 		</Card>
