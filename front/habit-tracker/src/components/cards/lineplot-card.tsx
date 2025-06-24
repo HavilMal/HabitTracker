@@ -1,4 +1,4 @@
-import {CartesianGrid,  Line, LineChart, XAxis, YAxis} from "recharts"
+import {CartesianGrid, Line, LineChart, XAxis, YAxis} from "recharts"
 import {
 	Card,
 	CardContent,
@@ -12,8 +12,7 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart.tsx"
-import {cn, generateCompletionData} from "@/lib/utils.ts";
-import type {ActivityHabit, BoolHabit, MealHabit, MeasureHabit, WaterHabit} from "@/hooks/habit-provider.tsx";
+import {cn, type Stats} from "@/lib/utils.ts";
 
 const chartConfig = {
 	completion: {
@@ -28,21 +27,29 @@ export type Completion = {
 	completion: number
 }
 
-export function LineplotCard({title = "Line Chart", description = "description", data, className = ""}: {
-	title?: string,
-	description?: string,
-	data?: BoolHabit | MeasureHabit | WaterHabit | ActivityHabit | MealHabit,
-	className?: string
-}) {
+export function LineplotCard(
+	{
+		title = "Line Chart",
+		description = "description",
+		chartData,
+		className = "",
+		domainMax = 1.1,
+		accessKey,
+	}: {
+		title?: string,
+		description?: string,
+		className?: string
+		chartData: Stats | undefined,
+		domainMax?: number,
+		accessKey: keyof Stats,
+	}) {
 
 	let errorMessage = "No entries yet"
-	let chartData: Completion[]  = []
-	if (data !== undefined) {
-		chartData = generateCompletionData(data)
-	} else {
+	if (chartData === undefined) {
 		errorMessage = "Failed to load"
 	}
 
+	const shouldShowError = chartData === undefined || chartData[accessKey].length === 0;
 
 	return (
 		<Card className={cn("flex flex-1", className)}>
@@ -51,7 +58,7 @@ export function LineplotCard({title = "Line Chart", description = "description",
 				<CardDescription>{description}</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-1">
-				{chartData.length === 0 ?
+				{shouldShowError ?
 					<div className="flex flex-1 justify-center items-center">
 						<p className="text-muted-foreground text-sm text-center">{errorMessage}</p>
 					</div>
@@ -59,7 +66,7 @@ export function LineplotCard({title = "Line Chart", description = "description",
 					<ChartContainer className="w-full h-full !aspect-auto" config={chartConfig}>
 						<LineChart
 							accessibilityLayer
-							data={chartData}
+							data={chartData[accessKey]}
 							margin={{
 								left: 0,
 								right: 60,
@@ -74,17 +81,18 @@ export function LineplotCard({title = "Line Chart", description = "description",
 							/>
 							<YAxis
 								tick={false}
-								domain={[0, 'dataMax + 10']}
+								domain={[0, domainMax]}
 								tickLine={true}
 								axisLine={false}
 								// hide={true}
 							/>
+							{/*todo style*/}
 							<ChartTooltip
 								cursor={false}
 								content={<ChartTooltipContent hideLabel/>}
 							/>
 							<Line
-								dataKey="completion"
+								dataKey="percentage"
 								type="bump"
 								stroke="var(--chart-2)"
 								strokeWidth={2}

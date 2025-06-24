@@ -71,7 +71,7 @@ export function StreakChart({className}: { className?: string }) {
 	}
 
 	const {data, isLoading} = useQuery({
-		queryKey: ['streaks'],
+		queryKey: ['streak'],
 		queryFn: featchStreaks,
 		staleTime: 1000 * 60 * 5,
 	});
