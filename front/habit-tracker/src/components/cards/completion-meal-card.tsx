@@ -31,12 +31,11 @@ import {useState} from "react";
 import {onSubmit} from "@/lib/form-submit.ts";
 
 
-type AppendType = (value: (FieldArray<MealsSchema, "foods"> | FieldArray<MealsSchema, "foods">[]), options?: FieldArrayMethodProps) => void;
-
-function AddIngredient({handleSubmit, foodForm, append, disabled=false}: {
-	handleSubmit: () => Promise<void>,
+function AddIngredient({handleSubmit, foodForm, disabled = false, className, children}: {
+	children: string,
+	className?: string,
+	handleSubmit: () => void,
 	foodForm: UseFormReturn<FoodSchema>,
-	append: AppendType,
 	disabled: boolean,
 }) {
 	const [open, setOpen] = useState(false);
@@ -44,23 +43,18 @@ function AddIngredient({handleSubmit, foodForm, append, disabled=false}: {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline" className="w-full" disabled={disabled}>Add ingredient</Button>
+				<Button variant="outline" className={className} disabled={disabled}>{children}</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<Form {...foodForm}>
-					<form onSubmit={
-						foodForm.handleSubmit(foodValues => {
-								append(foodValues);
-								foodForm.reset();
-								setOpen(false);
-								handleSubmit();
-							}
-						)
-					}>
+					<form onSubmit={() => {
+						setOpen(false);
+						handleSubmit();
+					}}>
 						<DialogHeader>
-							<DialogTitle>Add ingredient</DialogTitle>
+							<DialogTitle>{children}</DialogTitle>
 							<DialogDescription>
-								Enter name and nutritional values of ingredient you are adding
+								Enter name and nutritional values of ingredient
 							</DialogDescription>
 						</DialogHeader>
 						<div className="grid gap-6 py-6">
@@ -99,46 +93,65 @@ function AddIngredient({handleSubmit, foodForm, append, disabled=false}: {
 }
 
 
-function FoodTable({form, handleSubmit}: { form: UseFormReturn<MealsSchema>, handleSubmit: () => void }) {
+function FoodTable({form, foodForm, handleDelete, handleEdit}: {
+	form: UseFormReturn<MealsSchema>,
+	foodForm: UseFormReturn<FoodSchema>
+	handleDelete: (i: number) => void,
+	handleEdit: (i: number) => void
+}) {
 	return (
-		<Table>
-			<TableHeader>
-				<TableHead>Name</TableHead>
-				<TableHead>kcal</TableHead>
-				<TableHead>Protein</TableHead>
-				<TableHead>Carbohydrates</TableHead>
-				<TableHead>Fat</TableHead>
-				<TableHead>Weight (g)</TableHead>
-				<TableHead></TableHead>
-			</TableHeader>
-			<TableBody>
-				{
-					form.getValues("foods").map((value, i) => (
-						<TableRow key={i}>
-							<TableCell>{value.name}</TableCell>
-							<TableCell>{value.calories}</TableCell>
-							<TableCell>{value.prot}</TableCell>
-							<TableCell>{value.carb}</TableCell>
-							<TableCell>{value.fat}</TableCell>
-							<TableCell>{value.grams}</TableCell>
-							<TableCell>
-								<Button variant="destructive" type="button" onClick={() => {
-									const currentMeals = form.getValues("foods");
-									const updatedMeals = currentMeals.filter((_, index) => index !== i);
-									form.setValue("foods", updatedMeals);
-									handleSubmit();
-								}}>Delete</Button>
-							</TableCell>
+		<div className="flex flex-col h-[250px] w-full">
+			<div className="flex-1 overflow-auto min-h-0">
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead>Name</TableHead>
+							<TableHead>kcal</TableHead>
+							<TableHead>Protein</TableHead>
+							<TableHead>Carbohydrates</TableHead>
+							<TableHead>Fat</TableHead>
+							<TableHead>Weight (g)</TableHead>
+							<TableHead></TableHead>
 						</TableRow>
-					))
-				}
-			</TableBody>
-		</Table>
+					</TableHeader>
+					<TableBody>
+						{
+							form.getValues("foods").map((value, i) => (
+								<TableRow key={i}>
+									<TableCell>{value.name}</TableCell>
+									<TableCell>{value.calories}</TableCell>
+									<TableCell>{value.prot}</TableCell>
+									<TableCell>{value.carb}</TableCell>
+									<TableCell>{value.fat}</TableCell>
+									<TableCell>{value.grams}</TableCell>
+									<TableCell className="w-8 justify-between">
+										<Button variant="destructive" type="button" className="mr-6" onClick={() => handleDelete(i)}>
+											Delete
+										</Button>
+
+										<AddIngredient foodForm={foodForm}  disabled={false}
+										               handleSubmit={() => handleEdit(i)}>
+											Edit
+										</AddIngredient>
+									</TableCell>
+								</TableRow>
+							))
+						}
+					</TableBody>
+				</Table>
+			</div>
+		</div>
 	)
 }
 
 
-export function CompletionMealCard({numberOfDays = 7, data}: { numberOfDays?: number, data: MealHabit }) {
+export function CompletionMealCard({
+	                                   numberOfDays = 7, data
+                                   }: {
+	numberOfDays?: number, data
+		:
+		MealHabit
+}) {
 	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
 	const currentDay = lastWeekDays[lastWeekDays.length - 1];
 	const currentMeasurement = data.measurements.find(val => compareDateStrings(val.meal_date, currentDay))
@@ -156,7 +169,7 @@ export function CompletionMealCard({numberOfDays = 7, data}: { numberOfDays?: nu
 
 	form.getValues()
 
-	const {append} = useFieldArray({
+	const {append, update, remove} = useFieldArray({
 		control: form.control,
 		name: "foods",
 	})
@@ -184,9 +197,8 @@ export function CompletionMealCard({numberOfDays = 7, data}: { numberOfDays?: nu
 	})
 
 
-
 	return (
-		<Card className="flex flex-1 space-y-4">
+		<Card className="flex flex-1 space-y-4 min-h-[250px]">
 			<CardHeader>
 				<CardTitle>Add a Meal</CardTitle>
 				<CardDescription>description</CardDescription>
@@ -226,15 +238,37 @@ export function CompletionMealCard({numberOfDays = 7, data}: { numberOfDays?: nu
 								</FormItem>
 							)}
 						/>
-						<FoodTable form={form} handleSubmit={form.handleSubmit(values => onSubmit(
-							values, data, form, refreshHabits, "habit/entry", "Failed to delete ingredient", "Could not connect to the server"
-						))}/>
+						<FoodTable form={form} foodForm={foodForm}
+						           handleDelete={(i) => {
+							           remove(i)
+							           form.handleSubmit(values => onSubmit(
+								           values, data, form, refreshHabits, "habit/entry", "Failed to delete ingredient", "Could not connect to the server"
+							           ))
+						           }}
+						           handleEdit={(i) => {
+							           foodForm.handleSubmit(foodValues => {
+								           update(i, foodValues);
+								           foodForm.reset();
+							           });
+							           form.handleSubmit(values => {
+								           onSubmit(values, data, form, refreshHabits, "habit/entry", "Failed to save ingredient", "Could not connect to the server");
+							           })
+						           }}/>
 					</form>
 				</Form>
-				<AddIngredient foodForm={foodForm} append={append} disabled={form.getValues("name") === undefined || form.getValues("name")?.length === 0} handleSubmit={form.handleSubmit(values => onSubmit(
-					values, data, form, refreshHabits, "habit/entry", "Failed to save ingredient", "Could not connect to the server"
-				), e => console.log(e))}
-				/>
+				<AddIngredient foodForm={foodForm} className="w-full"
+				               disabled={form.getValues("name") === undefined || form.getValues("name")?.length === 0}
+				               handleSubmit={async () => {
+					               foodForm.handleSubmit(foodValues => {
+						               append(foodValues);
+						               foodForm.reset();
+					               });
+					               form.handleSubmit(values => {
+						               onSubmit(values, data, form, refreshHabits, "habit/entry", "Failed to save ingredient", "Could not connect to the server");
+					               })
+				               }}>
+					Add ingredient
+				</AddIngredient>
 			</CardContent>
 		</Card>
 	)
