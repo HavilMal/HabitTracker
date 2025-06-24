@@ -54,7 +54,7 @@ class HabitBoolDB(HabitDB):
     habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
     freq_type       = db.Column(db.String(64))
     freq_value      = db.Column(db.Integer)
-    completions     = db.relationship('HabitBoolCompletionDB', backref='habit', lazy=True)
+    completions     = db.relationship('HabitBoolCompletionDB', backref='habit', lazy=True, cascade='all, delete-orphan')
     __mapper_args__ = {'polymorphic_identity': BOOL}
 
     def to_dataclass(self) -> HabitBool:
@@ -87,7 +87,7 @@ class HabitMeasureDB(HabitDB):
     unit            = db.Column(db.String(64))
     target_value    = db.Column(db.Float)
     target_type     = db.Column(db.String(32)) 
-    measurements    = db.relationship('MeasurementFloatDB', backref='habit', lazy=True)
+    measurements    = db.relationship('MeasurementFloatDB', backref='habit', lazy=True, cascade='all, delete-orphan')
     __mapper_args__ = {'polymorphic_identity': MEASURE}
 
     def to_dataclass(self) -> HabitMeasure:
@@ -123,7 +123,7 @@ class HabitDrinkingWaterDB(HabitDB):
     __tablename__   = 'habit_water'
     habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
     target_value    = db.Column(db.Integer)
-    measurements    = db.relationship('MeasurementIntDB', backref='habit', lazy=True)
+    measurements    = db.relationship('MeasurementIntDB', backref='habit', lazy=True, cascade='all, delete-orphan')
     __mapper_args__ = {'polymorphic_identity': WATER}
 
     def to_dataclass(self) -> HabitDrinkingWater:
@@ -158,7 +158,7 @@ class HabitActivityDB(HabitDB):
     freq_type       = db.Column(db.String(64))
     unit            = db.Column(db.String(64))
     target_value    = db.Column(db.Float)
-    measurements    = db.relationship('MeasurementActivityDB', backref='habit', lazy=True)
+    measurements    = db.relationship('MeasurementActivityDB', backref='habit', lazy=True, cascade='all, delete-orphan')
     __mapper_args__ = {'polymorphic_identity': ACTIVITY}
 
     def to_dataclass(self) -> HabitActivity:
@@ -198,7 +198,7 @@ class HabitMealDB(HabitDB):
     target_value     = db.Column(db.Float)
     target_data_unit = db.Column(db.String(8))
     target_type      = db.Column(db.String(8))
-    measurements     = db.relationship('MealDB', backref='habit', lazy=True)
+    measurements     = db.relationship('MealDB', backref='habit', lazy=True, cascade="all, delete-orphan")
     __mapper_args__  = {'polymorphic_identity': MEAL}
 
     def to_dataclass(self) -> HabitMeal:

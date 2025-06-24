@@ -363,11 +363,21 @@ class HabitMeal(Habit):
 
     def to_do(self) -> bool:
         today_date = datetime.date.today()
+        total_amount = self.get_total_amount(today_date)
 
+        return self._check_target(total_amount) == 0
+
+    def get_nutrients_today(self) -> dict[str, float]:
+        today_date = datetime.date.today()
+        total_amount = self.get_total_amount(today_date)
+
+        return {self.target_data_unit: total_amount}
+
+    def get_total_amount(self, date) -> float:
         total_amount = 0
 
         for m in self.measurements:
-            if m.meal_date == today_date:
+            if m.meal_date == date:
                 if self.target_data_unit == PROT:
                     total_amount += m.get_total_prot()
                 elif self.target_data_unit == FAT:
@@ -377,4 +387,4 @@ class HabitMeal(Habit):
                 elif self.target_data_unit == CALORIES:
                     total_amount += m.get_total_calories()
 
-        return self._check_target(total_amount) == 0
+        return total_amount

@@ -9,8 +9,13 @@ from app.routes.food_route import create_meal
 from app                   import db
 from app.models            import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
     HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB, MealDB, FoodDB
+from app.logic.habit import HabitMeal
+
+    
+
 
 from app.constants import *
+from utils import check_entity_id, get_habit, check_entry_date
 
 habit_bp = Blueprint('habit', __name__)
 
@@ -144,13 +149,12 @@ def add_habit_entry():
     data = request.get_json() or {}
     habit_id = data.get('habit_id')
 
-    if not habit_id:
-        return jsonify({"error": "Missing habit_id"}), 400
+    habit_id_check = check_entity_id(habit_id)
 
-    try:
-        habit_id = int(habit_id)
-    except (ValueError, TypeError):
-        return jsonify({'error': '`habit_id` must be an integer'}), 400
+    if habit_id_check is not None:
+        return habit_id_check
+
+    habit_id = int(habit_id)
 
     habit = HabitDB.query.filter_by(habit_id=habit_id, user_id=current_user.uid).first()
     if not habit:
@@ -159,153 +163,173 @@ def add_habit_entry():
     habit_type = habit.habit_type  # 'bool', 'measure', 'water', 'activity', 'meal'
     message = ''
 
-    if habit_type == BOOL:
-        date_completion = data.get('date')
-        if not date_completion:
-            return jsonify({"error": "`date` is required for boolean habits"}), 400
-        try:
-            date_form = datetime.datetime.strptime(date_completion, "%Y-%m-%d").date()
-        except ValueError:
-            return jsonify({"error":"invalid `date`, use YYYY-MM-DD"}), 400
+    try:
+        if habit_type == BOOL:
+            date_completion = data.get('date')
+            if not date_completion:
+                return jsonify({"error": "`date` is required for boolean habits"}), 400
+            try:
+                date_form = datetime.datetime.strptime(date_completion, "%Y-%m-%d").date()
+            except ValueError:
+                return jsonify({"error":"invalid `date`, use YYYY-MM-DD"}), 400
 
-        existing = HabitBoolCompletionDB.query.filter_by(habit_id=habit_id, date=date_form).first()
-        if existing:
-            db.session.delete(existing)
-            message = 'Entry toggled'
-        else:
-            row = HabitBoolCompletionDB(habit_id=habit_id, date=date_form)
-            db.session.add(row)
-            message = 'Entry recorded'
+            if not check_entry_date(habit.start_date, date_form):
+                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
 
-    elif habit_type == MEASURE:
-        date_completion = data.get('date')
-        amount = data.get('amount')
+            existing = HabitBoolCompletionDB.query.filter_by(habit_id=habit_id, date=date_form).first()
+            if existing:
+                db.session.delete(existing)
+                message = 'Entry toggled'
+            else:
+                row = HabitBoolCompletionDB(habit_id=habit_id, date=date_form)
+                db.session.add(row)
+                message = 'Entry recorded'
 
-        if date_completion is None or amount is None:
-            return jsonify({"error":"`date` and `amount` required"}), 400
-        try:
-            date_form = datetime.datetime.fromisoformat(date_completion)
-        except ValueError:
-            return jsonify({"error":"invalid `date`, use ISO8601"}), 400
+        elif habit_type == MEASURE:
+            date_completion = data.get('date')
+            amount = data.get('amount')
 
-        try:
-            amount = float(amount)
-        except (ValueError, TypeError):
-            return jsonify({"error": "amount must be a number"}), 400
+            if date_completion is None or amount is None:
+                return jsonify({"error":"`date` and `amount` required"}), 400
+            try:
+                date_form = datetime.datetime.fromisoformat(date_completion)
+            except ValueError:
+                return jsonify({"error":"invalid `date`, use ISO8601"}), 400
 
-        existing = MeasurementFloatDB.query.filter_by(habit_id=habit_id, date=date_form).first()
-        if existing:
-            existing.amount = amount
-            message = 'Entry modified'
-        else:
-            row = MeasurementFloatDB(habit_id=habit_id, date=date_form, amount=amount)
-            db.session.add(row)
-            message = 'Entry recorded'
+            if not check_entry_date(habit.start_date, date_form):
+                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
 
-    elif habit_type == WATER:
-        date_completed = data.get('date')
-        amount = data.get('amount')
-        if date_completed is None or amount is None:
-            return jsonify({"error":"`date` and `amount` required"}), 400
-        try:
-            date_form = datetime.datetime.fromisoformat(date_completed)
-        except ValueError:
-            return jsonify({"error":"invalid `date`, use ISO8601"}), 400
+            try:
+                amount = float(amount)
+            except (ValueError, TypeError):
+                return jsonify({"error": "amount must be a number"}), 400
 
-        try:
-            amount = int(amount)
-        except (ValueError, TypeError):
-            return jsonify({"error": "amount must be a number"}), 400
+            existing = MeasurementFloatDB.query.filter_by(habit_id=habit_id, date=date_form).first()
+            if existing:
+                existing.amount = amount
+                message = 'Entry modified'
+            else:
+                row = MeasurementFloatDB(habit_id=habit_id, date=date_form, amount=amount)
+                db.session.add(row)
+                message = 'Entry recorded'
 
-        existing = MeasurementIntDB.query.filter_by(habit_id=habit_id, date=date_form).first()
-        if existing:
-            existing.amount = amount
-            message = 'Entry modified'
-        else:
-            row = MeasurementIntDB(habit_id=habit_id, date=date_form, amount=amount)
-            db.session.add(row)
-            message = 'Entry recorded'
+        elif habit_type == WATER:
+            date_completed = data.get('date')
+            amount = data.get('amount')
+            if date_completed is None or amount is None:
+                return jsonify({"error":"`date` and `amount` required"}), 400
+            try:
+                date_form = datetime.datetime.fromisoformat(date_completed)
+            except ValueError:
+                return jsonify({"error":"invalid `date`, use ISO8601"}), 400
 
-    elif habit_type == ACTIVITY:
-        try:
-            dt_iso = data['activity_datetime']
-            amount = float(data['amount'])
-            dur    = float(data['duration_seconds'])
-            cal    = float(data['calories'])
-        except KeyError:
-            return jsonify({"error":"`activity_datetime, amount, duration_seconds, calories` required"}), 400
-        except ValueError:
-            return jsonify({"error":"`amount, duration_seconds, calories` must be numbers"}), 400
+            if not check_entry_date(habit.start_date, date_form):
+                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
 
-        try:
-            dt = datetime.datetime.fromisoformat(dt_iso)
-        except ValueError:
-            return jsonify({"error":"invalid `activity_datetime`, use ISO8601"}), 400
+            try:
+                amount = int(amount)
+            except (ValueError, TypeError):
+                return jsonify({"error": "amount must be a number"}), 400
 
-        existing = MeasurementActivityDB.query.filter_by(habit_id=habit_id, activity_datetime=dt).first()
+            existing = MeasurementIntDB.query.filter_by(habit_id=habit_id, date=date_form).first()
+            if existing:
+                existing.amount = amount
+                message = 'Entry modified'
+            else:
+                row = MeasurementIntDB(habit_id=habit_id, date=date_form, amount=amount)
+                db.session.add(row)
+                message = 'Entry recorded'
 
-        if existing:
-            existing.amount = amount
-            existing.duration_seconds = dur
-            existing.calories = cal
-            message = 'Entry modified'
-        else:
-            row = MeasurementActivityDB(
-                habit_id=habit_id,
-                activity_datetime=dt,
-                amount=amount,
-                duration_seconds=dur,
-                calories=cal
-            )
-            db.session.add(row)
-            message = 'Entry recorded'
+        elif habit_type == ACTIVITY:
+            try:
+                dt_iso = data['activity_datetime']
+                amount = float(data['amount'])
+                dur    = float(data['duration_seconds'])
+                cal    = float(data['calories'])
+            except KeyError:
+                return jsonify({"error":"`activity_datetime, amount, duration_seconds, calories` required"}), 400
+            except ValueError:
+                return jsonify({"error":"`amount, duration_seconds, calories` must be numbers"}), 400
 
-    elif habit_type == MEAL:
-        try:
-            name = data['name']
-            foods = data['foods']
-            created_at = data.get('created_at')
-        except KeyError as e:
-            return jsonify({"error": f"Missing field: {str(e)}"}), 400
+            try:
+                dt = datetime.datetime.fromisoformat(dt_iso)
+            except ValueError:
+                return jsonify({"error":"invalid `activity_datetime`, use ISO8601"}), 400
 
-        if not isinstance(foods, list) or not foods:
-                return jsonify({"error": "`foods` must be a non-empty list"}), 400
+            if not check_entry_date(habit.start_date, dt):
+                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
 
-        try:
-            dt = datetime.datetime.fromisoformat(created_at) if created_at else datetime.datetime.now(datetime.timezone.utc)
-        except ValueError:
-            return jsonify({"error": "Invalid `created_at`, use ISO8601"}), 400
-        
-        existing_meal = MealDB.query.filter(
-            MealDB.habit_id == habit_id,
-            MealDB.user_id == current_user.uid,
-            db.func.date(MealDB.created_at) == dt.date()
-        ).first()
+            existing = MeasurementActivityDB.query.filter_by(habit_id=habit_id, activity_datetime=dt).first()
 
-        if existing_meal:
-            existing_meal.name = name
-            FoodDB.query.filter_by(meal_id=existing_meal.meal_id).delete()
-
-            for item in foods:
-                nutrients = item.get('nutrients', {})
-                food = FoodDB(
-                    name=item.get('product_name', 'Unknown'),
-                    calories=nutrients.get(CALORIES, 0),
-                    carb=nutrients.get(CARB, 0),
-                    prot=nutrients.get(PROT, 0),
-                    fat=nutrients.get(FAT, 0),
-                    grams=item.get('grams', 100),
-                    meal_id=existing_meal.meal_id
+            if existing:
+                existing.amount = amount
+                existing.duration_seconds = dur
+                existing.calories = cal
+                message = 'Entry modified'
+            else:
+                row = MeasurementActivityDB(
+                    habit_id=habit_id,
+                    activity_datetime=dt,
+                    amount=amount,
+                    duration_seconds=dur,
+                    calories=cal
                 )
-                db.session.add(food)
+                db.session.add(row)
+                message = 'Entry recorded'
+
+        elif habit_type == MEAL:
+            try:
+                name = data['name']
+                foods = data['foods']
+                created_at = data.get('created_at')
+            except KeyError as e:
+                return jsonify({"error": f"Missing field: {str(e)}"}), 400
+
+            if not isinstance(foods, list) or not foods:
+                    return jsonify({"error": "`foods` must be a non-empty list"}), 400
+
+            try:
+                dt = datetime.datetime.fromisoformat(created_at) if created_at else datetime.datetime.now(datetime.timezone.utc)
+            except ValueError:
+                return jsonify({"error": "Invalid `created_at`, use ISO8601"}), 400
+
+            if not check_entry_date(habit.start_date, dt):
+                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
+
+            existing_meal = MealDB.query.filter(
+                MealDB.habit_id == habit_id,
+                MealDB.user_id == current_user.uid,
+                db.func.date(MealDB.created_at) == dt.date()
+            ).first()              
+              
+            if existing_meal:
+                existing_meal.name = name
+                FoodDB.query.filter_by(meal_id=existing_meal.meal_id).delete()
+
+                for item in foods:
+                    nutrients = item.get('nutrients', {})
+                    food = FoodDB(
+                        name=item.get('product_name', 'Unknown'),
+                        calories=nutrients.get(CALORIES, 0),
+                        carb=nutrients.get(CARB, 0),
+                        prot=nutrients.get(PROT, 0),
+                        fat=nutrients.get(FAT, 0),
+                        grams=item.get('grams', 100),
+                        meal_id=existing_meal.meal_id
+                    )
+                    db.session.add(food)
+            else:
+                create_meal(name=name, foods=foods, habit_id=habit_id, created_at=dt)
+
         else:
-            create_meal(name=name, foods=foods, habit_id=habit_id, created_at=dt)
+            return jsonify({"error": f"Unsupported habit_type: {habit_type}"}), 400
 
-    else:
-        return jsonify({"error": f"Unsupported habit_type: {habit_type}"}), 400
+        db.session.commit()
+        return jsonify({"message": message, "habit_type": habit_type}), 201
 
-    db.session.commit()
-    return jsonify({"message": message, "habit_type": habit_type}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Database error", "details": str(e)}), 500
 
 
 @habit_bp.route('/habit/notes', methods=['POST'])
@@ -384,24 +408,13 @@ def get_habits_to_do():
 @habit_bp.route('/get-habit-history', methods=['GET'])
 @login_required
 def get_habit_history():
-    habit_id = request.args.get('habit_id')
+    data = request.args
+    res = get_habit(data)
 
-    if habit_id is None:
-        return jsonify({'error': 'Missing data in request'}), 400
+    if isinstance(res, tuple):
+        return res
 
-    try:
-        habit_id = int(habit_id)
-    except (ValueError, TypeError):
-        return jsonify({'error': '`habit_id` must be an integer'}), 400
-
-    habit_db = HabitDB.query.filter_by(habit_id=habit_id, user_id=current_user.uid).first()
-
-    if not habit_db:
-        return jsonify({'error': 'Habit not found or not authorized'}), 404
-
-    habit = habit_db.to_dataclass()
-
-    history = habit.get_history()
+    history = res.get_history()
 
     return jsonify({'history': history}), 200
 
@@ -420,7 +433,9 @@ def get_habit_summary():
         return jsonify({'summary': []}), 200
 
     min_date_str = min(earliest_dates)
+
     min_date = datetime.datetime.fromisoformat(min_date_str).date()
+
 
     curr_date = min_date
     curr_date_str = min_date.isoformat()
@@ -455,24 +470,101 @@ def get_habit_summary():
 @habit_bp.route('/get-habit-stats', methods=['GET'])
 @login_required
 def get_habit_stats():
-    habit_id = request.args.get('habit_id')
+    data = request.args
 
-    if habit_id is None:
-        return jsonify({'error': 'Missing data in request'}), 400
+    res = get_habit(data)
 
-    try:
-        habit_id = int(habit_id)
-    except (ValueError, TypeError):
-        return jsonify({'error': '`habit_id` must be an integer'}), 400
+    if isinstance(res, tuple):
+        return res
 
-    habit_db = HabitDB.query.filter_by(habit_id=habit_id, user_id=current_user.uid).first()
-
-    if not habit_db:
-        return jsonify({'error': 'Habit not found or not authorized'}), 404
-
-    habit = habit_db.to_dataclass()
-
-    habit_stats = habit.get_completion_stats()
+    habit_stats = res.get_completion_stats()
 
     return jsonify({'stats': habit_stats}), 200
+
+
+@habit_bp.route('/get-nutrients-today', methods=['GET'])
+@login_required
+def get_nutrients_today():
+    data = request.args
+
+    res = get_habit(data)
+
+    if isinstance(res, tuple):
+        return res
+
+    if isinstance(res, HabitMeal):
+        nutrients = res.get_nutrients_today()
+        return jsonify({'nutrients': nutrients}), 200
+    else:
+        return jsonify({'error': 'Wrong habit type'}), 400
+
+
+@habit_bp.route('/delete-habit', methods=['DELETE'])
+@login_required
+def delete_habit():
+    """
+    require: habit_id: int
+    """
+    data = request.get_json()
+
+    res = get_habit(data)
+
+    if isinstance(res, tuple):
+        return res
+
+    db.session.delete(res)
+    db.session.commit()
+
+    return jsonify({'message': 'Habit successfully deleted'}), 200
+
+
+@habit_bp.route('/delete-entry', methods=['DELETE'])
+@login_required
+def delete_entry():
+    """
+    require: entry_id: int, habit_id: int
+    """
+    data = request.get_json()
+
+    entry_id = data.get('entry_id')
+    entry_id_check = check_entity_id(entry_id)
+    if entry_id_check is not None:
+        return entry_id_check
+
+    entry_id = int(entry_id)
+
+    habit = get_habit(data, to_dataclass=False)
+
+    habit_type = habit.habit_type
+
+    try:
+        if habit_type == BOOL:
+            entry = HabitBoolCompletionDB.query.filter_by(habit_bool_id=entry_id, habit_id=habit.habit_id).first()
+
+        elif habit_type == MEASURE:
+            entry = MeasurementFloatDB.query.filter_by(measure_id=entry_id, habit_id=habit.habit_id).first()
+
+        elif habit_type == WATER:
+            entry = MeasurementIntDB.query.filter_by(measure_id=entry_id, habit_id=habit.habit_id).first()
+
+        elif habit_type == ACTIVITY:
+            entry = MeasurementActivityDB.query.filter_by(measure_id=entry_id, habit_id=habit.habit_id).first()
+
+        elif habit_type == MEAL:
+            entry = MealDB.query.filter_by(meal_id=entry_id, habit_id=habit.habit_id).first()
+
+        else:
+            return jsonify({'error': 'Unsupported habit type'}), 400
+
+        if not entry:
+            return jsonify({'error': 'Entry not found or not authorized'}), 404
+
+        db.session.delete(entry)
+        db.session.commit()
+
+        return jsonify({'message': 'Entry deleted'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Database error", "details": str(e)}), 500
 
