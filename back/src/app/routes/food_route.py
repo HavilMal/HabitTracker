@@ -2,7 +2,7 @@ from flask                   import Blueprint, request, jsonify
 from flask_login             import login_required
 
 from app                     import db
-from app.utils.food_database import fetch_product, create_meal
+from app.utils.food_database import fetch_products, get_product_details, create_meal
 
 food_bp = Blueprint('food', __name__)
 
@@ -19,7 +19,7 @@ def add_meal():
 
     create_meal(name=name, foods=items)
     db.session.commit()
-    return jsonify({'msg': "Meal saved"})
+    return jsonify({'msg': "Meal saved"}), 200
 
 
 @food_bp.route('/search-food', methods=['GET'])
@@ -29,8 +29,18 @@ def search_food():
     if not query:
         return jsonify({'error': "Missing search term"}), 400
     
-    result = fetch_product(query)
-    if result:
-        return jsonify(result)
+    products = fetch_products(query)
+    if products:
+        return jsonify(products), 200
     
     return jsonify({'error': "No product found"}), 404
+
+
+@food_bp.route('/food/<int:fdc_id>', methods=['GET'])
+@login_required
+def get_food_details(fdc_id):
+    details = get_product_details(fdc_id)
+    if not details:
+        return jsonify({'error': "Product not found"}), 404
+    
+    return jsonify(details), 200

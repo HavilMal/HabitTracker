@@ -2,7 +2,7 @@ from flask              import Flask
 from flask_sqlalchemy   import SQLAlchemy
 from flask_cors         import CORS
 from flask_login        import LoginManager
-from app.serializer import CustomJSONProvider
+from app.serializer     import CustomJSONProvider
 
 db                       = SQLAlchemy()
 login_manager            = LoginManager()

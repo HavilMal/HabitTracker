@@ -8,8 +8,11 @@ from flask_login import login_required, current_user
 from app.routes.food_route import create_meal
 from app                   import db
 from app.models            import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
-    HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB, MealDB
+    HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB, MealDB, FoodDB
 from app.logic.habit import HabitMeal
+
+    
+
 
 from app.constants import *
 from utils import check_entity_id, get_habit, check_entry_date
@@ -141,7 +144,7 @@ def add_habit_entry():
       - habit_measure:  { "date": "YYYY-MM-DD", "amount": 12.5 }
       - habit_water:    { "date": "YYYY-MM-DD", "amount": 2 }
       - habit_activity: { "activity_datetime": "...", "amount": 5.2, "duration_seconds": 3600, "calories": 300 }
-      - habit_meal:     {  }
+      - habit_meal:     { "name": "...", "foods": "[x, y, z]", "created_at": "..." }
     """
     data = request.get_json() or {}
     habit_id = data.get('habit_id')
@@ -161,7 +164,7 @@ def add_habit_entry():
     message = ''
 
     try:
-        if habit_type == 'bool':
+        if habit_type == BOOL:
             date_completion = data.get('date')
             if not date_completion:
                 return jsonify({"error": "`date` is required for boolean habits"}), 400
@@ -182,7 +185,7 @@ def add_habit_entry():
                 db.session.add(row)
                 message = 'Entry recorded'
 
-        elif habit_type == 'measure':
+        elif habit_type == MEASURE:
             date_completion = data.get('date')
             amount = data.get('amount')
 
@@ -210,7 +213,7 @@ def add_habit_entry():
                 db.session.add(row)
                 message = 'Entry recorded'
 
-        elif habit_type == 'water':
+        elif habit_type == WATER:
             date_completed = data.get('date')
             amount = data.get('amount')
             if date_completed is None or amount is None:
@@ -237,7 +240,7 @@ def add_habit_entry():
                 db.session.add(row)
                 message = 'Entry recorded'
 
-        elif habit_type == 'activity':
+        elif habit_type == ACTIVITY:
             try:
                 dt_iso = data['activity_datetime']
                 amount = float(data['amount'])
@@ -274,12 +277,11 @@ def add_habit_entry():
                 db.session.add(row)
                 message = 'Entry recorded'
 
-        elif habit_type == 'meal':
+        elif habit_type == MEAL:
             try:
                 name = data['name']
                 foods = data['foods']
                 created_at = data.get('created_at')
-
             except KeyError as e:
                 return jsonify({"error": f"Missing field: {str(e)}"}), 400
 
@@ -287,14 +289,37 @@ def add_habit_entry():
                     return jsonify({"error": "`foods` must be a non-empty list"}), 400
 
             try:
-                dt = datetime.datetime.fromisoformat(created_at) if created_at else None
+                dt = datetime.datetime.fromisoformat(created_at) if created_at else datetime.datetime.now(datetime.timezone.utc)
             except ValueError:
                 return jsonify({"error": "Invalid `created_at`, use ISO8601"}), 400
 
             if not check_entry_date(habit.start_date, dt):
                 return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
 
-            create_meal(name=name, foods=foods, habit_id=habit_id, created_at=dt)
+            existing_meal = MealDB.query.filter(
+                MealDB.habit_id == habit_id,
+                MealDB.user_id == current_user.uid,
+                db.func.date(MealDB.created_at) == dt.date()
+            ).first()              
+              
+            if existing_meal:
+                existing_meal.name = name
+                FoodDB.query.filter_by(meal_id=existing_meal.meal_id).delete()
+
+                for item in foods:
+                    nutrients = item.get('nutrients', {})
+                    food = FoodDB(
+                        name=item.get('product_name', 'Unknown'),
+                        calories=nutrients.get(CALORIES, 0),
+                        carb=nutrients.get(CARB, 0),
+                        prot=nutrients.get(PROT, 0),
+                        fat=nutrients.get(FAT, 0),
+                        grams=item.get('grams', 100),
+                        meal_id=existing_meal.meal_id
+                    )
+                    db.session.add(food)
+            else:
+                create_meal(name=name, foods=foods, habit_id=habit_id, created_at=dt)
 
         else:
             return jsonify({"error": f"Unsupported habit_type: {habit_type}"}), 400
@@ -408,7 +433,9 @@ def get_habit_summary():
         return jsonify({'summary': []}), 200
 
     min_date_str = min(earliest_dates)
-    min_date = datetime.datetime.fromisoformat(min_date_str)
+
+    min_date = datetime.datetime.fromisoformat(min_date_str).date()
+
 
     curr_date = min_date
     curr_date_str = min_date.isoformat()
