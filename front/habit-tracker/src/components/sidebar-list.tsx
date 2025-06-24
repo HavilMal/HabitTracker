@@ -4,13 +4,26 @@ import {
 } from "@/components/ui/sidebar.tsx";
 import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {CookingPot, Dumbbell, RefreshCcw, GlassWater, ChevronDown, Home} from "lucide-react"
+import {CookingPot, Dumbbell, RefreshCcw, GlassWater, ChevronDown, Home, Trash} from "lucide-react"
 import {Link} from "@tanstack/react-router";
 import {type JSX} from "react";
 import {useHabits} from "@/hooks/habit-provider.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {useAuth} from "@/hooks/auth.tsx";
-import {useNavigate, useRouter} from "@tanstack/react-router";
+import {useNavigate, useParams, useRouter} from "@tanstack/react-router";
+import {toast} from "sonner";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 type Habit = {
 	id: number;
@@ -31,7 +44,40 @@ type HabitCategory = {
 	habits: Habit[];
 }
 
+
 function HabitCategoryList({category}: { category: HabitCategory }) {
+	const {refreshHabits} = useHabits();
+	const navigate = useNavigate();
+	const params = useParams({strict: false})
+
+	//todo
+	async function deleteHabit(id: number) {
+		try {
+			const response = await fetch(import.meta.env.VITE_API_URL + "detete-habit",
+				{
+					credentials: "include",
+					mode: "cors",
+					method: "POST",
+					headers: {
+						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
+						"Content-Type": "application/json; charset=utf-8",
+					},
+					body: JSON.stringify({id: id}),
+				})
+
+			if (response.ok) {
+				if (Number(params?.id) === id) {
+					await navigate({to: "/dashboard"})
+				}
+				refreshHabits();
+			} else {
+				toast.error("Failed to delete habit");
+			}
+		} catch (e) {
+			toast.error("Failed to delete habit", {description: "Could not connect to the server"});
+		}
+	}
+
 	return (
 		<Collapsible defaultOpen className="group/collapsible">
 			<SidebarGroup>
@@ -48,10 +94,38 @@ function HabitCategoryList({category}: { category: HabitCategory }) {
 					<SidebarMenuSub>
 						{category.habits.length > 0 ?
 							category.habits.map((habit: Habit) => (
-								<SidebarMenuItem key={habit.id}>
+								<SidebarMenuItem key={habit.id} className="flex flex-1 flex-row">
 									<SidebarMenuButton asChild>
-										{/*todo refactor*/}
-										<Link to={category.url + "/" + habit.id.toString()}>{habit.name}</Link>
+										<Link to={category.url + "/" + habit.id.toString()} className="">{habit.name}</Link>
+									</SidebarMenuButton>
+									<SidebarMenuButton asChild className="w-[32px]">
+
+										<AlertDialog>
+											<AlertDialogTrigger asChild>
+												<SidebarMenuButton asChild className="w-[32px]">
+													<Trash/>
+												</SidebarMenuButton>
+											</AlertDialogTrigger>
+											<AlertDialogContent>
+												<AlertDialogHeader>
+													<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+													<AlertDialogDescription>
+														This action cannot be undone. It will permanently destroy all your data and you will not be
+														able to recover it.
+													</AlertDialogDescription>
+												</AlertDialogHeader>
+												<AlertDialogFooter>
+													<AlertDialogCancel>Cancel</AlertDialogCancel>
+													<AlertDialogAction
+														className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
+														onClick={() => deleteHabit(habit.id)}
+													>
+														Confirm
+													</AlertDialogAction>
+												</AlertDialogFooter>
+											</AlertDialogContent>
+										</AlertDialog>
+
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							))
