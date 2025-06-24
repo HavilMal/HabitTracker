@@ -22,7 +22,7 @@ class Habit(metaclass=abc.ABCMeta):
 
     @staticmethod
     def get_dates(start_date, end_date):
-        return [start_date + datetime.timedelta(days=x) for x in range((end_date - start_date.date()).days + 1)]
+        return [start_date.date() + datetime.timedelta(days=x) for x in range((end_date - start_date.date()).days + 1)]
 
     def get_longest_streak(self) -> tuple[str, str, int]:
         """
@@ -99,6 +99,7 @@ class HabitBool(Habit):
         all_dates: list[datetime.date] = self.get_dates(self.start_date, datetime.date.today())
         history: list[tuple[str, int]] = []
         completed_days_set = set(self.completed_days)
+
         auto_completed_days_after = 0
 
         for date in all_dates:
@@ -159,7 +160,7 @@ class HabitMeasure(Habit):
 
         measurements_by_day = defaultdict(list)
         for m in self.measurements:
-            measurements_by_day[m.date].append(m.amount)
+            measurements_by_day[m.date.date()].append(m.amount)
 
         if self.freq_type == DAILY:
             for date in all_dates:
@@ -228,7 +229,7 @@ class HabitDrinkingWater(Habit):
 
         measurements_by_day = defaultdict(list)
         for m in self.measurements:
-            measurements_by_day[m.date].append(m.amount)
+            measurements_by_day[m.date.date()].append(m.amount)
 
         for date in all_dates:
             daily_measurement = measurements_by_day.get(date, [])

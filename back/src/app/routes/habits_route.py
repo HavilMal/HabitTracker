@@ -362,8 +362,7 @@ def get_habits_to_do():
 @habit_bp.route('/get-habit-history', methods=['GET'])
 @login_required
 def get_habit_history():
-    data = request.get_json()
-    habit_id = data.get('habit_id')
+    habit_id = request.args.get('habit_id')
 
     if habit_id is None:
         return jsonify({'error': 'Missing data in request'}), 400
@@ -399,7 +398,7 @@ def get_habit_summary():
         return jsonify({'summary': []}), 200
 
     min_date_str = min(earliest_dates)
-    min_date = datetime.date.fromisoformat(min_date_str)
+    min_date = datetime.datetime.fromisoformat(min_date_str).date()
 
     curr_date = min_date
     curr_date_str = min_date.isoformat()
@@ -434,8 +433,7 @@ def get_habit_summary():
 @habit_bp.route('/get-habit-stats', methods=['GET'])
 @login_required
 def get_habit_stats():
-    data = request.get_json()
-    habit_id = data.get('habit_id')
+    habit_id = request.args.get('habit_id')
 
     if habit_id is None:
         return jsonify({'error': 'Missing data in request'}), 400
