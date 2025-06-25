@@ -522,12 +522,14 @@ def delete_entry():
     """
     data = request.get_json()
 
-    entry_id = data.get('entry_id')
-    entry_id_check = check_entity_id(entry_id)
-    if entry_id_check is not None:
-        return entry_id_check
+    entry_dt = data.get('entry_dt')
 
-    entry_id = int(entry_id)
+    if entry_dt is None:
+        return jsonify({"error": "`entry_dt` required"}), 400
+    try:
+        entry_dt = datetime.datetime.fromisoformat(entry_dt)
+    except ValueError:
+        return jsonify({"error": "invalid `date`, use ISO8601"}), 400
 
     habit = get_habit(data, to_dataclass=False)
 
@@ -535,19 +537,19 @@ def delete_entry():
 
     try:
         if habit_type == BOOL:
-            entry = HabitBoolCompletionDB.query.filter_by(habit_bool_id=entry_id, habit_id=habit.habit_id).first()
+            entry = HabitBoolCompletionDB.query.filter_by(habit_id=habit.habit_id, date=entry_dt.date()).first()
 
         elif habit_type == MEASURE:
-            entry = MeasurementFloatDB.query.filter_by(measure_id=entry_id, habit_id=habit.habit_id).first()
+            entry = MeasurementFloatDB.query.filter_by(habit_id=habit.habit_id, date=entry_dt).first()
 
         elif habit_type == WATER:
-            entry = MeasurementIntDB.query.filter_by(measure_id=entry_id, habit_id=habit.habit_id).first()
+            entry = MeasurementIntDB.query.filter_by(habit_id=habit.habit_id, date=entry_dt).first()
 
         elif habit_type == ACTIVITY:
-            entry = MeasurementActivityDB.query.filter_by(measure_id=entry_id, habit_id=habit.habit_id).first()
+            entry = MeasurementActivityDB.query.filter_by(habit_id=habit.habit_id, activity_datetime=entry_dt).first()
 
         elif habit_type == MEAL:
-            entry = MealDB.query.filter_by(meal_id=entry_id, habit_id=habit.habit_id).first()
+            entry = MealDB.query.filter_by(habit_id=habit.habit_id, created_at=entry_dt).first()
 
         else:
             return jsonify({'error': 'Unsupported habit type'}), 400
@@ -563,4 +565,3 @@ def delete_entry():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Database error", "details": str(e)}), 500
-
