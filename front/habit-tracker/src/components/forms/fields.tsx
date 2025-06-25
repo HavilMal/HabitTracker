@@ -1,6 +1,6 @@
 import type {
 	ActivitySchema,
-	BoolSchema,
+	BoolSchema, FoodSchema,
 	HabitSchema,
 	MealSchema,
 	MeasureSchema,
@@ -231,6 +231,24 @@ export function TargetDataUnitField<T extends MealSchema>({form}: { form: UseFor
 							<SelectItem value="fat">Fat</SelectItem>
 						</SelectContent>
 					</Select>
+					<FormMessage/>
+				</FormItem>
+			)}
+		/>
+	)
+}
+
+export function FoodFormField({form, fieldName, fieldLabel}: { form: UseFormReturn<FoodSchema>, fieldName: Path<FoodSchema>, fieldLabel: string }) {
+	return (
+		<FormField
+			control={form.control}
+			name={fieldName}
+			render={({field}) => (
+				<FormItem className="gap-2">
+					<FormLabel>{fieldLabel}</FormLabel>
+					<FormControl>
+						<NumberInput field={field} placeholder="value" {...field}/>
+					</FormControl>
 					<FormMessage/>
 				</FormItem>
 			)}

@@ -11,11 +11,11 @@ from app.models            import HabitBoolDB, HabitMeasureDB, HabitDrinkingWate
     HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB, MealDB, FoodDB
 from app.logic.habit import HabitMeal
 
-    
+
 
 
 from app.constants import *
-from utils import check_entity_id, get_habit, check_entry_date
+from app.routes.utils import check_entity_id, get_habit, check_entry_date
 
 habit_bp = Blueprint('habit', __name__)
 
@@ -42,7 +42,7 @@ def add_habit():
                 habit_type=habit_type,
                 user_id=current_user.uid
             )
-        
+
         elif habit_type == MEASURE:
             habit = HabitMeasureDB(
                 name=name,
@@ -285,9 +285,6 @@ def add_habit_entry():
             except KeyError as e:
                 return jsonify({"error": f"Missing field: {str(e)}"}), 400
 
-            if not isinstance(foods, list) or not foods:
-                    return jsonify({"error": "`foods` must be a non-empty list"}), 400
-
             try:
                 dt = datetime.datetime.fromisoformat(created_at) if created_at else datetime.datetime.now(datetime.timezone.utc)
             except ValueError:
@@ -300,20 +297,19 @@ def add_habit_entry():
                 MealDB.habit_id == habit_id,
                 MealDB.user_id == current_user.uid,
                 db.func.date(MealDB.created_at) == dt.date()
-            ).first()              
-              
+            ).first()
+
             if existing_meal:
                 existing_meal.name = name
                 FoodDB.query.filter_by(meal_id=existing_meal.meal_id).delete()
 
                 for item in foods:
-                    nutrients = item.get('nutrients', {})
                     food = FoodDB(
                         name=item.get('product_name', 'Unknown'),
-                        calories=nutrients.get(CALORIES, 0),
-                        carb=nutrients.get(CARB, 0),
-                        prot=nutrients.get(PROT, 0),
-                        fat=nutrients.get(FAT, 0),
+                        calories=item.get(CALORIES, 0),
+                        carb=item.get(CARB, 0),
+                        prot=item.get(PROT, 0),
+                        fat=item.get(FAT, 0),
                         grams=item.get('grams', 100),
                         meal_id=existing_meal.meal_id
                     )
@@ -507,7 +503,7 @@ def delete_habit():
     """
     data = request.get_json()
 
-    res = get_habit(data)
+    res = get_habit(data, to_dataclass=False)
 
     if isinstance(res, tuple):
         return res
@@ -526,32 +522,37 @@ def delete_entry():
     """
     data = request.get_json()
 
-    entry_id = data.get('entry_id')
-    entry_id_check = check_entity_id(entry_id)
-    if entry_id_check is not None:
-        return entry_id_check
+    entry_dt = data.get('entry_dt')
 
-    entry_id = int(entry_id)
+    if entry_dt is None:
+        return jsonify({"error": "`entry_dt` required"}), 400
+    try:
+        entry_dt = datetime.datetime.fromisoformat(entry_dt)
+    except ValueError:
+        return jsonify({"error": "invalid `date`, use ISO8601"}), 400
 
     habit = get_habit(data, to_dataclass=False)
+
+    if isinstance(habit, tuple):
+        return habit
 
     habit_type = habit.habit_type
 
     try:
         if habit_type == BOOL:
-            entry = HabitBoolCompletionDB.query.filter_by(habit_bool_id=entry_id, habit_id=habit.habit_id).first()
+            entry = HabitBoolCompletionDB.query.filter_by(habit_id=habit.habit_id, date=entry_dt.date()).first()
 
         elif habit_type == MEASURE:
-            entry = MeasurementFloatDB.query.filter_by(measure_id=entry_id, habit_id=habit.habit_id).first()
+            entry = MeasurementFloatDB.query.filter_by(habit_id=habit.habit_id, date=entry_dt).first()
 
         elif habit_type == WATER:
-            entry = MeasurementIntDB.query.filter_by(measure_id=entry_id, habit_id=habit.habit_id).first()
+            entry = MeasurementIntDB.query.filter_by(habit_id=habit.habit_id, date=entry_dt).first()
 
         elif habit_type == ACTIVITY:
-            entry = MeasurementActivityDB.query.filter_by(measure_id=entry_id, habit_id=habit.habit_id).first()
+            entry = MeasurementActivityDB.query.filter_by(habit_id=habit.habit_id, activity_datetime=entry_dt).first()
 
         elif habit_type == MEAL:
-            entry = MealDB.query.filter_by(meal_id=entry_id, habit_id=habit.habit_id).first()
+            entry = MealDB.query.filter_by(habit_id=habit.habit_id, created_at=entry_dt).first()
 
         else:
             return jsonify({'error': 'Unsupported habit type'}), 400
@@ -567,4 +568,3 @@ def delete_entry():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Database error", "details": str(e)}), 500
-

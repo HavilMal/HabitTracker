@@ -88,7 +88,7 @@ export function StreakChart({className}: { className?: string }) {
 	let angle = undefined;
 	let chartData = undefined;
 
-	if (data !== undefined) {
+	if (data !== undefined && data.streaks.length > 0) {
 		maxStreak = data.streaks.reduce((max, curr) =>
 			curr.length_days > max.length_days ? curr : max
 		);
@@ -144,7 +144,7 @@ export function StreakChart({className}: { className?: string }) {
 														y={viewBox.cy}
 														className="fill-foreground text-4xl font-bold"
 													>
-														{maxStreak?.length_days}
+														{maxStreak?.length_days || 0}
 													</tspan>
 													<tspan
 														x={viewBox.cx}

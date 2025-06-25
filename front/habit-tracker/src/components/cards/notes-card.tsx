@@ -54,9 +54,6 @@ export function NotesCard({data}: { data: Habit }) {
 							<Button type="submit" className="flex flex-1" onClick={handleSubmit}>
 								Submit
 							</Button>
-							<Button type="submit" variant="destructive" className="flex flex-1" onClick={handleSubmit}>
-								Delete
-							</Button>
 						</CardFooter>
 					</Card>
 				</form>

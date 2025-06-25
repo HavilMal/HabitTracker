@@ -12,9 +12,10 @@ export function NumberInput<T extends FieldValues, K extends Path<T>>({field, cl
 		<Input
 			{...field} placeholder={placeholder} type="text" onChange={(e) => {
 			const sanitized = e.target.value.replace(/[^0-9]/g, "");
-			field.onChange(sanitized === "" ? "" : Number(sanitized));
+			field.onChange(sanitized === "" ? 0 : Number(sanitized));
 		}}
 			className={cn("[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none", className)}
+			autoComplete={"off"}
 		/>
 	)
 }

@@ -65,3 +65,16 @@ export async function fetchHabitStats<T extends Stats | History>({id, endpoint =
 
 	return res.json();
 }
+
+
+
+
+
+export function daysBetween(date1: string) {
+	const oneDayMs = 1000 * 60 * 60 * 24; // milliseconds in a day
+	const d1 = new Date(date1);
+	const d2 = new Date();
+
+	const diffInMs = Math.abs(d2 - d1); // get absolute difference
+	return Math.ceil(diffInMs / oneDayMs);
+}

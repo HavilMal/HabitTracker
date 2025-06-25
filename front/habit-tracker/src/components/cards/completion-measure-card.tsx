@@ -11,19 +11,19 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import {type MeasureHabit, useHabits} from "@/hooks/habit-provider.tsx";
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
-import {toDateString, compareDateStrings, getLastDays} from "@/lib/utils.ts";
-import {onSubmit} from "@/lib/form-submit.ts";
+import {toDateString, compareDateStrings, getLastDays, daysBetween} from "@/lib/utils.ts";
+import {deleteEntry, onSubmit} from "@/lib/form-submit.ts";
 
 const formSchema = z.object({
 	date: z.string(),
 	amount: z.number(),
 })
 
-export default function CompletionMeasureCard({numberOfDays = 7, data}: {
-	numberOfDays?: number,
+export default function CompletionMeasureCard({data}: {
 	data: MeasureHabit,
 }) {
-	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
+	const n = Math.min(7, daysBetween(data.start_date))
+	const lastWeekDays = getLastDays(n).map(toDateString);
 	const currentDay = lastWeekDays[lastWeekDays.length - 1];
 	const currentMeasurement = data.measurements.find(val => compareDateStrings(val.date, currentDay))
 	const labels = lastWeekDays.map(s => s.split("-")[2])
@@ -40,8 +40,8 @@ export default function CompletionMeasureCard({numberOfDays = 7, data}: {
 	return (
 		<Form {...form}>
 			<form className="flex flex-1 flex-col" onSubmit={form.handleSubmit((values => onSubmit(
-			values, data, form, refreshHabits, "habit/entry", "Failed to save progress", "Could not connect to the server"
-		)))}>
+				values, data, form, refreshHabits, "habit/entry", "Failed to save progress", "Could not connect to the server"
+			)))}>
 				<Card className="flex flex-1">
 
 					<CardHeader>
@@ -111,7 +111,10 @@ export default function CompletionMeasureCard({numberOfDays = 7, data}: {
 							<Button className="flex-1 w-full" type="submit">Submit</Button>
 						</FormControl>
 						<FormControl>
-							<Button className="flex-1 w-full" type="submit" variant="destructive">Delete</Button>
+							<Button className="flex-1 w-full" type="button" variant="destructive" onClick={() => {
+								deleteEntry(data.id, form.getValues("date"), data.type, refreshHabits);
+								form.reset({})
+							}}>Delete</Button>
 						</FormControl>
 					</CardFooter>
 				</Card>

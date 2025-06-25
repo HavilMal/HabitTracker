@@ -27,3 +27,25 @@ export async function onSubmit<T, K extends Habit, J extends FieldValues>(values
 		toast.error(message, {description: description});
 	}
 }
+
+export async function deleteEntry(habit_id: number, date: string, habit_type: "bool" | "measure" | "water" | "activity" | "meal", refreshHabits: () => void) {
+	try {
+		const url = new URL(import.meta.env.VITE_API_URL + "delete-entry");
+		const response = await fetch(url.toString(), {
+			credentials: "include",
+			mode: "cors",
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json; charset=utf-8",
+			},
+			body: JSON.stringify({entry_dt: date, habit_type: habit_type, habit_id}),
+		});
+		if (response.ok) {
+			refreshHabits();
+		} else {
+			toast.error("Failed to delete entry");
+		}
+	} catch (e) {
+		toast.error("Failed to delete entry", {description: "Could not connect to the server."});
+	}
+}

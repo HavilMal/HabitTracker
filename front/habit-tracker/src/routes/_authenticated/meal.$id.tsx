@@ -9,6 +9,7 @@ import {useHabits} from "@/hooks/habit-provider.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {useQuery} from "@tanstack/react-query";
 import {fetchHabitStats, type Stats, type History} from "@/lib/utils.ts";
+import {NotesCard} from "@/components/cards/notes-card.tsx";
 
 
 export const Route = createFileRoute('/_authenticated/meal/$id')({
@@ -63,10 +64,9 @@ function RouteComponent() {
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-h-full h-full">
 			<LineplotCard chartData={chartData} accessKey="stats" className="flex h-full" title="Habit completion"
 			              description="Percentage of habits completed up to given date"/>
-			<CompletionMealCard className="flex h-full"/>
+			<CompletionMealCard data={data}/>
 			<CalendarCard history={history} className="flex h-full"/>
-			<CaloriesCard className="flex h-full"/>
-			{/*	todo notes card*/}
+			<NotesCard data={data}/>
 		</div>
 	)
 }
