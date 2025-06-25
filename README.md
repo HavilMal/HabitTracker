@@ -120,6 +120,8 @@ HabitTracker/
 ```
 
 ## Screenshots
+- Dashboard
+  ![Dashboard]()
 ### Habit completion examples
 - Yes/no habit:
   ![Yes/no habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150510.png)
