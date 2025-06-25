@@ -101,7 +101,10 @@ export default function CompletionWaterCard({numberOfDays = 7, data}: {
 							<Button className="flex-1 w-full" type="submit">Submit</Button>
 						</FormControl>
 						<FormControl>
-							<Button className="flex-1 w-full" type="submit" variant="destructive" onClick={() => deleteEntry(form.getValues("date"), data.type, refreshHabits)}>Delete</Button>
+							<Button className="flex-1 w-full" type="submit" variant="destructive" onClick={() => {
+								deleteEntry(data.id, form.getValues("date"), data.type, refreshHabits);
+								form.reset({});
+							}}>Delete</Button>
 						</FormControl>
 					</CardFooter>
 				</Card>
