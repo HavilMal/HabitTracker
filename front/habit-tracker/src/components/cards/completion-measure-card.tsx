@@ -12,7 +12,7 @@ import {ChevronLeft, ChevronRight} from "lucide-react";
 import {type MeasureHabit, useHabits} from "@/hooks/habit-provider.tsx";
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
 import {toDateString, compareDateStrings, getLastDays, daysBetween} from "@/lib/utils.ts";
-import {onSubmit} from "@/lib/form-submit.ts";
+import {deleteEntry, onSubmit} from "@/lib/form-submit.ts";
 
 const formSchema = z.object({
 	date: z.string(),
@@ -111,7 +111,7 @@ export default function CompletionMeasureCard({ data}: {
 							<Button className="flex-1 w-full" type="submit">Submit</Button>
 						</FormControl>
 						<FormControl>
-							<Button className="flex-1 w-full" type="submit" variant="destructive">Delete</Button>
+							<Button className="flex-1 w-full" type="button" variant="destructive" onClick={() => deleteEntry(form.getValues("date"), data.type, refreshHabits)}>Delete</Button>
 						</FormControl>
 					</CardFooter>
 				</Card>

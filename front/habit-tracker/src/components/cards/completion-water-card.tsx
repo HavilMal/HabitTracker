@@ -13,7 +13,7 @@ import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
 import {toDateString, compareDateStrings, getLastDays} from "@/lib/utils.ts";
 import {Slider} from "@/components/ui/slider.tsx";
-import {onSubmit} from "@/lib/form-submit.ts";
+import {deleteEntry, onSubmit} from "@/lib/form-submit.ts";
 
 const formSchema = z.object({
 	date: z.string(),
@@ -101,7 +101,7 @@ export default function CompletionWaterCard({numberOfDays = 7, data}: {
 							<Button className="flex-1 w-full" type="submit">Submit</Button>
 						</FormControl>
 						<FormControl>
-							<Button className="flex-1 w-full" type="submit" variant="destructive">Delete</Button>
+							<Button className="flex-1 w-full" type="submit" variant="destructive" onClick={() => deleteEntry(form.getValues("date"), data.type, refreshHabits)}>Delete</Button>
 						</FormControl>
 					</CardFooter>
 				</Card>
