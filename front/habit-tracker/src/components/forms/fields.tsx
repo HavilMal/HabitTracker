@@ -187,6 +187,38 @@ export function FrequencyTypeField<T extends MeasureSchema | BoolSchema | Activi
 		/>
 	)
 }
+export function BoolFrequencyTypeField({form}: {
+	form: UseFormReturn<BoolSchema>
+}) {
+	return (
+		<FormField
+			control={form.control}
+			name={"freq_type"}
+			render={({field}) => (
+				<FormItem className="gap-2">
+					<FormLabel>Frequency</FormLabel>
+					<Select
+						onValueChange={(value: BoolSchema["freq_type"]) => {
+							field.onChange(value);
+						}}
+						value={field.value as string}>
+						<FormControl>
+							<SelectTrigger className="w-full">
+								<SelectValue placeholder="Select the type of habit"/>
+							</SelectTrigger>
+						</FormControl>
+						<SelectContent>
+							<SelectItem value="daily">Daily</SelectItem>
+							<SelectItem value="every_n_days">Number of Days</SelectItem>
+						</SelectContent>
+					</Select>
+					<FormMessage/>
+				</FormItem>
+			)}
+		/>
+	)
+}
+
 
 export function FrequencyValueField<T extends BoolSchema>({form}: { form: UseFormReturn<T> }) {
 	return (
