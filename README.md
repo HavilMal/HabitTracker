@@ -120,3 +120,14 @@ HabitTracker/
 ```
 
 ## Screenshots
+### Habit completion examples
+- Yes/no habit:
+  ![Yes/no habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150510.png)
+- Measurement habit:
+  ![Measurement habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150522.png)
+- Activity habit:
+  ![Activity habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150537.png)
+- Drinking water habit:
+  ![Drinking water habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150549.png)
+- Eating habit:
+  ![Eating habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150605.png)
