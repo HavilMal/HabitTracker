@@ -131,3 +131,6 @@ HabitTracker/
   ![Drinking water habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150549.png)
 - Eating habit:
   ![Eating habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150605.png)
+
+## Notes
+This project was developed as a part of the “Języki Skryptowe” (Scripting Languages) course at Wrocław University of Science and Technology (Politechnika Wrocławska).
