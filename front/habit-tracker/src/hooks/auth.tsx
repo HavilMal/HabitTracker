@@ -12,14 +12,12 @@ export interface AuthContext {
 
 const AuthContext = createContext<AuthContext | null>(null);
 
-// todo change
 const key = "tanstack.auth.user"
 
 function getStoredUser() {
 	return localStorage.getItem(key);
 }
 
-// todo change from local storage to cookie
 function setStoredUser(user: string | null) {
 	if (user) {
 		localStorage.setItem(key, user)

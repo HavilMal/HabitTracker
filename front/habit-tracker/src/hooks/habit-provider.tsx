@@ -54,7 +54,6 @@ export type ActivityHabit = Habit & {
 	measurements: ActivityMeasurement[],
 }
 
-// todo check
 export type Food = [{
 	id: number,
 	name: string,

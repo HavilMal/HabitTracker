@@ -50,7 +50,6 @@ function HabitCategoryList({category}: { category: HabitCategory }) {
 	const navigate = useNavigate();
 	const params = useParams({strict: false})
 
-	//todo
 	async function deleteHabit(id: number) {
 		try {
 			const response = await fetch(import.meta.env.VITE_API_URL + "delete-habit",

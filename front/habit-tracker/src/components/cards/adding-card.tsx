@@ -49,7 +49,6 @@ function AddingForm({selectedType}: {
 		defaultValues: formDefaults[selectedType],
 	})
 
-	// todo navigate to previous page
 	async function onSubmit(values: z.infer<typeof schema>) {
 		try {
 			const response = await fetch(import.meta.env.VITE_API_URL + "add-habit",
