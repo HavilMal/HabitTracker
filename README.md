@@ -121,18 +121,18 @@ HabitTracker/
 
 ## Screenshots
 - Dashboard
-  ![Dashboard](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/image.png)
+  ![Dashboard](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/image.png)
 ### Habit completion examples
 - Yes/no habit:
-  ![Yes/no habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150510.png)
+  ![Yes/no habit](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/Zrzut_ekranu_2025-06-25_150510.png)
 - Measurement habit:
-  ![Measurement habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150522.png)
+  ![Measurement habit](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/Zrzut_ekranu_2025-06-25_150522.png)
 - Activity habit:
-  ![Activity habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150537.png)
+  ![Activity habit](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/Zrzut_ekranu_2025-06-25_150537.png)
 - Drinking water habit:
-  ![Drinking water habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150549.png)
+  ![Drinking water habit](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/Zrzut_ekranu_2025-06-25_150549.png)
 - Eating habit:
-  ![Eating habit](https://github.com/HavilMal/HabitTracker/blob/featute/readme/screenshots/Zrzut_ekranu_2025-06-25_150605.png)
+  ![Eating habit](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/Zrzut_ekranu_2025-06-25_150605.png)
 
 ## Notes
 This project was developed as a part of the “Języki Skryptowe” (Scripting Languages) course at Wrocław University of Science and Technology (Politechnika Wrocławska).
