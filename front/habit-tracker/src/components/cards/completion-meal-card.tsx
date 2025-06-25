@@ -27,6 +27,7 @@ import {FoodFormField} from "@/components/forms/fields.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {useEffect, useState} from "react";
 import {onSubmit} from "@/lib/form-submit.ts";
+import SearchBar from "@/components/search-bar.tsx";
 
 const dataUnitName = {
 	"prot": "proteins",
@@ -71,6 +72,7 @@ function AddIngredient({handleSubmit, foodForm, disabled = false, className, chi
 							</DialogDescription>
 						</DialogHeader>
 						<div className="grid gap-6 py-6">
+							<SearchBar form={foodForm}/>
 							<FormField
 								control={foodForm.control}
 								name={"product_name"}

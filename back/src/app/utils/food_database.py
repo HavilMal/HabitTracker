@@ -26,9 +26,14 @@ def get_product_details(product_id: int) -> dict | None:
     data      = response.json()
     nutrients = {}
 
-    for nutrient in data.get('foodNutrients', []):
-        name  = nutrient.get('nutrientName', '').lower()
-        value = nutrient.get('value', 0)
+    for n in data.get('foodNutrients', []):
+        nutrient = n.get('nutrient', None)
+
+        if not nutrient:
+            return None
+
+        value = n.get('amount', 0)
+        name  = nutrient.get('name', '').lower()
         unit  = nutrient.get('unitName', '')
 
         if DB_ENERGY in name and DB_ENERGY_UNIT in unit.lower():
