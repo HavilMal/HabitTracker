@@ -1,29 +1,28 @@
-import requests, os
-from datetime      import datetime, timezone
+import requests
+from datetime import datetime, timezone
 
-from flask_login   import current_user
+from flask_login import current_user
 
-from app.config        import Config
-from app           import db
-from app.models    import MealDB, FoodDB
+from app.config import Config
+from app import db
+from app.models import MealDB, FoodDB
 from app.constants import *
-
 
 db_api_key = Config.DB_API_KEY
 
 
 def get_product_details(product_id: int) -> dict | None:
-    '''Returns kcal and nutrients of the product with given id'''
+    """Returns kcal and nutrients of the product with given id"""
     if not db_api_key:
         raise RuntimeError("DB_API_KEY is not set")
-    
-    url      = f"{DB_URL}/food/{product_id}"
-    params   = {'api_key': db_api_key}
+
+    url = f"{DB_URL}/food/{product_id}"
+    params = {'api_key': db_api_key}
     response = requests.get(url, params=params)
     if not response.ok:
         return None
-    
-    data      = response.json()
+
+    data = response.json()
     nutrients = {}
 
     for n in data.get('foodNutrients', []):
@@ -33,8 +32,8 @@ def get_product_details(product_id: int) -> dict | None:
             return None
 
         value = n.get('amount', 0)
-        name  = nutrient.get('name', '').lower()
-        unit  = nutrient.get('unitName', '')
+        name = nutrient.get('name', '').lower()
+        unit = nutrient.get('unitName', '')
 
         if DB_ENERGY in name and DB_ENERGY_UNIT in unit.lower():
             nutrients[CALORIES] = value
@@ -52,30 +51,31 @@ def get_product_details(product_id: int) -> dict | None:
 
 
 def fetch_products(query: str) -> list[dict]:
-    '''Fetches food list from the database'''
+    """Fetches food list from the database"""
     if not db_api_key:
         raise RuntimeError("DB_API_KEY is not set")
-    
-    url    = f"{DB_URL}/foods/search"
+
+    url = f"{DB_URL}/foods/search"
     params = {
-        'query':    query,
+        'query': query,
         'pageSize': DB_PAGE_SIZE,
-        'api_key':  db_api_key
+        'api_key': db_api_key
     }
     response = requests.get(url, params=params)
     if not response.ok:
         return []
-    
+
     foods = response.json().get('foods', [])
     return [{
-        DB_FOOD_ID:    item.get(DB_FOOD_ID),
-        DB_FOOD_DESC:  item.get(DB_FOOD_DESC),
+        DB_FOOD_ID: item.get(DB_FOOD_ID),
+        DB_FOOD_DESC: item.get(DB_FOOD_DESC),
         DB_FOOD_BRAND: item.get(DB_FOOD_BRAND, ''),
         DB_FOOD_SCORE: item.get(DB_FOOD_SCORE, 0)
     } for item in foods]
 
 
-def create_meal(name: str, foods: list[dict], habit_id: int | None = None, created_at: datetime | None = None) -> MealDB:
+def create_meal(name: str, foods: list[dict], habit_id: int | None = None,
+                created_at: datetime | None = None) -> MealDB:
     if created_at is None:
         created_at = datetime.now(timezone.utc)
 

@@ -48,7 +48,6 @@ def test_stat_completion():
     print(habit.get_completion_stats())
 
 
-
 if __name__ == '__main__':
     # test_habit_dates()
     # test_habit_completion()

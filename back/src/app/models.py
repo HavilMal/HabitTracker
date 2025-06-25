@@ -11,7 +11,7 @@ from app.constants      import *
 
 
 class UserDB(UserMixin, db.Model):
-    '''Class representing an user in the database'''
+    """Class representing an user in the database"""
     __tablename__ = 'user_db'
     uid           = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(64), unique=True, nullable=False)
@@ -20,19 +20,19 @@ class UserDB(UserMixin, db.Model):
     habits        = db.relationship('HabitDB', back_populates='user', lazy=True, cascade="all, delete-orphan")
 
     def set_password(self, password: str) -> None:
-        '''Setting the password'''
+        """Setting the password"""
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password: str) -> bool:
-        '''Checking for the password match'''
+        """Checking for the password match"""
         return check_password_hash(self.password_hash, password)
 
     def get_id(self):
         return self.uid
-    
+
 
 class HabitDB(db.Model):
-    '''Class representing a habit in the database'''
+    """Class representing a habit in the database"""
     __tablename__   = 'habit'
     habit_id        = db.Column(db.Integer, primary_key=True)
     name            = db.Column(db.String(255), nullable=False)
@@ -49,7 +49,7 @@ class HabitDB(db.Model):
 
 
 class HabitBoolDB(HabitDB):
-    '''Class representing a marked habit in the database'''
+    """Class representing a marked habit in the database"""
     __tablename__   = 'habit_bool'
     habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
     freq_type       = db.Column(db.String(64))
@@ -58,12 +58,12 @@ class HabitBoolDB(HabitDB):
     __mapper_args__ = {'polymorphic_identity': BOOL}
 
     def to_dataclass(self) -> HabitBool:
-        '''Converts this database object to a HabitBool dataclass'''
+        """Converts this database object to a HabitBool dataclass"""
         habit = HabitBool(
             self.name,
             self.start_date,
             self.freq_type,
-            self.freq_value, 
+            self.freq_value,
             self.notes
         )
         list_completions     = cast(list[HabitBoolCompletionDB], self.completions)
@@ -72,7 +72,7 @@ class HabitBoolDB(HabitDB):
 
 
 class HabitBoolCompletionDB(db.Model):
-    '''Class representing a single completion entry for a HabitBoolDB'''
+    """Class representing a single completion entry for a HabitBoolDB"""
     __tablename__ = 'habit_bool_completion'
     habit_bool_id = db.Column(db.Integer, primary_key=True)
     habit_id      = db.Column(db.Integer, db.ForeignKey('habit_bool.habit_id'))
@@ -80,18 +80,18 @@ class HabitBoolCompletionDB(db.Model):
 
 
 class HabitMeasureDB(HabitDB):
-    '''Class representing a measurable habit in the database'''
+    """Class representing a measurable habit in the database"""
     __tablename__   = 'habit_measure'
     habit_meas_id   = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
     freq_type       = db.Column(db.String(64))
     unit            = db.Column(db.String(64))
     target_value    = db.Column(db.Float)
-    target_type     = db.Column(db.String(32)) 
+    target_type     = db.Column(db.String(32))
     measurements    = db.relationship('MeasurementFloatDB', backref='habit', lazy=True, cascade='all, delete-orphan')
     __mapper_args__ = {'polymorphic_identity': MEASURE}
 
     def to_dataclass(self) -> HabitMeasure:
-        '''Converts HabitMeasureDB database object to a HabitMeasure dataclass'''
+        """Converts HabitMeasureDB database object to a HabitMeasure dataclass"""
         habit = HabitMeasure(
             self.name,
             self.start_date,
@@ -110,7 +110,7 @@ class HabitMeasureDB(HabitDB):
 
 
 class MeasurementFloatDB(db.Model):
-    '''Class representing a float-type measurement for a HabitMeasureDB'''
+    """Class representing a float-type measurement for a HabitMeasureDB"""
     __tablename__ = 'measurement_float'
     measure_id    = db.Column(db.Integer, primary_key=True)
     habit_id      = db.Column(db.Integer, db.ForeignKey('habit_measure.habit_meas_id'))
@@ -119,7 +119,7 @@ class MeasurementFloatDB(db.Model):
 
 
 class HabitDrinkingWaterDB(HabitDB):
-    '''Class representing a water intake habit in the database'''
+    """Class representing a water intake habit in the database"""
     __tablename__   = 'habit_water'
     habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
     target_value    = db.Column(db.Integer)
@@ -127,7 +127,7 @@ class HabitDrinkingWaterDB(HabitDB):
     __mapper_args__ = {'polymorphic_identity': WATER}
 
     def to_dataclass(self) -> HabitDrinkingWater:
-        '''Converts this database object to a HabitDrinkingWater dataclass'''
+        """Converts this database object to a HabitDrinkingWater dataclass"""
         habit = HabitDrinkingWater(
             self.name,
             self.start_date,
@@ -143,7 +143,7 @@ class HabitDrinkingWaterDB(HabitDB):
 
 
 class MeasurementIntDB(db.Model):
-    '''Class representing an integer-type measurement for a HabitDrinkingWaterDB'''
+    """Class representing an integer-type measurement for a HabitDrinkingWaterDB"""
     __tablename__ = 'measurement_int'
     measure_id    = db.Column(db.Integer, primary_key=True)
     habit_id      = db.Column(db.Integer, db.ForeignKey('habit_water.habit_id'))
@@ -152,7 +152,7 @@ class MeasurementIntDB(db.Model):
 
 
 class HabitActivityDB(HabitDB):
-    '''Class representing an activity in the database'''
+    """Class representing an activity in the database"""
     __tablename__   = 'habit_activity'
     habit_id        = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
     freq_type       = db.Column(db.String(64))
@@ -162,7 +162,7 @@ class HabitActivityDB(HabitDB):
     __mapper_args__ = {'polymorphic_identity': ACTIVITY}
 
     def to_dataclass(self) -> HabitActivity:
-        '''Converting ActivityDB database object to an Activity dataclass'''
+        """Converting ActivityDB database object to an Activity dataclass"""
         habit = HabitActivity(
             self.name,
             self.start_date,
@@ -181,7 +181,7 @@ class HabitActivityDB(HabitDB):
 
 
 class MeasurementActivityDB(db.Model):
-    '''Class representing a float-type measurement for a HabitActivityDB'''
+    """Class representing a float-type measurement for a HabitActivityDB"""
     __tablename__       = 'measurement_activity'
     measure_id          = db.Column(db.Integer, primary_key=True)
     habit_id            = db.Column(db.Integer, db.ForeignKey('habit_activity.habit_id'))
@@ -192,7 +192,7 @@ class MeasurementActivityDB(db.Model):
 
 
 class HabitMealDB(HabitDB):
-    '''Class representing a meal-eating habit int the database'''
+    """Class representing a meal-eating habit int the database"""
     __tablename__    = 'habit_meal'
     habit_id         = db.Column(db.Integer, db.ForeignKey('habit.habit_id'), primary_key=True)
     target_value     = db.Column(db.Float)
@@ -216,7 +216,7 @@ class HabitMealDB(HabitDB):
 
 
 class FoodDB(db.Model):
-    '''Class representing food in the database'''
+    """Class representing food in the database"""
     food_id  = db.Column(db.Integer, primary_key=True)
     name     = db.Column(db.String(255), nullable=False)
     calories = db.Column(db.Float, nullable=False)
@@ -227,12 +227,12 @@ class FoodDB(db.Model):
     meal_id  = db.Column(db.Integer, db.ForeignKey('meal_db.meal_id'))
 
     def to_dataclass(self) -> Food:
-        '''Converting FoodDB database object to a Food dataclass'''
+        """Converting FoodDB database object to a Food dataclass"""
         return Food(self.name, self.calories, self.carb, self.prot, self.fat)
-    
+
 
 class MealDB(db.Model):
-    '''Class representing a meal in the database'''
+    """Class representing a meal in the database"""
     meal_id    = db.Column(db.Integer, primary_key=True)
     habit_id   = db.Column(db.Integer, db.ForeignKey('habit_meal.habit_id'), nullable=False)
     name       = db.Column(db.String(255), nullable=False)
@@ -242,10 +242,10 @@ class MealDB(db.Model):
     user       = db.relationship('UserDB', back_populates='meals')
 
     def to_dataclass(self) -> Meal:
-        '''Converting MealDB database object from to a Meal dataclass'''
+        """Converting MealDB database object from to a Meal dataclass"""
         list_foods = cast(list[FoodDB], self.foods)
         return Meal(
             self.created_at.date(),
-            self.name, 
+            self.name,
             [(food.to_dataclass(), food.grams) for food in list_foods]
         )

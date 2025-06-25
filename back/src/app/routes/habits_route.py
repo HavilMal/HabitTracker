@@ -2,17 +2,14 @@ import datetime
 
 from dataclasses import asdict
 
-from flask       import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
 from app.routes.food_route import create_meal
-from app                   import db
-from app.models            import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
+from app import db
+from app.models import HabitBoolDB, HabitMeasureDB, HabitDrinkingWaterDB, HabitMealDB, HabitActivityDB, \
     HabitBoolCompletionDB, HabitDB, MeasurementFloatDB, MeasurementIntDB, MeasurementActivityDB, MealDB, FoodDB
 from app.logic.habit import HabitMeal
-
-
-
 
 from app.constants import *
 from app.routes.utils import check_entity_id, get_habit, check_entry_date
@@ -103,9 +100,9 @@ def habits_to_list(habits):
     for h in habits:
         dc = h.to_dataclass()
         data = dc.__dict__.copy()
-        data['type']         = h.__mapper_args__['polymorphic_identity']
-        data['start_date']   = dc.start_date.isoformat()
-        data['id']           = h.habit_id
+        data['type'] = h.__mapper_args__['polymorphic_identity']
+        data['start_date'] = dc.start_date.isoformat()
+        data['id'] = h.habit_id
         serialized.append(data)
 
     return serialized
@@ -115,23 +112,22 @@ def habits_to_list(habits):
 @login_required
 def get_habits():
     try:
-        habits_bool     = HabitBoolDB.query.filter_by(user_id=current_user.uid).all()
-        habits_measure  = HabitMeasureDB.query.filter_by(user_id=current_user.uid).all()
-        habits_water    = HabitDrinkingWaterDB.query.filter_by(user_id=current_user.uid).all()
-        habits_meal     = HabitMealDB.query.filter_by(user_id=current_user.uid).all()
+        habits_bool = HabitBoolDB.query.filter_by(user_id=current_user.uid).all()
+        habits_measure = HabitMeasureDB.query.filter_by(user_id=current_user.uid).all()
+        habits_water = HabitDrinkingWaterDB.query.filter_by(user_id=current_user.uid).all()
+        habits_meal = HabitMealDB.query.filter_by(user_id=current_user.uid).all()
         habits_activity = HabitActivityDB.query.filter_by(user_id=current_user.uid).all()
 
         return jsonify({
-            "bool":     habits_to_list(habits_bool),
-            "measure":  habits_to_list(habits_measure),
-            "water":    habits_to_list(habits_water),
-            "meal":     habits_to_list(habits_meal),
+            "bool": habits_to_list(habits_bool),
+            "measure": habits_to_list(habits_measure),
+            "water": habits_to_list(habits_water),
+            "meal": habits_to_list(habits_meal),
             "activity": habits_to_list(habits_activity),
         }), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 
 @habit_bp.route('/habit/entry', methods=['POST'])
@@ -171,10 +167,10 @@ def add_habit_entry():
             try:
                 date_form = datetime.datetime.strptime(date_completion, "%Y-%m-%d").date()
             except ValueError:
-                return jsonify({"error":"invalid `date`, use YYYY-MM-DD"}), 400
+                return jsonify({"error": "invalid `date`, use YYYY-MM-DD"}), 400
 
             if not check_entry_date(habit.start_date, date_form):
-                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
+                return jsonify({'error': 'entry date must be equal to or after start_date of habit'}), 400
 
             existing = HabitBoolCompletionDB.query.filter_by(habit_id=habit_id, date=date_form).first()
             if existing:
@@ -190,14 +186,14 @@ def add_habit_entry():
             amount = data.get('amount')
 
             if date_completion is None or amount is None:
-                return jsonify({"error":"`date` and `amount` required"}), 400
+                return jsonify({"error": "`date` and `amount` required"}), 400
             try:
                 date_form = datetime.datetime.fromisoformat(date_completion)
             except ValueError:
-                return jsonify({"error":"invalid `date`, use ISO8601"}), 400
+                return jsonify({"error": "invalid `date`, use ISO8601"}), 400
 
             if not check_entry_date(habit.start_date, date_form):
-                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
+                return jsonify({'error': 'entry date must be equal to or after start_date of habit'}), 400
 
             try:
                 amount = float(amount)
@@ -217,14 +213,14 @@ def add_habit_entry():
             date_completed = data.get('date')
             amount = data.get('amount')
             if date_completed is None or amount is None:
-                return jsonify({"error":"`date` and `amount` required"}), 400
+                return jsonify({"error": "`date` and `amount` required"}), 400
             try:
                 date_form = datetime.datetime.fromisoformat(date_completed)
             except ValueError:
-                return jsonify({"error":"invalid `date`, use ISO8601"}), 400
+                return jsonify({"error": "invalid `date`, use ISO8601"}), 400
 
             if not check_entry_date(habit.start_date, date_form):
-                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
+                return jsonify({'error': 'entry date must be equal to or after start_date of habit'}), 400
 
             try:
                 amount = int(amount)
@@ -244,20 +240,20 @@ def add_habit_entry():
             try:
                 dt_iso = data['activity_datetime']
                 amount = float(data['amount'])
-                dur    = float(data['duration_seconds'])
-                cal    = float(data['calories'])
+                dur = float(data['duration_seconds'])
+                cal = float(data['calories'])
             except KeyError:
-                return jsonify({"error":"`activity_datetime, amount, duration_seconds, calories` required"}), 400
+                return jsonify({"error": "`activity_datetime, amount, duration_seconds, calories` required"}), 400
             except ValueError:
-                return jsonify({"error":"`amount, duration_seconds, calories` must be numbers"}), 400
+                return jsonify({"error": "`amount, duration_seconds, calories` must be numbers"}), 400
 
             try:
                 dt = datetime.datetime.fromisoformat(dt_iso)
             except ValueError:
-                return jsonify({"error":"invalid `activity_datetime`, use ISO8601"}), 400
+                return jsonify({"error": "invalid `activity_datetime`, use ISO8601"}), 400
 
             if not check_entry_date(habit.start_date, dt):
-                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
+                return jsonify({'error': 'entry date must be equal to or after start_date of habit'}), 400
 
             existing = MeasurementActivityDB.query.filter_by(habit_id=habit_id, activity_datetime=dt).first()
 
@@ -286,12 +282,13 @@ def add_habit_entry():
                 return jsonify({"error": f"Missing field: {str(e)}"}), 400
 
             try:
-                dt = datetime.datetime.fromisoformat(created_at) if created_at else datetime.datetime.now(datetime.timezone.utc)
+                dt = datetime.datetime.fromisoformat(created_at) if created_at else datetime.datetime.now(
+                    datetime.timezone.utc)
             except ValueError:
                 return jsonify({"error": "Invalid `created_at`, use ISO8601"}), 400
 
             if not check_entry_date(habit.start_date, dt):
-                return jsonify({'error':'entry date must be equal to or after start_date of habit'}), 400
+                return jsonify({'error': 'entry date must be equal to or after start_date of habit'}), 400
 
             existing_meal = MealDB.query.filter(
                 MealDB.habit_id == habit_id,
@@ -376,11 +373,11 @@ def get_longest_streaks():
         start_iso, end_iso, length = habit.get_longest_streak()
 
         streaks.append({
-            "habit_id":     habit_model.habit_id,
-            "name":         habit.name,
-            "start_date":   start_iso,
-            "end_date":     end_iso,
-            "length_days":  length
+            "habit_id": habit_model.habit_id,
+            "name": habit.name,
+            "start_date": start_iso,
+            "end_date": end_iso,
+            "length_days": length
         })
 
     return jsonify({"streaks": streaks}), 200
@@ -431,7 +428,6 @@ def get_habit_summary():
     min_date_str = min(earliest_dates)
 
     min_date = datetime.datetime.fromisoformat(min_date_str).date()
-
 
     curr_date = min_date
     curr_date_str = min_date.isoformat()

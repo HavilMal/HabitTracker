@@ -6,6 +6,7 @@ from flask_login import current_user
 from app.models import HabitDB
 from app.logic.habit import Habit
 
+
 def check_entity_id(entity_id) -> tuple[Response, int] | None:
     if entity_id is None:
         return jsonify({'error': 'Missing id in request'}), 400
@@ -36,7 +37,7 @@ def get_habit(data, to_dataclass=True) -> Habit | tuple[Response, int] | HabitDB
     return habit_db
 
 
-def check_entry_date(start_date, entry_date):
+def check_entry_date(start_date, entry_date) -> bool:
     if not entry_date:
         return True
 

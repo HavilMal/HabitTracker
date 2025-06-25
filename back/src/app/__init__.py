@@ -1,16 +1,16 @@
-from flask              import Flask
-from flask_sqlalchemy   import SQLAlchemy
-from flask_cors         import CORS
-from flask_login        import LoginManager
-from app.serializer     import CustomJSONProvider
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
+from flask_login import LoginManager
+from app.serializer import CustomJSONProvider
 
-db                       = SQLAlchemy()
-login_manager            = LoginManager()
-login_manager.login_view = 'auth.login' # type: ignore
+db = SQLAlchemy()
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'  # type: ignore
 
 
 def create_app() -> Flask:
-    '''Creates and initializes the app'''
+    """Creates and initializes the app"""
     app = Flask(__name__)
     app.config.from_object('app.config.Config')
     app.json = CustomJSONProvider(app)
@@ -22,7 +22,7 @@ def create_app() -> Flask:
     from app.models import UserDB
     @login_manager.user_loader
     def load_user(user_id: str) -> UserDB | None:
-        '''Loads current user data from the database'''
+        """Loads current user data from the database"""
         return UserDB.query.get(int(user_id))
 
     register_blueprints(app=app)
@@ -33,7 +33,7 @@ def create_app() -> Flask:
 
 
 def register_blueprints(app: Flask) -> None:
-    '''Registers all required blueprints'''
+    """Registers all required blueprints"""
     from .routes.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/api')
 
