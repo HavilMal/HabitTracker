@@ -12,7 +12,7 @@ const habitSchema = z.object({
 export type HabitSchema = z.infer<typeof habitSchema>
 
 export const boolSchema = habitSchema.extend({
-	freq_type: z.enum(["daily", "weekly"]),
+	freq_type: z.enum(["daily", "every_n_days"]),
 	freq_value: z.number().min(1).max(6),
 })
 

@@ -89,7 +89,7 @@ export function LineplotCard(
 							{/*todo style*/}
 							<ChartTooltip
 								cursor={false}
-								content={<ChartTooltipContent hideLabel/>}
+								content={<ChartTooltipContent hideLabel labelFormatter={(label) => `${label}%`}/>}
 							/>
 							<Line
 								dataKey="percentage"

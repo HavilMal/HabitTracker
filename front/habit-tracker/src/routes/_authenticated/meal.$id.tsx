@@ -1,7 +1,6 @@
 import {createFileRoute, notFound} from '@tanstack/react-router'
 import {LineplotCard} from "@/components/cards/lineplot-card.tsx";
 import CalendarCard from "@/components/cards/calendar-card.tsx";
-import {CaloriesCard} from "@/components/cards/calories-card.tsx";
 import {CompletionMealCard} from "@/components/cards/completion-meal-card.tsx";
 import {useBreadcrumbs} from "@/hooks/breadcrumbs-provider.tsx";
 import {useEffect} from "react";
@@ -60,9 +59,14 @@ function RouteComponent() {
 		throw notFound()
 	}
 
+
+	if (chartData) {
+		chartData["stats"] = chartData["stats"].map(value => ({date: value.date, percentage: value.percentage > 1 ? value.percentage : value.percentage * 100}));
+	}
+
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-h-full h-full">
-			<LineplotCard chartData={chartData} accessKey="stats" className="flex h-full" title="Habit completion"
+			<LineplotCard chartData={chartData} accessKey="stats" className="flex h-full" title="Habit completion" domainMax={110}
 			              description="Percentage of habits completed up to given date"/>
 			<CompletionMealCard data={data}/>
 			<CalendarCard history={history} className="flex h-full"/>

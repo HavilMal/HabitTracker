@@ -214,12 +214,14 @@ export function AppSidebar() {
 	const auth = useAuth()
 	const router = useRouter()
 	const navigate = useNavigate()
+	const {refreshHabits} = useHabits()
 
 
 	async function handleLogout() {
 		try {
 			await auth.logout()
 			await router.invalidate();
+			refreshHabits();
 		} finally {
 			await navigate({to: "/"});
 		}

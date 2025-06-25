@@ -59,9 +59,13 @@ function RouteComponent() {
 		throw notFound()
 	}
 
+	if (chartData) {
+		chartData["stats"] = chartData["stats"].map(value => ({date: value.date, percentage: value.percentage > 1 ? value.percentage : value.percentage * 100}));
+	}
+
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[1fr_1fr] gap-4 p-4 max-w-full h-full">
-			<LineplotCard chartData={chartData} accessKey="stats" className="flex h-full" title="Habit completion"
+			<LineplotCard chartData={chartData} accessKey="stats" className="flex h-full" title="Habit completion" domainMax={110}
 			              description="Percentage of habits completed up to given date"/>
 			<CompletionActivityCard data={data}/>
 			<CalendarCard history={history}/>
