@@ -19,7 +19,7 @@ async function deleteAccount(navigate: UseNavigateResult<string>) {
     const response = await fetch(import.meta.env.VITE_API_URL + "delete-account", {
       credentials: "include",
       mode: "cors",
-      method: "POST",
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
@@ -77,7 +77,4 @@ export function ProfileCard() {
       <DeleteButton />
     </div>
   );
-}
-
-	)
 }
