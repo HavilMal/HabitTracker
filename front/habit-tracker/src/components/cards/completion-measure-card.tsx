@@ -19,7 +19,7 @@ const formSchema = z.object({
 	amount: z.number(),
 })
 
-export default function CompletionMeasureCard({ data}: {
+export default function CompletionMeasureCard({data}: {
 	data: MeasureHabit,
 }) {
 	const n = Math.min(7, daysBetween(data.start_date))
@@ -40,8 +40,8 @@ export default function CompletionMeasureCard({ data}: {
 	return (
 		<Form {...form}>
 			<form className="flex flex-1 flex-col" onSubmit={form.handleSubmit((values => onSubmit(
-			values, data, form, refreshHabits, "habit/entry", "Failed to save progress", "Could not connect to the server"
-		)))}>
+				values, data, form, refreshHabits, "habit/entry", "Failed to save progress", "Could not connect to the server"
+			)))}>
 				<Card className="flex flex-1">
 
 					<CardHeader>
@@ -111,7 +111,10 @@ export default function CompletionMeasureCard({ data}: {
 							<Button className="flex-1 w-full" type="submit">Submit</Button>
 						</FormControl>
 						<FormControl>
-							<Button className="flex-1 w-full" type="button" variant="destructive" onClick={() => deleteEntry(form.getValues("date"), data.type, refreshHabits)}>Delete</Button>
+							<Button className="flex-1 w-full" type="button" variant="destructive" onClick={() => {
+								deleteEntry(data.id, form.getValues("date"), data.type, refreshHabits);
+								form.reset({})
+							}}>Delete</Button>
 						</FormControl>
 					</CardFooter>
 				</Card>

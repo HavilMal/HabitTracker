@@ -533,6 +533,9 @@ def delete_entry():
 
     habit = get_habit(data, to_dataclass=False)
 
+    if isinstance(habit, tuple):
+        return habit
+
     habit_type = habit.habit_type
 
     try:

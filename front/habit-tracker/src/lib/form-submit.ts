@@ -28,7 +28,7 @@ export async function onSubmit<T, K extends Habit, J extends FieldValues>(values
 	}
 }
 
-export async function deleteEntry(date: string, habit_type: "bool" | "measure" | "water" | "activity" | "meal", refreshHabits: () => void) {
+export async function deleteEntry(habit_id: number, date: string, habit_type: "bool" | "measure" | "water" | "activity" | "meal", refreshHabits: () => void) {
 	try {
 		const url = new URL(import.meta.env.VITE_API_URL + "delete-entry");
 		const response = await fetch(url.toString(), {
@@ -38,7 +38,7 @@ export async function deleteEntry(date: string, habit_type: "bool" | "measure" |
 			headers: {
 				"Content-Type": "application/json; charset=utf-8",
 			},
-			body: JSON.stringify({date: date, habit_type: habit_type}),
+			body: JSON.stringify({entry_dt: date, habit_type: habit_type, habit_id}),
 		});
 		if (response.ok) {
 			refreshHabits();

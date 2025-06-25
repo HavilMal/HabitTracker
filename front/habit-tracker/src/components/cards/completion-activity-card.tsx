@@ -18,7 +18,7 @@ const activitySchema = z.object({
 	calories: z.number(),
 })
 
-export function CompletionActivityCard({ data}: { data: ActivityHabit }) {
+export function CompletionActivityCard({data}: { data: ActivityHabit }) {
 	const n = Math.min(7, daysBetween(data.start_date))
 	const lastWeekDays = getLastDays(n).map(toDateString);
 	const currentDay = lastWeekDays[lastWeekDays.length - 1];
@@ -113,7 +113,11 @@ export function CompletionActivityCard({ data}: { data: ActivityHabit }) {
 					</CardContent>
 					<CardFooter className="gap-6">
 						<Button className="flex-1 w-full" type="submit">Submit</Button>
-						<Button className="flex-1 w-full" type="submit" variant="destructive" onClick={() => deleteEntry(form.getValues("activity_datetime"), data.type, refreshHabits)}>Delete</Button>
+						<Button className="flex-1 w-full" type="submit" variant="destructive" onClick={() => {
+							deleteEntry(data.id, form.getValues("activity_datetime"), data.type, refreshHabits);
+							form.reset({})
+						}
+						}>Delete</Button>
 					</CardFooter>
 				</Card>
 			</form>
