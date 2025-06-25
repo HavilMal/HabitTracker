@@ -18,7 +18,7 @@ This project integrates with an external food database API (USDA FoodData Centra
 ### Requirements
 - Python `>=3.10`
 - Node.js `>=18`
-- `pip` or `npm`
+- `pip` and `npm`
 
 ### Environment configuration
 Before running the app, you need to configure environment variables.
@@ -63,7 +63,7 @@ npm run dev
 - Frontend is now available at http://localhost:3000
 - Backend runs by default at: http://127.0.0.1:5000
 
-## System requirements
+## Required Python libraries
 - `blinker==1.9.0`
 - `certifi==2025.4.26`
 - `charset-normalizer==3.4.2`
