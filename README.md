@@ -10,6 +10,9 @@
 The app follows a frontend-backend architecture:
 - **Backend**: Python (Flask, SQLAlchemy)
 - **Frontend**: React + TypeScript + Vite
+
+### USDA FoodData Central integration
+This project integrates with an external food database API (USDA FoodData Central) to allow users to search and retrieve nutritional information for various food items. This feature enhances the habit tracker with diet-awareness functionality allowing users to track their eating habits.
   
 ## How to run the project
 ### Requirements
