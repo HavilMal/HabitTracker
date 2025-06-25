@@ -7,10 +7,10 @@ import {
 import {zodResolver} from "@hookform/resolvers/zod"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle,} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
-import {Form, FormField, FormItem, FormLabel, FormControl, FormMessage} from "@/components/ui/form"
+import {Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription} from "@/components/ui/form"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
-import {compareDateStrings, getLastDays, toDateString} from "@/lib/utils.ts";
+import {compareDateStrings, daysBetween, getLastDays, toDateString} from "@/lib/utils.ts";
 import {type MealHabit, useHabits} from "@/hooks/habit-provider.tsx";
 import {
 	Dialog,
@@ -27,6 +27,13 @@ import {FoodFormField} from "@/components/forms/fields.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {useEffect, useState} from "react";
 import {onSubmit} from "@/lib/form-submit.ts";
+
+const dataUnitName = {
+	"prot": "proteins",
+	"carb": "carbohydrates",
+	"fat": "fats",
+	"calories": "calories",
+}
 
 
 function AddIngredient({handleSubmit, foodForm, disabled = false, className, children, onOpen}: {
@@ -135,7 +142,8 @@ function FoodTable({form, foodForm, handleDelete, handleEdit}: {
 											Delete
 										</Button>
 
-										<AddIngredient foodForm={foodForm} disabled={false} onOpen={() => foodForm.reset(form.getValues("foods")[i])}
+										<AddIngredient foodForm={foodForm} disabled={false}
+										               onOpen={() => foodForm.reset(form.getValues("foods")[i])}
 										               handleSubmit={() => handleEdit(i)}>
 											Edit
 										</AddIngredient>
@@ -152,13 +160,14 @@ function FoodTable({form, foodForm, handleDelete, handleEdit}: {
 
 
 export function CompletionMealCard({
-	                                   numberOfDays = 7, data
+	                                   data
                                    }: {
-	numberOfDays?: number, data
+	data
 		:
 		MealHabit
 }) {
-	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
+	const n = Math.min(7, daysBetween(data.start_date))
+	const lastWeekDays = getLastDays(n).map(toDateString);
 	const currentDay = lastWeekDays[lastWeekDays.length - 1];
 	const currentMeasurement = data.measurements.find(val => compareDateStrings(val.meal_date, currentDay))
 	const labels = lastWeekDays.map(s => s.split("-")[2])
@@ -180,8 +189,6 @@ export function CompletionMealCard({
 		},
 	})
 
-
-	console.log(form.getValues())
 
 	form.getValues()
 
@@ -247,6 +254,8 @@ export function CompletionMealCard({
 								/>
 							)}
 						/>
+						<FormDescription>Your target
+							is {data.target_type.replace("_", " ")} {data.target_value} {dataUnitName[data.target_data_unit]}</FormDescription>
 						<FormField
 							control={form.control}
 							name={"name"}
@@ -271,27 +280,25 @@ export function CompletionMealCard({
 						           }}
 						           handleEdit={async (i) => {
 							           await foodForm.handleSubmit(foodValues => {
-													 console.log("log", foodValues)
 								           update(i, foodValues);
 								           foodForm.reset();
 							           })();
-												 console.log(form.getValues("foods"))
+							           console.log(form.getValues("foods"))
 							           await form.handleSubmit(values => {
-													 console.log("values", values)
 								           onSubmit(values, data, form, refreshHabits, "habit/entry", "Failed to save ingredient", "Could not connect to the server");
-							           }, e=> console.log(e))();
+							           }, e => console.log(e))();
 						           }}/>
 					</form>
 				</Form>
 				<AddIngredient foodForm={foodForm} className="w-full"
 				               disabled={form.getValues("name") === undefined || form.getValues("name")?.length === 0}
-				               handleSubmit={() => {
-					               foodForm.handleSubmit(foodValues => {
+				               handleSubmit={async () => {
+					               await foodForm.handleSubmit(foodValues => {
 						               append(foodValues);
 						               foodForm.reset();
 					               })();
 					               console.log(form.getValues())
-					               form.handleSubmit(values => {
+					               await form.handleSubmit(values => {
 						               onSubmit(values, data, form, refreshHabits, "habit/entry", "Failed to save ingredient", "Could not connect to the server");
 					               }, e => console.log(e))();
 				               }}>

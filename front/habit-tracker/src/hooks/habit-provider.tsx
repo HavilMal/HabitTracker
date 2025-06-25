@@ -74,6 +74,9 @@ export type MealMeasurement = {
 
 export type MealHabit = Habit & {
 	type: "meal"
+	target_data_unit: "prot" | "fat" | "carb" | "calories",
+	target_type: "at_least" | "at_most",
+	target_value: number,
 	measurements: MealMeasurement[],
 }
 

@@ -304,8 +304,8 @@ def add_habit_entry():
                 FoodDB.query.filter_by(meal_id=existing_meal.meal_id).delete()
 
                 for item in foods:
-                    nutrients = item.get('nutrients', {})
                     food = FoodDB(
+                        name=item.get('product_name', 'Unknown'),
                         calories=item.get(CALORIES, 0),
                         carb=item.get(CARB, 0),
                         prot=item.get(PROT, 0),

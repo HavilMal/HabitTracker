@@ -9,6 +9,7 @@ import {useHabits} from "@/hooks/habit-provider.tsx";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {useQuery} from "@tanstack/react-query";
 import {fetchHabitStats, type Stats, type History} from "@/lib/utils.ts";
+import {NotesCard} from "@/components/cards/notes-card.tsx";
 
 
 export const Route = createFileRoute('/_authenticated/meal/$id')({
@@ -65,8 +66,7 @@ function RouteComponent() {
 			              description="Percentage of habits completed up to given date"/>
 			<CompletionMealCard data={data}/>
 			<CalendarCard history={history} className="flex h-full"/>
-			<CaloriesCard className="flex h-full"/>
-			{/*	todo notes card*/}
+			<NotesCard data={data}/>
 		</div>
 	)
 }

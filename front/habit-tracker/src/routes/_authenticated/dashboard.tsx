@@ -29,16 +29,16 @@ function RouteComponent() {
 
 	return (
 		<div className="flex flex-1 flex-col gap-4 p-4">
-			<div className="grid auto-rows-min gap-4 xl:grid-cols-3">
+			<div className="grid auto-rows-min gap-4 xl:grid-cols-2">
 				<div className="bg-muted/50 rounded-xl">
 					<StreakChart/>
 				</div>
 				<div className="bg-muted/50 rounded-xl ">
 					<TodoCard/>
 				</div>
-				<div className="bg-muted/50 rounded-xl ">
-					<CaloriesCard/>
-				</div>
+				{/*<div className="bg-muted/50 rounded-xl ">*/}
+				{/*	<CaloriesCard/>*/}
+				{/*</div>*/}
 			</div>
 			{isLoading ?
 				<Skeleton className="flex flex-1 min-h-1/4"/>
