@@ -53,16 +53,15 @@ function HabitCategoryList({category}: { category: HabitCategory }) {
 	//todo
 	async function deleteHabit(id: number) {
 		try {
-			const response = await fetch(import.meta.env.VITE_API_URL + "detete-habit",
+			const response = await fetch(import.meta.env.VITE_API_URL + "delete-habit",
 				{
 					credentials: "include",
 					mode: "cors",
-					method: "POST",
+					method: "DELETE",
 					headers: {
-						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
 						"Content-Type": "application/json; charset=utf-8",
 					},
-					body: JSON.stringify({id: id}),
+					body: JSON.stringify({habit_id: id}),
 				})
 
 			if (response.ok) {

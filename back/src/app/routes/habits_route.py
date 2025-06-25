@@ -15,7 +15,7 @@ from app.logic.habit import HabitMeal
 
 
 from app.constants import *
-from utils import check_entity_id, get_habit, check_entry_date
+from app.routes.utils import check_entity_id, get_habit, check_entry_date
 
 habit_bp = Blueprint('habit', __name__)
 
@@ -503,7 +503,7 @@ def delete_habit():
     """
     data = request.get_json()
 
-    res = get_habit(data)
+    res = get_habit(data, to_dataclass=False)
 
     if isinstance(res, tuple):
         return res
