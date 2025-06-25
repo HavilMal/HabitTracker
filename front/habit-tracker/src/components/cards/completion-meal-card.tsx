@@ -226,7 +226,7 @@ export function CompletionMealCard({
 		<Card className="flex flex-1 space-y-4 min-h-[250px]">
 			<CardHeader>
 				<CardTitle>Add a Meal</CardTitle>
-				<CardDescription>description</CardDescription>
+				<CardDescription>Enter ingredients of your meal</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-1 flex-col space-y-6 justify-center">
 				<Form {...form}>

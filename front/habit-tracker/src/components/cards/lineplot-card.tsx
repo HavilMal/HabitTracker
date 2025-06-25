@@ -85,7 +85,6 @@ export function LineplotCard(
 								tickLine={true}
 								axisLine={false}
 							/>
-							{/*todo style*/}
 							<ChartTooltip
 								cursor={false}
 								content={<ChartTooltipContent hideLabel valueFormatter={(value) => `${value}%`}/>}

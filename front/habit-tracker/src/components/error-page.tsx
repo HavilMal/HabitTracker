@@ -4,7 +4,6 @@ import {
 import {Button} from "@/components/ui/button.tsx";
 import {Link} from "@tanstack/react-router";
 
-// todo better styling
 export function ErrorPage({redirect}: { redirect: string }) {
 	return (
 		<div className="flex flex-1 items-center justify-center">
