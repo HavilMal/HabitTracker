@@ -8,7 +8,7 @@ import {FormDatePicker} from "@/components/form-date-picker.tsx";
 import {compareDateStrings, daysBetween, getLastDays, toDateString} from "@/lib/utils.ts";
 import {NumberInput} from "@/components/number-form-input.tsx";
 import {type ActivityHabit, useHabits} from "@/hooks/habit-provider.tsx";
-import {onSubmit} from "@/lib/form-submit.ts";
+import {deleteEntry, onSubmit} from "@/lib/form-submit.ts";
 
 const activitySchema = z.object({
 	id: z.number(),
@@ -113,7 +113,7 @@ export function CompletionActivityCard({ data}: { data: ActivityHabit }) {
 					</CardContent>
 					<CardFooter className="gap-6">
 						<Button className="flex-1 w-full" type="submit">Submit</Button>
-						<Button className="flex-1 w-full" type="submit" variant="destructive">Delete</Button>
+						<Button className="flex-1 w-full" type="submit" variant="destructive" onClick={() => deleteEntry(form.getValues("activity_datetime"), data.type, refreshHabits)}>Delete</Button>
 					</CardFooter>
 				</Card>
 			</form>
