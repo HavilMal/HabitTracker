@@ -1,7 +1,6 @@
 # HabitTracker
 ## Overview
 **Habit Tracker** is a web application that helps users monitor and build positive daily habits. The app allows users to:
-
 - Register and log in securely
 - Add, edit, and delete habits
 - Mark habits as completed each day
