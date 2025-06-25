@@ -5,7 +5,7 @@ import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} 
 import {Button} from "@/components/ui/button"
 import {Form, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
-import {compareDateStrings, getLastDays, toDateString} from "@/lib/utils.ts";
+import {compareDateStrings, daysBetween, getLastDays, toDateString} from "@/lib/utils.ts";
 import {NumberInput} from "@/components/number-form-input.tsx";
 import {type ActivityHabit, useHabits} from "@/hooks/habit-provider.tsx";
 import {onSubmit} from "@/lib/form-submit.ts";
@@ -18,8 +18,9 @@ const activitySchema = z.object({
 	calories: z.number(),
 })
 
-export function CompletionActivityCard({numberOfDays = 7, data}: { numberOfDays?: number, data: ActivityHabit }) {
-	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
+export function CompletionActivityCard({ data}: { data: ActivityHabit }) {
+	const n = Math.min(7, daysBetween(data.start_date))
+	const lastWeekDays = getLastDays(n).map(toDateString);
 	const currentDay = lastWeekDays[lastWeekDays.length - 1];
 	const currentMeasurement = data.measurements.find(val => compareDateStrings(val.activity_datetime, currentDay))
 	const labels = lastWeekDays.map(s => s.split("-")[2])
@@ -46,8 +47,8 @@ export function CompletionActivityCard({numberOfDays = 7, data}: { numberOfDays?
 	return (
 		<Form {...form}>
 			<form className="flex flex-1" onSubmit={form.handleSubmit((values => onSubmit(
-			values, data, form, refreshHabits, "habit/entry", "Failed to save progress", "Could not connect to the server"
-		)))}>
+				values, data, form, refreshHabits, "habit/entry", "Failed to save progress", "Could not connect to the server"
+			)))}>
 				<Card className="flex flex-1">
 					<CardHeader>
 						<CardTitle>Track your daily progress</CardTitle>

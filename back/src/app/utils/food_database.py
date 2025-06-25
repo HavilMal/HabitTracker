@@ -3,7 +3,7 @@ from datetime      import datetime, timezone
 
 from flask_login   import current_user
 
-from config        import Config
+from app.config        import Config
 from app           import db
 from app.models    import MealDB, FoodDB
 from app.constants import *
@@ -79,13 +79,12 @@ def create_meal(name: str, foods: list[dict], habit_id: int | None = None, creat
     db.session.flush()
 
     for item in foods:
-        nutr = item.get('nutrients', {})
         food = FoodDB(
             name=item.get('product_name', 'Unknown'),
-            calories=nutr.get(CALORIES, 0),
-            carb=nutr.get(CARB, 0),
-            prot=nutr.get(PROT, 0),
-            fat=nutr.get(FAT, 0),
+            calories=item.get(CALORIES, 0),
+            carb=item.get(CARB, 0),
+            prot=item.get(PROT, 0),
+            fat=item.get(FAT, 0),
             grams=item.get('grams', 100),
             meal_id=meal.meal_id
         )

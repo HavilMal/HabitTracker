@@ -69,14 +69,16 @@ export function DeleteButton() {
 				<AlertDialogHeader>
 					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 					<AlertDialogDescription>
-						This action cannot be undone. It will permanently destroy all your data and you will not be able to recover it.
+						This action cannot be undone. It will permanently destroy all your data and you will not be able to recover
+						it.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
-					                   {/*todo turn on*/}
-					                   {/*onClick={() => deleteAccount(navigate)}*/}
+					{/*todo turn on*/}
+					{/*onClick={() => deleteAccount(navigate)}*/}
+					<AlertDialogAction
+						className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
 					>
 						Confirm
 					</AlertDialogAction>

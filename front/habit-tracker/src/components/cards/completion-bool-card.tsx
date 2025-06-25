@@ -7,7 +7,7 @@ import {Check, X} from "lucide-react";
 import {Toggle} from "@/components/ui/toggle.tsx";
 import {type BoolHabit, useHabits} from "@/hooks/habit-provider.tsx";
 import {FormDatePicker} from "@/components/form-date-picker.tsx";
-import {toDateString, compareDateStrings, getLastDays} from "@/lib/utils.ts";
+import {toDateString, compareDateStrings, getLastDays, daysBetween} from "@/lib/utils.ts";
 import {onSubmit} from "@/lib/form-submit.ts";
 
 
@@ -16,11 +16,11 @@ const formSchema = z.object({
 	value: z.boolean(),
 })
 
-export default function CompletionBoolCard({numberOfDays = 7, data}: {
-	numberOfDays?: number,
+export default function CompletionBoolCard({ data}: {
 	data: BoolHabit,
 }) {
-	const lastWeekDays = getLastDays(numberOfDays).map(toDateString);
+	const n = Math.min(7, daysBetween(data.start_date))
+	const lastWeekDays = getLastDays(n).map(toDateString);
 	const currentDay = lastWeekDays[lastWeekDays.length - 1];
 	const currentMeasurement = data.completed_days.find(val => compareDateStrings(val, currentDay))
 	const labels = lastWeekDays.map(s => s.split("-")[2])
