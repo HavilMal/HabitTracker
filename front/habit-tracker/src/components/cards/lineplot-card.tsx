@@ -84,12 +84,11 @@ export function LineplotCard(
 								domain={[0, domainMax]}
 								tickLine={true}
 								axisLine={false}
-								// hide={true}
 							/>
 							{/*todo style*/}
 							<ChartTooltip
 								cursor={false}
-								content={<ChartTooltipContent hideLabel labelFormatter={(label) => `${label}%`}/>}
+								content={<ChartTooltipContent hideLabel valueFormatter={(value) => `${value}%`}/>}
 							/>
 							<Line
 								dataKey="percentage"
