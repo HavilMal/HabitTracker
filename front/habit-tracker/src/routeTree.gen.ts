@@ -8,82 +8,145 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedActivityIdRouteImport } from './routes/_authenticated/activity.$id'
+import { Route as AuthenticatedHabitIdRouteImport } from './routes/_authenticated/habit.$id'
+import { Route as AuthenticatedMealIdRouteImport } from './routes/_authenticated/meal.$id'
+import { Route as AuthenticatedWaterIdRouteImport } from './routes/_authenticated/water.$id'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as LoginImport } from './routes/login'
-import { Route as AuthenticatedImport } from './routes/_authenticated'
-import { Route as IndexImport } from './routes/index'
-import { Route as AuthenticatedProfileImport } from './routes/_authenticated/profile'
-import { Route as AuthenticatedDashboardImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedCreateImport } from './routes/_authenticated/create'
-import { Route as AuthenticatedWaterIdImport } from './routes/_authenticated/water.$id'
-import { Route as AuthenticatedMealIdImport } from './routes/_authenticated/meal.$id'
-import { Route as AuthenticatedHabitIdImport } from './routes/_authenticated/habit.$id'
-import { Route as AuthenticatedActivityIdImport } from './routes/_authenticated/activity.$id'
-
-// Create/Update Routes
-
-const LoginRoute = LoginImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AuthenticatedRoute = AuthenticatedImport.update({
-  id: '/_authenticated',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthenticatedProfileRoute = AuthenticatedProfileImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AuthenticatedRoute,
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthenticatedDashboardRoute = AuthenticatedDashboardImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRoute,
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthenticatedCreateRoute = AuthenticatedCreateImport.update({
+const AuthenticatedCreateRoute = AuthenticatedCreateRouteImport.update({
   id: '/create',
   path: '/create',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-
-const AuthenticatedWaterIdRoute = AuthenticatedWaterIdImport.update({
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedActivityIdRoute = AuthenticatedActivityIdRouteImport.update({
+  id: '/activity/$id',
+  path: '/activity/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedHabitIdRoute = AuthenticatedHabitIdRouteImport.update({
+  id: '/habit/$id',
+  path: '/habit/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMealIdRoute = AuthenticatedMealIdRouteImport.update({
+  id: '/meal/$id',
+  path: '/meal/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedWaterIdRoute = AuthenticatedWaterIdRouteImport.update({
   id: '/water/$id',
   path: '/water/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 
-const AuthenticatedMealIdRoute = AuthenticatedMealIdImport.update({
-  id: '/meal/$id',
-  path: '/meal/$id',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-
-const AuthenticatedHabitIdRoute = AuthenticatedHabitIdImport.update({
-  id: '/habit/$id',
-  path: '/habit/$id',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-
-const AuthenticatedActivityIdRoute = AuthenticatedActivityIdImport.update({
-  id: '/activity/$id',
-  path: '/activity/$id',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/create': typeof AuthenticatedCreateRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/activity/$id': typeof AuthenticatedActivityIdRoute
+  '/habit/$id': typeof AuthenticatedHabitIdRoute
+  '/meal/$id': typeof AuthenticatedMealIdRoute
+  '/water/$id': typeof AuthenticatedWaterIdRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/create': typeof AuthenticatedCreateRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/activity/$id': typeof AuthenticatedActivityIdRoute
+  '/habit/$id': typeof AuthenticatedHabitIdRoute
+  '/meal/$id': typeof AuthenticatedMealIdRoute
+  '/water/$id': typeof AuthenticatedWaterIdRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_authenticated/create': typeof AuthenticatedCreateRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/activity/$id': typeof AuthenticatedActivityIdRoute
+  '/_authenticated/habit/$id': typeof AuthenticatedHabitIdRoute
+  '/_authenticated/meal/$id': typeof AuthenticatedMealIdRoute
+  '/_authenticated/water/$id': typeof AuthenticatedWaterIdRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/create'
+    | '/dashboard'
+    | '/profile'
+    | '/activity/$id'
+    | '/habit/$id'
+    | '/meal/$id'
+    | '/water/$id'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/login'
+    | '/create'
+    | '/dashboard'
+    | '/profile'
+    | '/activity/$id'
+    | '/habit/$id'
+    | '/meal/$id'
+    | '/water/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/_authenticated/create'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/profile'
+    | '/_authenticated/activity/$id'
+    | '/_authenticated/habit/$id'
+    | '/_authenticated/meal/$id'
+    | '/_authenticated/water/$id'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  LoginRoute: typeof LoginRoute
+}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
@@ -91,76 +154,74 @@ declare module '@tanstack/react-router' {
       id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthenticatedImport
-      parentRoute: typeof rootRoute
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof LoginImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/create': {
       id: '/_authenticated/create'
       path: '/create'
       fullPath: '/create'
-      preLoaderRoute: typeof AuthenticatedCreateImport
-      parentRoute: typeof AuthenticatedImport
+      preLoaderRoute: typeof AuthenticatedCreateRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardImport
-      parentRoute: typeof AuthenticatedImport
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
       fullPath: '/profile'
-      preLoaderRoute: typeof AuthenticatedProfileImport
-      parentRoute: typeof AuthenticatedImport
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/activity/$id': {
       id: '/_authenticated/activity/$id'
       path: '/activity/$id'
       fullPath: '/activity/$id'
-      preLoaderRoute: typeof AuthenticatedActivityIdImport
-      parentRoute: typeof AuthenticatedImport
+      preLoaderRoute: typeof AuthenticatedActivityIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/habit/$id': {
       id: '/_authenticated/habit/$id'
       path: '/habit/$id'
       fullPath: '/habit/$id'
-      preLoaderRoute: typeof AuthenticatedHabitIdImport
-      parentRoute: typeof AuthenticatedImport
+      preLoaderRoute: typeof AuthenticatedHabitIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/meal/$id': {
       id: '/_authenticated/meal/$id'
       path: '/meal/$id'
       fullPath: '/meal/$id'
-      preLoaderRoute: typeof AuthenticatedMealIdImport
-      parentRoute: typeof AuthenticatedImport
+      preLoaderRoute: typeof AuthenticatedMealIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/water/$id': {
       id: '/_authenticated/water/$id'
       path: '/water/$id'
       fullPath: '/water/$id'
-      preLoaderRoute: typeof AuthenticatedWaterIdImport
-      parentRoute: typeof AuthenticatedImport
+      preLoaderRoute: typeof AuthenticatedWaterIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
-
-// Create and export the route tree
 
 interface AuthenticatedRouteChildren {
   AuthenticatedCreateRoute: typeof AuthenticatedCreateRoute
@@ -186,159 +247,11 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '': typeof AuthenticatedRouteWithChildren
-  '/login': typeof LoginRoute
-  '/create': typeof AuthenticatedCreateRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/profile': typeof AuthenticatedProfileRoute
-  '/activity/$id': typeof AuthenticatedActivityIdRoute
-  '/habit/$id': typeof AuthenticatedHabitIdRoute
-  '/meal/$id': typeof AuthenticatedMealIdRoute
-  '/water/$id': typeof AuthenticatedWaterIdRoute
-}
-
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '': typeof AuthenticatedRouteWithChildren
-  '/login': typeof LoginRoute
-  '/create': typeof AuthenticatedCreateRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/profile': typeof AuthenticatedProfileRoute
-  '/activity/$id': typeof AuthenticatedActivityIdRoute
-  '/habit/$id': typeof AuthenticatedHabitIdRoute
-  '/meal/$id': typeof AuthenticatedMealIdRoute
-  '/water/$id': typeof AuthenticatedWaterIdRoute
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/login': typeof LoginRoute
-  '/_authenticated/create': typeof AuthenticatedCreateRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/profile': typeof AuthenticatedProfileRoute
-  '/_authenticated/activity/$id': typeof AuthenticatedActivityIdRoute
-  '/_authenticated/habit/$id': typeof AuthenticatedHabitIdRoute
-  '/_authenticated/meal/$id': typeof AuthenticatedMealIdRoute
-  '/_authenticated/water/$id': typeof AuthenticatedWaterIdRoute
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | ''
-    | '/login'
-    | '/create'
-    | '/dashboard'
-    | '/profile'
-    | '/activity/$id'
-    | '/habit/$id'
-    | '/meal/$id'
-    | '/water/$id'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | ''
-    | '/login'
-    | '/create'
-    | '/dashboard'
-    | '/profile'
-    | '/activity/$id'
-    | '/habit/$id'
-    | '/meal/$id'
-    | '/water/$id'
-  id:
-    | '__root__'
-    | '/'
-    | '/_authenticated'
-    | '/login'
-    | '/_authenticated/create'
-    | '/_authenticated/dashboard'
-    | '/_authenticated/profile'
-    | '/_authenticated/activity/$id'
-    | '/_authenticated/habit/$id'
-    | '/_authenticated/meal/$id'
-    | '/_authenticated/water/$id'
-  fileRoutesById: FileRoutesById
-}
-
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  LoginRoute: typeof LoginRoute
-}
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/_authenticated",
-        "/login"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/_authenticated": {
-      "filePath": "_authenticated.tsx",
-      "children": [
-        "/_authenticated/create",
-        "/_authenticated/dashboard",
-        "/_authenticated/profile",
-        "/_authenticated/activity/$id",
-        "/_authenticated/habit/$id",
-        "/_authenticated/meal/$id",
-        "/_authenticated/water/$id"
-      ]
-    },
-    "/login": {
-      "filePath": "login.tsx"
-    },
-    "/_authenticated/create": {
-      "filePath": "_authenticated/create.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/dashboard": {
-      "filePath": "_authenticated/dashboard.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/profile": {
-      "filePath": "_authenticated/profile.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/activity/$id": {
-      "filePath": "_authenticated/activity.$id.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/habit/$id": {
-      "filePath": "_authenticated/habit.$id.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/meal/$id": {
-      "filePath": "_authenticated/meal.$id.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/water/$id": {
-      "filePath": "_authenticated/water.$id.tsx",
-      "parent": "/_authenticated"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

@@ -52,7 +52,6 @@ export default function ManualSearchDropdown({form}: {form: UseFormReturn<FoodSc
 					mode: "cors",
 					method: "GET",
 					headers: {
-						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
 						"Content-Type": "application/json; charset=utf-8",
 					},
 				})
@@ -79,7 +78,6 @@ export default function ManualSearchDropdown({form}: {form: UseFormReturn<FoodSc
 					mode: "cors",
 					method: "GET",
 					headers: {
-						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
 						"Content-Type": "application/json; charset=utf-8",
 					},
 				})

@@ -57,7 +57,6 @@ function AddingForm({selectedType}: {
 					mode: "cors",
 					method: "POST",
 					headers: {
-						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
 						"Content-Type": "application/json; charset=utf-8",
 					},
 					body: JSON.stringify(values),

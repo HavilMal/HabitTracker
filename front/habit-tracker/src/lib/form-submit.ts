@@ -10,7 +10,6 @@ export async function onSubmit<T, K extends Habit, J extends FieldValues>(values
 				mode: "cors",
 				method: "POST",
 				headers: {
-					"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
 					"Content-Type": "application/json; charset=utf-8",
 				},
 				body: JSON.stringify({...values, type: data.type, habit_id: data.id}),
