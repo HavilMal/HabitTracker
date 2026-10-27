@@ -94,8 +94,12 @@ HabitTracker/
 │   ├── src/
 │   │   ├── app/                    # Main Flask app logic (models, views, authentication, etc.)
 │   │   ├── instance/               # Flask instance-specific config (e.g., SQLiteDB)
+│   │   ├── myenv/                  # Python virtual environment (should be in .gitignore)
 │   │   ├── run.py                  # Entry point to run the Flask app
-│   │   └── .gitignore              # Ignore unnecessary files in backend source
+│   │   ├── .gitignore              # Ignore unnecessary files in backend source
+│   │   ├── .env                    # Environment variables for backend
+│   │   ├── .env.example            # Example environment variables for backend
+│   │   └── requirements.txt        # Python dependencies for backend (install with pip)
 │   └── .gitignore                  # Backend-level ignored files
 ├── front/
 │   └── habit-tracker/             # Frontend application (React + TypeScript + Vite)
@@ -105,6 +109,7 @@ HabitTracker/
 │       ├── .cta.json              # Custom configuration (project-specific)
 │       ├── .cursorrules           # Optional plugin or editor rule definitions
 │       ├── .env                   # Environment variables for frontend (e.g., VITE_API_URL)
+│       ├── .env.example           # Example environment variables for frontend
 │       ├── .gitignore             # Ignore node_modules, build files, env vars, etc.
 │       ├── components.json        # Component registry (used by some tools/editors)
 │       ├── index.html             # Main HTML template loaded by Vite/React
@@ -113,26 +118,24 @@ HabitTracker/
 │       ├── README.md              # (Optional) frontend-specific documentation
 │       ├── tsconfig.json          # TypeScript configuration
 │       └── vite.config.js         # Vite build/server configuration
-├── myenv/                         # Python virtual environment (should be in .gitignore)
 ├── .gitignore                     # Global gitignore (venv, IDE files, etc.)
-├── README.md                      # Main project documentation
-└── requirements.txt               # Python dependencies for backend (install with pip)
+└── README.md                      # Main project documentation
 ```
 
 ## Screenshots
 - Dashboard
-  ![Dashboard](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/image.png)
+  ![Dashboard](screenshots/image.png)
 ### Habit completion examples
 - Yes/no habit:
-  ![Yes/no habit](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/Zrzut_ekranu_2025-06-25_150510.png)
+  ![Yes/no habit](screenshots/Zrzut_ekranu_2025-06-25_150510.png)
 - Measurement habit:
-  ![Measurement habit](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/Zrzut_ekranu_2025-06-25_150522.png)
+  ![Measurement habit](screenshots/Zrzut_ekranu_2025-06-25_150522.png)
 - Activity habit:
-  ![Activity habit](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/Zrzut_ekranu_2025-06-25_150537.png)
+  ![Activity habit](screenshots/Zrzut_ekranu_2025-06-25_150537.png)
 - Drinking water habit:
-  ![Drinking water habit](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/Zrzut_ekranu_2025-06-25_150549.png)
+  ![Drinking water habit](screenshots/Zrzut_ekranu_2025-06-25_150549.png)
 - Eating habit:
-  ![Eating habit](https://github.com/HavilMal/HabitTracker/blob/b41c0302f761084b75f1a29065b588259dfcc5a5/screenshots/Zrzut_ekranu_2025-06-25_150605.png)
+  ![Eating habit](screenshots/Zrzut_ekranu_2025-06-25_150605.png)
 
 ## Notes
 This project was developed as a part of the “Języki Skryptowe” (Scripting Languages) course at Wrocław University of Science and Technology (Politechnika Wrocławska).

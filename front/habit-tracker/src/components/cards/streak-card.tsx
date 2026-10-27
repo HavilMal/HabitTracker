@@ -59,7 +59,6 @@ export function StreakChart({className}: { className?: string }) {
 			mode: "cors",
 			method: "GET",
 			headers: {
-				"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
 				"Content-Type": "application/json; charset=utf-8",
 			},
 		});

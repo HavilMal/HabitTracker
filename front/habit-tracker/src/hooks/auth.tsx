@@ -1,5 +1,4 @@
 import {createContext, useState, useCallback, useEffect, type ReactNode, useContext} from "react";
-import {useHabits} from "@/hooks/habit-provider.tsx";
 import {useQueryClient} from "@tanstack/react-query";
 
 export interface AuthContext {
@@ -40,7 +39,6 @@ export function AuthProvider({children}: { children: ReactNode }) {
 					mode: "cors",
 					method: "POST",
 					headers: {
-						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
 						"Content-Type": "application/json; charset=utf-8",
 					},
 					body: JSON.stringify({"username": username, "password": password}),
@@ -66,7 +64,6 @@ export function AuthProvider({children}: { children: ReactNode }) {
 					mode: "cors",
 					method: "POST",
 					headers: {
-						"Access-Control-Allow-Origin": import.meta.env.VITE_API_URL,
 						"Content-Type": "application/json; charset=utf-8",
 					},
 					body: JSON.stringify({"username": username, "password": password}),

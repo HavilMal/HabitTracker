@@ -17,14 +17,13 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
-  // TODO: should we add it there like this or not?
-  // server: {
-  //   proxy: {
-  //     '/api': {
-  //       target: 'http://127.0.0.1:5000',
-  //       changeOrigin: true,
-  //       secure: false,
-  //     }
-  //   }
-  // }
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:5000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 });
