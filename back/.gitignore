@@ -115,4 +115,6 @@ fabric.properties
 
 __pycache__/
 
+instance/app.db
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,pycharm+all
