@@ -30,6 +30,7 @@ Create a `.env` file in the `back/` directory with the following content:
 ```env
 DB_API_KEY=your_usda_api_key_here
 SECRET_KEY=your_flask_secret_key
+SQLALCHEMY_DB_URI=sqlite:///app.db
 ```
 
 ### Backend setup (Flask)
@@ -52,6 +53,14 @@ export FLASK_APP=src/run.py
 flask run
 ```
 
+### Frontend (`front/habit-tracker/.env`)
+
+Create a `.env` file in the `front/habit-tracker/` directory with the following content:
+
+```env
+VITE_API_URL=/api/
+```
+
 ### Frontend setup (React)
 ```bash
 cd HabitTracker/front/habit-tracker
@@ -69,6 +78,7 @@ npm run dev
 - `charset-normalizer==3.4.2`
 - `click==8.2.1`
 - `dnspython==2.7.0`
+- `dotenv==0.9.9`
 - `email_validator==2.2.0`
 - `Flask==3.1.1`
 - `flask-cors==6.0.0`
@@ -79,12 +89,13 @@ npm run dev
 - `itsdangerous==2.2.0`
 - `Jinja2==3.1.6`
 - `MarkupSafe==3.0.2`
+- `python-dotenv==1.2.4`
 - `requests==2.32.3`
 - `SQLAlchemy==2.0.41`
 - `typing_extensions==4.14.0`
 - `urllib3==2.4.0`
 - `Werkzeug==3.1.3`
-- `dotenv==0.9.9`
+- `WTForms==3.3.1`
 
 ## Project structure
 ```bash
