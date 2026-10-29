@@ -60,5 +60,10 @@
     "vite": "^6.1.0",
     "vitest": "^5.0.5",
     "web-vitals": "^4.2.4"
+  },
+  "allowScripts": {
+    "@tailwindcss/oxide@4.1.8": true,
+    "esbuild@0.25.5": true,
+    "fsevents@2.3.3": true
   }
 }
